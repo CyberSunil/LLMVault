@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/banner.png" alt="LLMVault Banner" width="100%">
+</p>
+
 # 🔐 LLMVault
 
 [![CI](https://github.com/CyberSunil/LLMVault/actions/workflows/ci.yml/badge.svg)](https://github.com/CyberSunil/LLMVault/actions/workflows/ci.yml)
