@@ -179,7 +179,6 @@ challenges/
 templates/  static/          # dark violet UI + completion card + expert key gate
 Dockerfile  docker-compose.yml  # containerised deploy
 LICENSE                     # MIT + security notice
-SOLUTIONS.md                # 🔒 all 20 flags + walkthroughs + defenses (git-ignored)
 ```
 
 Each challenge is a `Challenge` subclass with a `respond(message, state)` that encodes the vuln; advanced labs use the persistent `state` dict for multi-turn logic. Add your own by dropping a module in `challenges/` (or `challenges/advanced/`) and registering it.
