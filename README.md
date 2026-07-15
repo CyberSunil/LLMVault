@@ -4,13 +4,21 @@
 
 # 🔐 LLMVault
 
-[![CI](https://github.com/CyberSunil/LLMVault/actions/workflows/ci.yml/badge.svg)](https://github.com/CyberSunil/LLMVault/actions/workflows/ci.yml)
-![OWASP](https://img.shields.io/badge/OWASP-LLM%20Top%2010%20(2025)-8b5cf6)
-![Labs](https://img.shields.io/badge/labs-25%20(10%20core%20%2B%2010%20advanced%20%2B%205%20expert)-ec4899)
-![Python](https://img.shields.io/badge/python-3.10%2B-blue)
-![Flask](https://img.shields.io/badge/flask-3.x-38bdf8)
-![License](https://img.shields.io/badge/license-MIT-green)
-![Status](https://img.shields.io/badge/status-intentionally%20vulnerable-red)
+<p align="center">
+
+<img src="https://img.shields.io/github/stars/CyberSunil/LLMVault?style=for-the-badge">
+
+<img src="https://img.shields.io/github/forks/CyberSunil/LLMVault?style=for-the-badge">
+
+<img src="https://img.shields.io/github/license/CyberSunil/LLMVault?style=for-the-badge">
+
+<img src="https://img.shields.io/github/last-commit/CyberSunil/LLMVault?style=for-the-badge">
+
+<img src="https://img.shields.io/badge/OWASP-LLM%20Top%2010-purple?style=for-the-badge">
+
+<img src="https://img.shields.io/badge/Docker-Ready-blue?style=for-the-badge">
+
+</p>
 
 A deliberately-vulnerable, CTF-style **training range for the OWASP Top 10 for LLM Applications (2025)** — WebGoat / KubeGoat, but for AI. **25 labs across three tiers:** ten core one-per-category labs; ten **advanced, multi-turn** labs (jailbreaking, data poisoning, agent exploitation, model extraction); and five **expert** labs modelling real-world attack classes. Each tier unlocks the next.
 
