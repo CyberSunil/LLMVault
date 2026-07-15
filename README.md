@@ -58,7 +58,7 @@ These are **conversational**: no single message wins — they require building s
 | LLM10 | The Oracle | **query-based model extraction** |
 
 
-## 🧨 Expert tier — real-world attack classes (unlocks after all advanced solved)
+## ⚔️ Expert Tier — Real-World Attack Classes (unlocked after all Advanced challenges are solved)
 
 Five **expert** labs modelling real-world, disclosed-vulnerability attack classes against LLM systems. Each is **simulated** — the app recognises the known payload and returns a flag; no real RCE/SSRF/SQL happens in the tool.
 
