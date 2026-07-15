@@ -10,6 +10,12 @@ The Ultimate Hands-On OWASP LLM Top 10 Training Platform
 
 </h3>
 
+## 🎬 Demo
+
+<p align="center">
+<img src="docs/demo.gif" width="100%">
+</p>
+
 <p align="center">
 
 Learn • Exploit • Defend
