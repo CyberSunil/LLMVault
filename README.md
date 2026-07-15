@@ -13,13 +13,7 @@ The Ultimate Hands-On OWASP LLM Top 10 Training Platform
 ## 🎬 Demo
 
 <p align="center">
-  <a href="./docs/demo.gif">
-    <img src="./docs/preview.png" alt="LLMVault Demo" width="700">
-  </a>
-</p>
-
-<p align="center">
-  <sub>Click the preview to watch the full demo.</sub>
+  <img src="./docs/demo.gif" width="650" alt="LLMVault Demo">
 </p>
 
 <p align="center">
