@@ -14,9 +14,13 @@
 
 <img src="https://img.shields.io/github/last-commit/CyberSunil/LLMVault?style=for-the-badge">
 
-<img src="https://img.shields.io/badge/OWASP-LLM%20Top%2010-purple?style=for-the-badge">
+<img src="https://img.shields.io/github/issues/CyberSunil/LLMVault?style=for-the-badge">
 
-<img src="https://img.shields.io/badge/Docker-Ready-blue?style=for-the-badge">
+<img src="https://img.shields.io/badge/OWASP-LLM%20Top%2010-8A2BE2?style=for-the-badge">
+
+<img src="https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white">
+
+<img src="https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white">
 
 </p>
 
