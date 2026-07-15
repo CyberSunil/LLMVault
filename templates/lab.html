@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+{% block title %}{{ c.title }} — {{ app_name }}{% endblock %}
+{% block nav_labs %}active{% endblock %}
+{% block content %}
+<a href="{{ url_for('labs') }}" class="backlink">← Back to labs</a>
+<div class="topbar">
+  <div>
+    <div class="lab-owasp">{{ c.owasp }}</div>
+    <h1 class="grad">{{ c.title }}</h1>
+    <p class="muted">{{ c.blurb }}</p>
+    <span class="diff {{ c.difficulty|lower }}">{{ c.difficulty }} · Max {{ c.max_points }} pts</span>
+  </div>
+  <div class="scorecard">
+    <div class="score {{ 'neg' if score < 0 else '' }}" id="score">{{ score }}</div>
+    <div class="score-cap">Total Score</div>
+  </div>
+</div>
+
+{% if c.render_html %}<div class="secret-flag" style="display:none">🚩 Hidden element revealed via your injection — {{ c.flag }}</div>{% endif %}
+
+<div class="lab-body">
+  <section class="chat-wrap">
+    <div class="chat-head">
+      <span>Assistant</span>
+    </div>
+    <div class="chat" id="chat">
+      <div class="sys">{{ c.intro }}</div>
+    </div>
+    <div class="composer">
+      <input id="msg" placeholder="Type a message to the assistant..." autocomplete="off">
+      <button id="send">Send</button>
+    </div>
+  </section>
+
+  <aside class="side">
+    <div class="panel">
+      <h3>Submit Flag</h3>
+      <input id="flag" placeholder="{{ prefix }}{...}" autocomplete="off">
+      <button id="submit" class="primary">Submit</button>
+      <div id="result" class="result"></div>
+    </div>
+
+    <div class="panel learn {{ '' if solved else 'hidden' }}" id="learnPanel">
+      <h3>📘 Learn — the fix</h3>
+      <p class="learn-text">{{ c.defense }}</p>
+    </div>
+
+    <div class="panel">
+      <h3>Hints <span class="muted" id="hintcount">({{ hints_used }}/{{ c.hints|length }})</span></h3>
+      <div id="hints">
+        {% for h in c.hints %}
+          {% set cost = hint_costs[loop.index0] if loop.index0 < hint_costs|length else hint_costs[-1] %}
+          <div class="hint" data-i="{{ loop.index0 }}">
+            {% if loop.index0 < hints_used %}<b>Hint {{ loop.index }}:</b> {{ h }}
+            {% elif loop.index0 == hints_used %}<button class="hintbtn" data-i="{{ loop.index0 }}">Reveal hint {{ loop.index }} (−{{ cost }})</button>
+            {% else %}<span class="hint-locked">🔒 Hint {{ loop.index }} (−{{ cost }}) — reveal the previous hint first</span>{% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </aside>
+</div>
+
+<!-- one-time guided tutorial -->
+<div class="modal-overlay" id="tut" style="display:none">
+  <div class="modal">
+    <div class="modal-emoji">🎯</div>
+    <h2>How a lab works</h2>
+    <p class="muted" style="text-align:left">
+      <b>1. Chat</b> with the assistant on the left — each bot has one hidden flaw.<br>
+      <b>2. Exploit</b> that flaw (the OWASP category in the title is your clue) to make it leak its flag.<br>
+      <b>3. Submit</b> the <code>{{ prefix }}{...}</code> flag on the right to score.<br>
+      <b>Stuck?</b> Reveal hints one at a time (costs escalate). After you solve it, a <b>Learn</b> panel shows the fix.
+    </p>
+    <button class="primary" id="tutClose">Got it — let's hack</button>
+  </div>
+</div>
+
+<script>
+const CID = "{{ c.id }}";
+const chat = document.getElementById('chat');
+function add(who, text, asHtml){
+  const d = document.createElement('div'); d.className = who;
+  if(asHtml){ d.innerHTML = text; } else { d.textContent = text; }
+  chat.appendChild(d); chat.scrollTop = chat.scrollHeight;
+}
+async function send(){
+  const el = document.getElementById('msg'); const m = el.value.trim(); if(!m) return;
+  add('me', m, false); el.value='';
+  const r = await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({cid:CID, message:m})});
+  const j = await r.json();
+  add('bot', j.reply, j.render_html === true);
+}
+document.getElementById('send').onclick = send;
+document.getElementById('msg').addEventListener('keydown', e=>{ if(e.key==='Enter') send(); });
+
+document.getElementById('submit').onclick = async ()=>{
+  const flag = document.getElementById('flag').value;
+  const r = await fetch('/api/submit',{method:'POST',headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({cid:CID, flag})});
+  const j = await r.json();
+  const res = document.getElementById('result');
+  res.textContent = j.correct ? '✓ Correct! Flag captured.' : '✗ Not quite — keep trying.';
+  res.className = 'result ' + (j.correct ? 'ok' : 'bad');
+  document.getElementById('score').textContent = j.score;
+  if(j.correct){ document.getElementById('learnPanel').classList.remove('hidden'); }
+  if(j.correct && j.prereq_done){ setTimeout(()=>showCard('master'), 650); }
+  else if(j.correct && j.core_done){ setTimeout(()=>showCard('beginner'), 650); }
+};
+
+const TOTAL_HINTS = {{ c.hints|length }};
+const HINT_COSTS = {{ hint_costs|tojson }};
+function hintCost(i){ return HINT_COSTS[Math.min(i, HINT_COSTS.length-1)]; }
+function wireHint(btn){
+  btn.onclick = async ()=>{
+    const i = +btn.dataset.i;
+    const r = await fetch('/api/hint',{method:'POST',headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({cid:CID, index:i})});
+    const j = await r.json();
+    if(j.error){ return; }               // server also blocks out-of-order
+    const div = btn.parentElement;
+    div.innerHTML = '<b>Hint '+(i+1)+':</b> ' + j.hint;
+    document.getElementById('score').textContent = j.score;
+    document.getElementById('hintcount').textContent = '('+j.used+'/'+TOTAL_HINTS+')';
+    const next = document.querySelector('.hint[data-i="'+(i+1)+'"]');
+    if(next){
+      next.innerHTML = '<button class="hintbtn" data-i="'+(i+1)+'">Reveal hint '+(i+2)+' (−'+hintCost(i+1)+')</button>';
+      wireHint(next.querySelector('.hintbtn'));
+    }
+  };
+}
+document.querySelectorAll('.hintbtn').forEach(wireHint);
+
+// one-time tutorial (per browser)
+try {
+  if(!localStorage.getItem('llmvault_tut_done')){
+    document.getElementById('tut').style.display = 'flex';
+  }
+} catch(e){}
+document.getElementById('tutClose').onclick = ()=>{
+  document.getElementById('tut').style.display = 'none';
+  try { localStorage.setItem('llmvault_tut_done','1'); } catch(e){}
+};
+</script>
+
+<!-- milestone popups: green Beginner (Core done) / blue Master (Core+Advanced done) -->
+<div class="modal-overlay" id="beginnerModal" style="display:none">
+  <div class="modal card-modal">
+    <div class="cm-congrats">🎉 Core complete — <b>Beginner</b> unlocked!</div>
+    <div class="card-wrap" id="cardBeginner"></div>
+    <textarea class="cm-cap" id="capBeginner" rows="4" readonly>{{ cap_beginner }}</textarea>
+    <div class="done-btns">
+      <button class="primary" onclick="dlCard('beginner','png')">⬇ Download card</button>
+      <a class="sharebtn" href="{{ url_for('completion') }}">🎓 Full card</a>
+      <button class="sharebtn" onclick="cmCopy('capBeginner')">Copy caption</button>
+      <a class="sharebtn li" target="_blank" id="liBeginner">LinkedIn</a>
+      <a class="sharebtn tw" target="_blank" id="twBeginner">X</a>
+    </div>
+    <button class="linklike" onclick="cmClose('beginner')">Maybe later</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="masterModal" style="display:none">
+  <div class="modal card-modal">
+    <div class="cm-congrats">🏆 All 20 done — <b>Master</b> achieved! Share &amp; tag {{ author }} for the Expert key.</div>
+    <div class="card-wrap" id="cardMaster"></div>
+    <textarea class="cm-cap" id="capMaster" rows="4" readonly>{{ cap_master }}</textarea>
+    <div class="done-btns">
+      <button class="primary" onclick="dlCard('master','png')">⬇ Download card</button>
+      <a class="sharebtn" href="{{ url_for('completion') }}">🎓 Full card</a>
+      <button class="sharebtn" onclick="cmCopy('capMaster')">Copy caption</button>
+      <a class="sharebtn li" target="_blank" id="liMaster">LinkedIn</a>
+      <a class="sharebtn tw" target="_blank" id="twMaster">X</a>
+    </div>
+    <button class="linklike" onclick="cmClose('master')">Maybe later</button>
+  </div>
+</div>
+<script>
+const CAP = { beginner: {{ cap_beginner|tojson }}, master: {{ cap_master|tojson }} };
+async function showCard(kind){
+  try { if(localStorage.getItem('llmvault_'+kind+'_shown_v3')) return; } catch(e){}
+  const cap = CAP[kind];
+  const suffix = kind.charAt(0).toUpperCase()+kind.slice(1);
+  document.getElementById('li'+suffix).href =
+    'https://www.linkedin.com/feed/?shareActive=true&text=' + encodeURIComponent(cap);
+  document.getElementById('tw'+suffix).href =
+    'https://twitter.com/intent/tweet?text=' + encodeURIComponent(cap);
+  try {
+    const svg = await (await fetch('/card.svg?v='+kind)).text();
+    document.getElementById('card'+suffix).innerHTML = svg;
+  } catch(e){}
+  document.getElementById(kind+'Modal').style.display = 'flex';
+}
+function cmCopy(id){ navigator.clipboard.writeText(document.getElementById(id).value); }
+async function dlCard(variant, fmt){
+  const svgText = await (await fetch('/card.svg?v='+variant)).text();
+  if(fmt==='svg'){
+    const a=document.createElement('a');
+    a.href='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svgText);
+    a.download='LLMVault-'+variant+'-card.svg'; a.click(); return;
+  }
+  const blob=new Blob([svgText],{type:'image/svg+xml'}), url=URL.createObjectURL(blob), img=new Image();
+  img.onload=()=>{
+    const scale=2, c=document.createElement('canvas');
+    c.width=(img.naturalWidth||960)*scale; c.height=(img.naturalHeight||620)*scale;
+    const ctx=c.getContext('2d'); ctx.scale(scale,scale); ctx.drawImage(img,0,0);
+    c.toBlob(b=>{ const a=document.createElement('a'); a.href=URL.createObjectURL(b);
+      a.download='LLMVault-'+variant+'-card.png'; a.click(); URL.revokeObjectURL(url); },'image/png');
+  };
+  img.src=url;
+}
+function cmClose(kind){
+  document.getElementById(kind+'Modal').style.display = 'none';
+  try { localStorage.setItem('llmvault_'+kind+'_shown_v3','1'); } catch(e){}
+}
+</script>
+{% endblock %}

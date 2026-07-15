@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.git/
+.gitignore
+SOLUTIONS.md
+_OPERATOR_ONLY/
+EXPERT_KEY.txt
+build_expert_vault.py
+*.md.bak
+data/

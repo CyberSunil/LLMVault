@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}{{ app_name }}{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar">
+    <div class="brand">{{ app_emoji }} <span>{{ app_name }}</span></div>
+    <nav>
+      <a href="{{ url_for('labs') }}" class="{% block nav_labs %}{% endblock %}">🏠 Labs</a>
+      <a href="{{ url_for('scoreboard') }}" class="{% block nav_score %}{% endblock %}">🏆 Scoreboard</a>
+    </nav>
+    <div class="sidenote">OWASP Top 10<br>for LLM Apps · 2025</div>
+    <div class="credit">Made by <b>{{ author }}</b><br><span>{{ copyright }}</span></div>
+    <div class="warn">⚠ Intentionally vulnerable.<br>Authorised training only.</div>
+  </aside>
+  <main class="content">
+    {% block content %}{% endblock %}
+  </main>
+</div>
+
+{% if needs_name %}
+<div class="modal-overlay" id="nameGate">
+  <div class="modal">
+    <div class="modal-emoji">{{ app_emoji }}</div>
+    <h2>Welcome to {{ app_name }}</h2>
+    <p class="muted">Enter a name to track your progress on the scoreboard.<br>
+       <b>This is locked once you set it.</b></p>
+    <input id="nameInput" placeholder="Your name or handle" maxlength="10" autocomplete="off">
+    <button id="nameGo" class="primary">Start hacking →</button>
+    <div class="modal-credit">Made by {{ author }} · {{ copyright }}</div>
+  </div>
+</div>
+<script>
+  const go = document.getElementById('nameGo');
+  const inp = document.getElementById('nameInput');
+  inp.focus();
+  go.onclick = async () => {
+    const n = inp.value.trim();
+    if(!n){ inp.focus(); return; }
+    const r = await fetch('/api/setname', {method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({name:n})});
+    if(r.ok){ location.reload(); }
+  };
+  inp.addEventListener('keydown', e => { if(e.key==='Enter') go.click(); });
+</script>
+{% endif %}
+</body>
+</html>

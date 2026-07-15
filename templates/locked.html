@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Locked — {{ app_name }}{% endblock %}
+{% block content %}
+<div class="locked-page">
+  <div class="lock-big">🔒</div>
+  <h1 class="grad">Lab locked</h1>
+  <p class="muted">Clear all {{ need_name }} labs to unlock this tier.</p>
+  <p class="progress-pill">{{ solved }}/{{ total }} {{ need_name }} labs solved</p>
+  <a href="{{ url_for('labs') }}"><button class="primary">← Back to labs</button></a>
+</div>
+{% endblock %}

@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+title: "LLMVault: An OWASP LLM Top 10 Training Range"
+message: "If you use LLMVault, please cite it and credit the author."
+type: software
+authors:
+  - alias: CyberSunil
+    name: CyberSunil
+repository-code: "https://github.com/CyberSunil/LLMVault"
+abstract: >-
+  LLMVault is a deliberately-vulnerable, CTF-style web application for practising
+  the OWASP Top 10 for LLM Applications (2025): 25 labs across core, advanced
+  (multi-turn), and encrypted expert tiers, each pairing an attack with its defense.
+keywords:
+  - LLM security
+  - OWASP
+  - prompt injection
+  - AI red teaming
+  - security training
+license: MIT
+year: 2026

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Scoreboard — {{ app_name }}{% endblock %}
+{% block nav_score %}active{% endblock %}
+{% block content %}
+<div class="topbar"><div><h1 class="grad">Scoreboard</h1>
+  <p class="muted">Ranked by score. Each player = one browser session.</p></div></div>
+<div class="panel">
+  <table class="board">
+    <thead><tr><th>#</th><th>Player</th><th>Solved</th><th>Score</th></tr></thead>
+    <tbody>
+      {% for r in rows %}
+      <tr><td>{{ loop.index }}</td><td>{{ r.name }}</td>
+          <td>{{ r.solved }}/{{ total }}</td>
+          <td class="{{ 'neg' if r.score < 0 else 'pos' }}">{{ r.score }}</td></tr>
+      {% else %}
+      <tr><td colspan="4" class="muted">No players yet — go solve a lab.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

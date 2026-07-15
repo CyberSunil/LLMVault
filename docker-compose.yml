@@ -1,0 +1,11 @@
+services:
+  llmvault:
+    build: .
+    image: llmvault:latest
+    container_name: llmvault
+    ports:
+      - "5000:5000"          # use "127.0.0.1:5000:5000" to keep it local-only
+    volumes:
+      - ./data:/app/data     # progress survives container recreation
+    restart: unless-stopped
+    # This app is INTENTIONALLY VULNERABLE. Do not expose it to the public internet.

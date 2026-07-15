@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+
+# Operator-only secrets — NEVER commit
+SOLUTIONS.md
+_OPERATOR_ONLY/
+EXPERT_KEY.txt
+build_expert_vault.py
+
+# runtime progress (self-host)
+data/

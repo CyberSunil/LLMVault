@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="620" viewBox="0 0 1000 620" font-family="'Segoe UI',system-ui,sans-serif">
+  <rect width="1000" height="620" fill="#0a0e1a"/>
+  <rect width="215" height="620" fill="#0d1327"/>
+  <rect x="1" y="0" width="1" height="620" fill="#232f52"/>
+  <text x="24" y="46" fill="#a78bfa" font-size="21" font-weight="700">🔐 LLMVault</text>
+  <rect x="16" y="78" width="183" height="26" rx="7" fill="#182142" opacity="0.6"/>
+  <text x="24" y="96" fill="#e9ecf6" font-size="14" font-weight="600">Labs</text>
+  <text x="24" y="126" fill="#8b95b5" font-size="14">Scoreboard</text>
+  <text x="24" y="560" fill="#5c6788" font-size="11">OWASP Top 10 · 2025</text>
+  <rect x="24" y="576" width="34" height="19" rx="10" fill="#34d399"/><circle cx="49" cy="585" r="7" fill="#fff"/>
+  <text x="66" y="590" fill="#8b95b5" font-size="11">Live model on</text>
+  <text x="250" y="52" fill="#a78bfa" font-size="27" font-weight="700">LLM Attack Labs</text>
+  <text x="250" y="78" fill="#8b95b5" font-size="13">Ten core labs across the OWASP LLM Top 10, then locked advanced &amp; expert tiers.</text>
+  <rect x="840" y="30" width="130" height="60" rx="12" fill="#121a30" stroke="#232f52"/>
+  <text x="905" y="62" fill="#a78bfa" font-size="24" font-weight="700" text-anchor="middle">2400</text>
+  <text x="905" y="80" fill="#8b95b5" font-size="10" text-anchor="middle">TOTAL SCORE</text>
+  <rect x="250" y="104" width="20" height="3" rx="2" fill="#8b5cf6"/>
+  <text x="280" y="112" fill="#e9ecf6" font-size="16" font-weight="600">Core Labs</text>
+  <rect x="250" y="128" width="230" height="104" rx="14" fill="#0d1327" stroke="#232f52"/>
+  <text x="266" y="152" fill="#38bdf8" font-size="10" font-family="monospace">LLM01:2025 Prompt Injection</text>
+  <text x="266" y="176" fill="#e9ecf6" font-size="15" font-weight="600">The Obedient Assistant</text>
+  <text x="266" y="197" fill="#8b95b5" font-size="11">Make it follow your instructions.</text>
+  <rect x="266" y="205" width="96" height="18" rx="9" fill="#182142"/><text x="274" y="218" fill="#34d399" font-size="9">Easy · 100 pts</text>
+  <rect x="500" y="128" width="230" height="104" rx="14" fill="#0d1327" stroke="#34d399" stroke-opacity="0.5"/>
+  <text x="516" y="152" fill="#38bdf8" font-size="10" font-family="monospace">LLM07:2025 Prompt Leakage</text>
+  <text x="516" y="176" fill="#e9ecf6" font-size="15" font-weight="600">Loose Lips</text>
+  <text x="516" y="197" fill="#8b95b5" font-size="11">Coax the system prompt's secret out.</text>
+  <text x="690" y="150" fill="#34d399" font-size="11">✓ solved</text>
+  <rect x="516" y="205" width="110" height="18" rx="9" fill="#182142"/><text x="524" y="218" fill="#34d399" font-size="9">Medium · 200 pts</text>
+  <rect x="750" y="128" width="220" height="104" rx="14" fill="#0d1327" stroke="#232f52"/>
+  <text x="766" y="152" fill="#38bdf8" font-size="10" font-family="monospace">LLM10:2025 Unbounded</text>
+  <text x="766" y="176" fill="#e9ecf6" font-size="15" font-weight="600">Denial of Wallet</text>
+  <text x="766" y="197" fill="#8b95b5" font-size="11">Drive runaway generation cost.</text>
+  <rect x="766" y="205" width="110" height="18" rx="9" fill="#182142"/><text x="774" y="218" fill="#34d399" font-size="9">Medium · 300 pts</text>
+  <rect x="250" y="262" width="20" height="3" rx="2" fill="#ec4899"/>
+  <text x="280" y="270" fill="#ec4899" font-size="16" font-weight="600">Advanced Labs</text>
+  <text x="280" y="290" fill="#34d399" font-size="12">✓ Unlocked — multi-turn challenges. Go deep.</text>
+  <rect x="250" y="302" width="230" height="96" rx="14" fill="#150f26" stroke="#232f52"/>
+  <text x="266" y="326" fill="#38bdf8" font-size="10" font-family="monospace">LLM01 · Jailbreak</text>
+  <text x="266" y="350" fill="#e9ecf6" font-size="15" font-weight="600">Roleplay Unchained</text>
+  <text x="266" y="372" fill="#8b95b5" font-size="11">Escalate a persona over turns.</text>
+  <rect x="500" y="302" width="230" height="96" rx="14" fill="#150f26" stroke="#232f52"/>
+  <text x="516" y="326" fill="#38bdf8" font-size="10" font-family="monospace">LLM06 · Agent</text>
+  <text x="516" y="350" fill="#e9ecf6" font-size="15" font-weight="600">Confused Deputy</text>
+  <text x="516" y="372" fill="#8b95b5" font-size="11">Chain tools past the boundary.</text>
+  <rect x="750" y="302" width="220" height="96" rx="14" fill="#150f26" stroke="#232f52"/>
+  <text x="766" y="326" fill="#38bdf8" font-size="10" font-family="monospace">LLM10 · Extraction</text>
+  <text x="766" y="350" fill="#e9ecf6" font-size="15" font-weight="600">The Oracle</text>
+  <text x="766" y="372" fill="#8b95b5" font-size="11">Extract a secret via an oracle.</text>
+  <rect x="250" y="428" width="20" height="3" rx="2" fill="#f43f5e"/>
+  <text x="280" y="436" fill="#f43f5e" font-size="16" font-weight="600">🔒 Expert Labs</text>
+  <text x="280" y="456" fill="#fbbf24" font-size="12">Prerequisites met. Enter the Expert Access Key to unlock.</text>
+  <rect x="250" y="470" width="720" height="86" rx="16" fill="#1a0f16" stroke="#f43f5e" stroke-opacity="0.35"/>
+  <text x="278" y="508" font-size="26">🗝️</text>
+  <text x="320" y="502" fill="#e9ecf6" font-size="15" font-weight="600">Expert Access Key required</text>
+  <text x="320" y="524" fill="#8b95b5" font-size="11">Share your completion card and tag CyberSunil to receive the key.</text>
+  <rect x="320" y="532" width="320" height="16" rx="6" fill="#0a0e1a" stroke="#232f52"/><text x="330" y="544" fill="#5c6788" font-size="10" font-family="monospace">EXPERT-…</text>
+  <rect x="650" y="530" width="70" height="20" rx="7" fill="#8b5cf6"/><text x="685" y="544" fill="#fff" font-size="11" text-anchor="middle">Unlock</text>
+</svg>

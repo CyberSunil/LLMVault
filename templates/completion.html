@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Completion — {{ app_name }}{% endblock %}
+{% block content %}
+<div class="topbar"><div>
+  <h1 class="grad">Completion Card</h1>
+  <p class="muted">Download the card, then attach it when you post — tag {{ author }} to receive the Expert Access Key.</p>
+</div></div>
+
+<div class="card-wrap">{{ card_svg_inline|safe }}</div>
+
+<div class="share-block">
+  <h3>Share it</h3>
+  <p class="muted tiny">1) <b>Download the card</b> below. 2) <b>Copy the caption</b>. 3) Open LinkedIn/X, paste the caption and <b>attach the downloaded image</b>. (Social sites can't auto-attach an image from a link — you add it once.)</p>
+  <div class="share-row">
+    <button class="primary" onclick="dlCard('{{ variant }}','png')">⬇ Download card (PNG)</button>
+    <button class="sharebtn" onclick="dlCard('{{ variant }}','svg')">⬇ SVG</button>
+    <button class="sharebtn" onclick="copyText()">Copy caption</button>
+    <a class="sharebtn li" target="_blank" id="liBtn">Open LinkedIn</a>
+    <a class="sharebtn tw" target="_blank" id="twBtn">Open X</a>
+    <a class="sharebtn" href="{{ url_for('labs') }}">← Back to labs</a>
+  </div>
+  <textarea id="shareText" rows="6">{{ cap_master if variant == 'master' else cap_beginner }}</textarea>
+  <div id="copyMsg" class="result"></div>
+</div>
+
+<script>
+  const text = document.getElementById('shareText').value;
+  document.getElementById('liBtn').href =
+    'https://www.linkedin.com/feed/?shareActive=true&text=' + encodeURIComponent(text);
+  document.getElementById('twBtn').href =
+    'https://twitter.com/intent/tweet?text=' + encodeURIComponent(text);
+  function copyText(){
+    navigator.clipboard.writeText(document.getElementById('shareText').value).then(()=>{
+      const m=document.getElementById('copyMsg'); m.textContent='✓ Caption copied — now paste it in your post'; m.className='result ok';
+    });
+  }
+  async function dlCard(variant, fmt){
+    const svgText = await (await fetch('/card.svg?v='+variant)).text();
+    if(fmt==='svg'){
+      const a=document.createElement('a');
+      a.href='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svgText);
+      a.download='LLMVault-'+variant+'-card.svg'; a.click(); return;
+    }
+    const blob=new Blob([svgText],{type:'image/svg+xml'}), url=URL.createObjectURL(blob), img=new Image();
+    img.onload=()=>{
+      const scale=2, c=document.createElement('canvas');
+      c.width=(img.naturalWidth||960)*scale; c.height=(img.naturalHeight||620)*scale;
+      const ctx=c.getContext('2d'); ctx.scale(scale,scale); ctx.drawImage(img,0,0);
+      c.toBlob(b=>{ const a=document.createElement('a'); a.href=URL.createObjectURL(b);
+        a.download='LLMVault-'+variant+'-card.png'; a.click(); URL.revokeObjectURL(url); },'image/png');
+    };
+    img.src=url;
+  }
+</script>
+{% endblock %}

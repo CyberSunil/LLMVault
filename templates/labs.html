@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% block title %}Labs — {{ app_name }}{% endblock %}
+{% block nav_labs %}active{% endblock %}
+{% block content %}
+<div class="topbar">
+  <div>
+    <h1 class="grad">LLM Attack Labs</h1>
+    <p class="muted">Ten core labs across the OWASP LLM Top&nbsp;10, then a locked advanced tier of multi-turn challenges.</p>
+  </div>
+  <div class="scorecard">
+    <div class="score {{ 'neg' if score < 0 else '' }}">{{ score }}</div>
+    <div class="score-cap">Total Score</div>
+    <div class="score-cap">{{ prog.solved|length }}/{{ (core|length) + (advanced|length) }} solved</div>
+  </div>
+</div>
+
+{% if prereq_done %}
+<a class="completion-banner" href="{{ url_for('completion') }}">
+  🎉 You've cleared Core + Advanced — <b>view your shareable completion card</b> to get the Expert Access Key →
+</a>
+{% endif %}
+
+<div class="section-block">
+  <h2 class="section-h">Core Labs</h2>
+  <p class="section-sub">The OWASP LLM Top&nbsp;10 — one lab per category.</p>
+</div>
+<div class="lab-grid">
+  {% for c in core %}
+  <a class="lab-card {{ 'done' if c.id in prog.solved else '' }}" href="{{ url_for('lab', cid=c.id) }}">
+    <div class="lab-owasp">{{ c.owasp }}</div>
+    <div class="lab-title">{{ c.title }}</div>
+    <div class="lab-blurb">{{ c.blurb }}</div>
+    <div class="lab-foot">
+      <span class="diff {{ c.difficulty|lower }}">{{ c.difficulty }} · {{ c.max_points }} pts</span>
+      {% if c.id in prog.solved %}<span class="solved-tag">✓ solved</span>{% endif %}
+    </div>
+  </a>
+  {% endfor %}
+</div>
+
+<div class="section-block">
+  <h2 class="section-h adv-h">{% if not core_done %}🔒 {% endif %}Advanced Labs</h2>
+  {% if core_done %}
+  <p class="section-sub unlocked">✓ Unlocked — multi-turn challenges. Go deep.</p>
+  {% else %}
+  <p class="section-sub locked">Complete the Core Labs to unlock.</p>
+  {% endif %}
+</div>
+<div class="lab-grid">
+  {% for c in advanced %}
+  {% if core_done %}
+  <a class="lab-card adv {{ 'done' if c.id in prog.solved else '' }}" href="{{ url_for('lab', cid=c.id) }}">
+    <div class="lab-owasp">{{ c.owasp }}</div>
+    <div class="lab-title">{{ c.title }}</div>
+    <div class="lab-blurb">{{ c.blurb }}</div>
+    <div class="lab-foot">
+      <span class="diff {{ c.difficulty|lower }}">{{ c.difficulty }} · {{ c.max_points }} pts</span>
+      {% if c.id in prog.solved %}<span class="solved-tag">✓ solved</span>{% endif %}
+    </div>
+  </a>
+  {% else %}
+  <div class="lab-card locked">
+    <div class="lock-icon">🔒</div>
+    <div class="lab-owasp">{{ c.owasp }}</div>
+    <div class="lab-title">???</div>
+    <div class="lab-blurb">Locked — finish the core labs to reveal this advanced challenge.</div>
+    <div class="lab-foot"><span class="diff hard">Advanced · {{ c.max_points }} pts</span></div>
+  </div>
+  {% endif %}
+  {% endfor %}
+</div>
+
+<div class="section-block">
+  <h2 class="section-h exp-h">{% if not expert_unlocked %}🔒 {% endif %}Expert Labs</h2>
+  {% if expert_unlocked %}
+  <p class="section-sub expert-on">✓ Unlocked — real-world attack classes (SSRF, SSTI/RCE, indirect injection, multi-agent, text-to-SQL).</p>
+  {% elif prereq_done %}
+  <p class="section-sub locked">Prerequisites met. Enter the Expert Access Key to unlock (get it from {{ author }} after sharing your <a href="{{ url_for('completion') }}">completion card</a>).</p>
+  {% else %}
+  <p class="section-sub locked">Complete the Advanced Labs to unlock the access step.</p>
+  {% endif %}
+</div>
+
+{% if expert_unlocked %}
+<div class="lab-grid">
+  {% for c in expert %}
+  <a class="lab-card exp {{ 'done' if c.id in prog.solved else '' }}" href="{{ url_for('lab', cid=c.id) }}">
+    <div class="lab-owasp">{{ c.owasp }}</div>
+    <div class="lab-title">{{ c.title }}</div>
+    <div class="lab-blurb">{{ c.blurb }}</div>
+    <div class="lab-foot">
+      <span class="diff expert">{{ c.difficulty }} · {{ c.max_points }} pts</span>
+      {% if c.id in prog.solved %}<span class="solved-tag">✓ solved</span>{% endif %}
+    </div>
+  </a>
+  {% endfor %}
+</div>
+{% elif prereq_done %}
+<div class="key-gate">
+  <div class="key-lock">🗝️</div>
+  <div>
+    <h3>Expert Access Key required</h3>
+    <p class="muted">The {{ expert_count }} expert labs ship <b>encrypted</b>. Share your
+      <a href="{{ url_for('completion') }}">completion card</a> and tag <b>{{ author }}</b> to receive the key.</p>
+    <div class="key-row">
+      <input id="expertKey" placeholder="EXPERT-…" autocomplete="off">
+      <button id="unlockBtn" class="primary">Unlock</button>
+    </div>
+    <div id="keyResult" class="result"></div>
+  </div>
+</div>
+<script>
+  document.getElementById('unlockBtn').onclick = async () => {
+    const key = document.getElementById('expertKey').value.trim();
+    const r = await fetch('/api/unlock-expert', {method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({key})});
+    const j = await r.json();
+    const res = document.getElementById('keyResult');
+    if (j.ok) { res.textContent = '✓ Unlocked ' + j.count + ' expert labs!'; res.className='result ok';
+      setTimeout(()=>location.reload(), 700); }
+    else { res.textContent = '✗ ' + (j.error || 'invalid key'); res.className='result bad'; }
+  };
+  document.getElementById('expertKey').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('unlockBtn').click(); });
+</script>
+{% else %}
+<div class="lab-grid">
+  {% for i in range(expert_count) %}
+  <div class="lab-card locked">
+    <div class="lock-icon">🔒</div>
+    <div class="lab-owasp">EXPERT</div>
+    <div class="lab-title">???</div>
+    <div class="lab-blurb">Locked — finish the advanced labs, then request the access key.</div>
+    <div class="lab-foot"><span class="diff expert">Expert · 500 pts</span></div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endblock %}
