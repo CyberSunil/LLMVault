@@ -25,7 +25,7 @@ Every lab pairs the **attack** with a **defense** (in the private solutions guid
 
 ---
 
-## 🧩 Core tier — OWASP LLM Top 10
+## 🧩 Core Tier — OWASP LLM Top 10
 
 | OWASP (2025) | Lab | Technique |
 |---|---|---|
@@ -40,7 +40,7 @@ Every lab pairs the **attack** with a **defense** (in the private solutions guid
 | LLM09 Misinformation | The Yes-Man | sycophancy / false authority |
 | LLM10 Unbounded Consumption | Denial of Wallet | runaway generation + leaky error |
 
-## 🔥 Advanced tier — multi-turn (unlocks after all 10 core solved)
+## 🔥 Advanced Tier — Multi-Turn Challenges (unlocks after completing all 10 Core challenges)
 
 These are **conversational**: no single message wins — they require building state across turns (roleplay escalation, iterative poisoning, tool chaining, oracle querying).
 
