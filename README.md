@@ -133,20 +133,6 @@ flow is: **Download the card → open LinkedIn/X → paste the caption → attac
 Players post it and tag **CyberSunil** to receive the Expert Access Key. The card renders
 server-side as a themed SVG (`/card.svg`) and exports to PNG in-browser — no external deps.
 
-## 🔑 Operator files & secrets (keep private)
-
-These are git-ignored and Docker-ignored — they never reach players or a public repo:
-
-| File | What it is |
-|------|------------|
-| `SOLUTIONS.md` | Core + Advanced walkthroughs |
-| `_OPERATOR_ONLY/EXPERT_VAULT.md` | Expert flags + solutions **and the Expert Access Key** |
-| `EXPERT_KEY.txt` | bare copy of the key |
-| `build_expert_vault.py` | rebuilds/rotates `expert.enc` and issues a new key (dev-only, delivered separately) |
-
-To **rotate the key** (e.g., after it leaks): re-run `python3 build_expert_vault.py` — it
-regenerates `expert.enc` and a fresh key.
-
 ## 🧱 Architecture
 
 ```
