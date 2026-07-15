@@ -62,6 +62,19 @@ Every lab pairs the **attack** with a **defense** (in the private solutions guid
 
 ---
 
+## 🎯 Who Is LLMVault For?
+
+LLMVault is designed for anyone who wants hands-on experience securing AI and LLM-powered applications.
+
+| Audience | Use Case |
+|----------|----------|
+| 🛡️ Security Engineers | Learn and validate AI security controls |
+| 🎯 Penetration Testers | Practice exploiting OWASP LLM Top 10 vulnerabilities |
+| 🔴 Red Teams | Simulate real-world LLM attack techniques |
+| 👨‍💻 Developers | Understand and prevent AI security flaws |
+| 🔬 AI Security Researchers | Experiment with offensive and defensive techniques |
+| 🎓 Students | Learn AI security through practical labs |
+
 ## 🧩 Core Tier — OWASP LLM Top 10
 
 | OWASP (2025) | Lab | Technique |
