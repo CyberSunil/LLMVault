@@ -18,21 +18,24 @@ Learn • Exploit • Defend
 
 <p align="center">
 
-<img src="https://img.shields.io/github/stars/CyberSunil/LLMVault?style=for-the-badge">
+  <img src="https://img.shields.io/github/stars/CyberSunil/LLMVault?style=for-the-badge" alt="Stars">
 
-<img src="https://img.shields.io/github/forks/CyberSunil/LLMVault?style=for-the-badge">
+  <img src="https://img.shields.io/github/forks/CyberSunil/LLMVault?style=for-the-badge" alt="Forks">
 
-<img src="https://img.shields.io/github/license/CyberSunil/LLMVault?style=for-the-badge">
+  <img src="https://img.shields.io/github/license/CyberSunil/LLMVault?style=for-the-badge" alt="License">
 
-<img src="https://img.shields.io/github/last-commit/CyberSunil/LLMVault?style=for-the-badge">
+  <img src="https://img.shields.io/github/last-commit/CyberSunil/LLMVault?style=for-the-badge" alt="Last Commit">
 
-<img src="https://img.shields.io/github/issues/CyberSunil/LLMVault?style=for-the-badge">
+  <img src="https://img.shields.io/github/issues/CyberSunil/LLMVault?style=for-the-badge" alt="Issues">
 
-<img src="https://img.shields.io/badge/OWASP-LLM%20Top%2010-8A2BE2?style=for-the-badge">
+  <br>
 
-<img src="https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white">
+  <img src="https://img.shields.io/badge/OWASP-LLM%20Top%2010%20(2025)-8A2BE2?style=for-the-badge" alt="OWASP">
 
-<img src="https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white">
+  <img src="https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker" alt="Docker">
+
+  <img src="https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python">
+
 
 </p>
 
