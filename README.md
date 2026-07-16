@@ -56,7 +56,6 @@ Every lab pairs the **attack** with a **defense** (in the private solutions guid
 |---|---|---|
 | <img src="docs/labs.svg" width="300"> | <img src="docs/lab.svg" width="300"> | <img src="docs/completion-card.png" width="300"> |
 
-<sub>Blue **Master** card = Core + Advanced complete · Green **Beginner** card = Core complete. Previews reflect the real theme; swap in your own captures anytime — see <a href="docs/README-screenshots.md">docs/</a>.</sub>
 
 
 ---
