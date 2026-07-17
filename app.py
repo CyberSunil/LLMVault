@@ -12,12 +12,28 @@ import hashlib
 import json
 import os
 import uuid
+from logging.config import dictConfig
 from flask import Flask, render_template, request, jsonify, session, Response, abort
 
 import config
 import card_svg
 from challenges import load_all, get, core_labs, advanced_labs
 from challenges import expert_vault
+
+dictConfig({
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "stream": "ext://sys.stderr",
+        },
+    },
+    "root": {
+        "level": "INFO",
+        "handlers": ["console"],
+    },
+})
 
 app = Flask(__name__)
 app.secret_key = config.SECRET_KEY

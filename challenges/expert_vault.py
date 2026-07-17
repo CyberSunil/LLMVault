@@ -10,6 +10,8 @@ rests entirely on the operator-held key. Reverse-engineering yields ciphertext o
 from __future__ import annotations
 
 import base64
+import hashlib
+import hmac
 import json
 import os
 import re
@@ -22,6 +24,9 @@ from . import Challenge
 _HERE = os.path.dirname(os.path.abspath(__file__))
 _ENC = os.path.join(_HERE, "expert.enc")
 _META = os.path.join(_HERE, "expert_meta.json")
+# Updated alongside the encrypted vault by the release process. Keeping this value
+# in code makes an unexpected vault-file change distinguishable from a wrong key.
+EXPECTED_VAULT_SHA256 = "5e17bbd9e6525490b47c566b678ca60f42cd0330d3b1b89e0855e2ae71deb551"
 
 _SPECS: list[dict] | None = None          # populated only after a valid unlock
 _CHALLENGES: dict[str, "DeclarativeChallenge"] = {}
@@ -72,6 +77,9 @@ def try_unlock(access_key: str) -> bool:
         fkey = _derive(access_key.strip(), salt, meta["iterations"])
         with open(_ENC, "rb") as encrypted_file:
             encrypted = encrypted_file.read()
+        actual_digest = hashlib.sha256(encrypted).hexdigest()
+        if not hmac.compare_digest(actual_digest, EXPECTED_VAULT_SHA256):
+            raise VaultLoadError("expert vault integrity check failed")
         plain = Fernet(fkey).decrypt(encrypted)
         specs = json.loads(plain)
         challenges = {s["id"]: DeclarativeChallenge(s) for s in specs}
