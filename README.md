@@ -195,7 +195,14 @@ Each challenge is a `Challenge` subclass with a `respond(message, state)` that e
 Made by **CyberSunil**. © 2026 CyberSunil. Released under the **MIT License** (see `LICENSE`), with a security notice that the project is deliberately vulnerable and for authorised training only. The author credit is shown on every page and is not runtime-editable.
 
 ---
+### ⚖️ Intellectual Property
 
+- 📄 **Source Code:** MIT License
+- ™️ **Trademark & Branding:** See [`TRADEMARKS.md`](./TRADEMARKS.md)
+
+The **LLMVault™** name, logo, branding, artwork, banners, screenshots, documentation, and other visual assets are **not** licensed under the MIT License and may not be used without prior written permission.
+
+---
 *Break it here so you can defend it everywhere.*
 
 ---
