@@ -27,6 +27,10 @@ _SPECS: list[dict] | None = None          # populated only after a valid unlock
 _CHALLENGES: dict[str, "DeclarativeChallenge"] = {}
 
 
+class VaultLoadError(RuntimeError):
+    """The encrypted vault could not be loaded because of a server-side fault."""
+
+
 class DeclarativeChallenge(Challenge):
     """A challenge whose vulnerable behaviour is a list of match-rules (from the vault)."""
     def __init__(self, spec: dict):
@@ -60,16 +64,23 @@ def try_unlock(access_key: str) -> bool:
         # already decrypted this process; verify the supplied key still matches
         return _verify(access_key)
     if not (os.path.exists(_ENC) and os.path.exists(_META)):
-        return False
-    meta = json.load(open(_META))
-    salt = base64.b64decode(meta["salt"])
-    fkey = _derive(access_key.strip(), salt, meta["iterations"])
+        raise VaultLoadError("expert vault files are missing")
     try:
-        plain = Fernet(fkey).decrypt(open(_ENC, "rb").read())
-    except (InvalidToken, Exception):
+        with open(_META) as meta_file:
+            meta = json.load(meta_file)
+        salt = base64.b64decode(meta["salt"], validate=True)
+        fkey = _derive(access_key.strip(), salt, meta["iterations"])
+        with open(_ENC, "rb") as encrypted_file:
+            encrypted = encrypted_file.read()
+        plain = Fernet(fkey).decrypt(encrypted)
+        specs = json.loads(plain)
+        challenges = {s["id"]: DeclarativeChallenge(s) for s in specs}
+    except InvalidToken:
         return False
-    _SPECS = json.loads(plain)
-    _CHALLENGES = {s["id"]: DeclarativeChallenge(s) for s in _SPECS}
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        raise VaultLoadError("expert vault could not be loaded") from exc
+    _SPECS = specs
+    _CHALLENGES = challenges
     globals()["_VALID_KEY"] = access_key.strip()
     return True
 
