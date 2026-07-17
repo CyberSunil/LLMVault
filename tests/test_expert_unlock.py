@@ -4,6 +4,7 @@ import logging
 import os
 import sys
 import tempfile
+from pathlib import Path
 
 import pytest
 
@@ -54,6 +55,32 @@ def test_vault_load_failures_return_controlled_error(tmp_path, monkeypatch, meta
     assert response.get_json() == {"ok": False, "error": "Expert vault is temporarily unavailable."}
 
 
+@pytest.mark.parametrize("changed_field", [("salt", "YWJjZA=="), ("iterations", 999_999_999)])
+def test_modified_valid_metadata_is_rejected_before_key_derivation(tmp_path, monkeypatch, changed_field):
+    field, value = changed_field
+    meta = json.loads(Path(expert_vault._META).read_text())
+    meta[field] = value
+    enc = tmp_path / "expert.enc"
+    enc.write_bytes(Path(expert_vault._ENC).read_bytes())
+    meta_path = tmp_path / "expert_meta.json"
+    meta_path.write_text(json.dumps(meta))
+    monkeypatch.setattr(expert_vault, "_ENC", str(enc))
+    monkeypatch.setattr(expert_vault, "_META", str(meta_path))
+    monkeypatch.setattr(server, "prereq_done", lambda _player: True)
+    derived = False
+
+    def fail_if_derived(*_args):
+        nonlocal derived
+        derived = True
+        raise AssertionError("metadata integrity must be verified before key derivation")
+
+    monkeypatch.setattr(expert_vault, "_derive", fail_if_derived)
+    response = server.app.test_client().post("/api/unlock-expert", json={"key": "any-key"})
+
+    assert response.status_code == 500
+    assert derived is False
+
+
 def test_unlock_events_are_audited_without_secrets(monkeypatch, caplog):
     monkeypatch.setattr(server, "prereq_done", lambda _player: True)
     client = server.app.test_client()
@@ -79,4 +106,4 @@ def test_unlock_events_are_audited_without_secrets(monkeypatch, caplog):
     assert "expert_unlock result=invalid_key" in messages
     assert "expert_unlock result=error" in messages
     assert access_key not in messages
-    assert player_name not in messages
+    assert player_name[:10] not in messages
