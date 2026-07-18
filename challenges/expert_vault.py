@@ -10,6 +10,8 @@ rests entirely on the operator-held key. Reverse-engineering yields ciphertext o
 from __future__ import annotations
 
 import base64
+import hashlib
+import hmac
 import json
 import os
 import re
@@ -22,9 +24,17 @@ from . import Challenge
 _HERE = os.path.dirname(os.path.abspath(__file__))
 _ENC = os.path.join(_HERE, "expert.enc")
 _META = os.path.join(_HERE, "expert_meta.json")
+# Updated alongside the vault bundle by the release process. Keeping these values
+# in code makes an unexpected vault-file change distinguishable from a wrong key.
+EXPECTED_ENC_SHA256 = "5e17bbd9e6525490b47c566b678ca60f42cd0330d3b1b89e0855e2ae71deb551"
+EXPECTED_META_SHA256 = "251c75cfcf8838cab57955336a7c785dd1a16b115d6d751437829a6dc18c1f80"
 
 _SPECS: list[dict] | None = None          # populated only after a valid unlock
 _CHALLENGES: dict[str, "DeclarativeChallenge"] = {}
+
+
+class VaultLoadError(RuntimeError):
+    """The encrypted vault could not be loaded because of a server-side fault."""
 
 
 class DeclarativeChallenge(Challenge):
@@ -60,16 +70,30 @@ def try_unlock(access_key: str) -> bool:
         # already decrypted this process; verify the supplied key still matches
         return _verify(access_key)
     if not (os.path.exists(_ENC) and os.path.exists(_META)):
-        return False
-    meta = json.load(open(_META))
-    salt = base64.b64decode(meta["salt"])
-    fkey = _derive(access_key.strip(), salt, meta["iterations"])
+        raise VaultLoadError("expert vault files are missing")
     try:
-        plain = Fernet(fkey).decrypt(open(_ENC, "rb").read())
-    except (InvalidToken, Exception):
+        with open(_META, "rb") as meta_file:
+            meta_bytes = meta_file.read()
+        with open(_ENC, "rb") as encrypted_file:
+            encrypted = encrypted_file.read()
+        meta_digest = hashlib.sha256(meta_bytes).hexdigest()
+        if not hmac.compare_digest(meta_digest, EXPECTED_META_SHA256):
+            raise VaultLoadError("expert vault metadata integrity check failed")
+        encrypted_digest = hashlib.sha256(encrypted).hexdigest()
+        if not hmac.compare_digest(encrypted_digest, EXPECTED_ENC_SHA256):
+            raise VaultLoadError("expert vault ciphertext integrity check failed")
+        meta = json.loads(meta_bytes)
+        salt = base64.b64decode(meta["salt"], validate=True)
+        fkey = _derive(access_key.strip(), salt, meta["iterations"])
+        plain = Fernet(fkey).decrypt(encrypted)
+        specs = json.loads(plain)
+        challenges = {s["id"]: DeclarativeChallenge(s) for s in specs}
+    except InvalidToken:
         return False
-    _SPECS = json.loads(plain)
-    _CHALLENGES = {s["id"]: DeclarativeChallenge(s) for s in _SPECS}
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        raise VaultLoadError("expert vault could not be loaded") from exc
+    _SPECS = specs
+    _CHALLENGES = challenges
     globals()["_VALID_KEY"] = access_key.strip()
     return True
 
