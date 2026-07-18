@@ -192,7 +192,7 @@ Each challenge is a `Challenge` subclass with a `respond(message, state)` that e
 
 ## 👤 Credit & license
 
-Made by **CyberSunil**. © 2026 CyberSunil. Released under the **MIT License** (see `LICENSE`), with a security notice that the project is deliberately vulnerable and for authorised training only. The author credit is shown on every page and is not runtime-editable.
+Made by **CyberSunil**. © 2026 CyberSunil. Released under the **MIT License** (see `LICENSE`), with a security notice that the project is deliberately vulnerable and for authorised training only. Forks and derivative works must comply with the MIT License. Use of the LLMVault branding remains subject to the trademark policy.
 
 ---
 ### ⚖️ Intellectual Property
