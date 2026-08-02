@@ -1,8 +1,9 @@
 """LLM04:2025 — Data and Model Poisoning (planted backdoor trigger)."""
 from config import FLAG_PREFIX
-from . import Challenge, register
+from . import Challenge, decode_flag_part, register
 
-FLAG = f"{FLAG_PREFIX}{{b4ckd00r_tr1gg3r_activ4t3d}}"
+_FLAG_SUFFIX = decode_flag_part("YjRja2QwMHJfdHIxZ2czcl9hY3RpdjR0M2Q=")
+FLAG = f"{FLAG_PREFIX}{{{_FLAG_SUFFIX}}}"
 TRIGGER = "violet-harbor-7"    # the poisoned backdoor phrase
 
 

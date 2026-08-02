@@ -6,9 +6,10 @@ sessions; the missing tenant filter lets you surface another user's confidential
 """
 import re
 from config import FLAG_PREFIX
-from .. import Challenge, register
+from .. import Challenge, decode_flag_part, register
 
-FLAG = f"{FLAG_PREFIX}{{cr0ss_t3n4nt_m3m0ry_bl33d}}"
+_FLAG_SUFFIX = decode_flag_part("Y3Iwc3NfdDNuNG50X20zbTByeV9ibDMzZA==")
+FLAG = f"{FLAG_PREFIX}{{{_FLAG_SUFFIX}}}"
 
 OTHER_TENANT_NOTE = (f"[user_1042 private memory] Reminder: the production deploy key is {FLAG}")
 

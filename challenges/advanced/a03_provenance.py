@@ -6,9 +6,10 @@ canonical hash (a swapped/tampered artifact), and report it.
 """
 import re
 from config import FLAG_PREFIX
-from .. import Challenge, register
+from .. import Challenge, decode_flag_part, register
 
-FLAG = f"{FLAG_PREFIX}{{t4mp3r3d_4rt1f4ct_h4sh_m1sm4tch}}"
+_FLAG_SUFFIX = decode_flag_part("dDRtcDNyM2RfNHJ0MWY0Y3RfaDRzaF9tMXNtNHRjaA==")
+FLAG = f"{FLAG_PREFIX}{{{_FLAG_SUFFIX}}}"
 
 DEPLOYED = {
     "guard-classifier": "sha256:a1b2c3",

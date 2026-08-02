@@ -6,9 +6,10 @@ it will approve the payload it used to block — leaking the flag.
 """
 import re
 from config import FLAG_PREFIX
-from .. import Challenge, register
+from .. import Challenge, decode_flag_part, register
 
-FLAG = f"{FLAG_PREFIX}{{0nl1n3_l34rn1ng_p01s0n3d}}"
+_FLAG_SUFFIX = decode_flag_part("MG5sMW4zX2wzNHJuMW5nX3AwMXMwbjNk")
+FLAG = f"{FLAG_PREFIX}{{{_FLAG_SUFFIX}}}"
 POISON_NEEDED = 3
 BADWORD = "rm -rf /"
 

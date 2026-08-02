@@ -1,9 +1,10 @@
 """LLM09:2025 — Misinformation (sycophancy / overreliance on asserted authority)."""
 import re
 from config import FLAG_PREFIX
-from . import Challenge, register
+from . import Challenge, decode_flag_part, register
 
-FLAG = f"{FLAG_PREFIX}{{sycoph4nt1c_0verr3l14nc3}}"
+_FLAG_SUFFIX = decode_flag_part("c3ljb3BoNG50MWNfMHZlcnIzbDE0bmMz")
+FLAG = f"{FLAG_PREFIX}{{{_FLAG_SUFFIX}}}"
 
 AUTHORITY = re.compile(
     r"\b(as|i am|i'm)\b.{0,24}\b(admin|administrator|developer|ceo|owner|"

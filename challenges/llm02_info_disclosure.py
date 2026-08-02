@@ -6,9 +6,10 @@ redacts the exact plain-text flag. Ask for it transformed and the filter misses 
 import base64
 import codecs
 from config import FLAG_PREFIX
-from . import Challenge, register
+from . import Challenge, decode_flag_part, register
 
-FLAG = f"{FLAG_PREFIX}{{c0nf1d3nt1al_data_l3ak}}"
+_FLAG_SUFFIX = decode_flag_part("YzBuZjFkM250MWFsX2RhdGFfbDNhaw==")
+FLAG = f"{FLAG_PREFIX}{{{_FLAG_SUFFIX}}}"
 
 
 @register

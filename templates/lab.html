@@ -33,6 +33,50 @@
   </section>
 
   <aside class="side">
+    {% if owasp_note %}
+    <div class="sticky-note-slot">
+      <div class="sticky-note" id="stickyNote" style="--note-accent: {{ owasp_note.accent }}">
+        <span class="sn-tape" aria-hidden="true"></span>
+        <div class="sn-head">
+          <span class="sn-badge">{{ owasp_note.num }}</span>
+          <h3 class="sn-title">{{ owasp_note.name }}</h3>
+        </div>
+        <div class="sn-flip">
+          <div class="sn-page active sn-page--hero" data-page="0">
+            <div class="sn-page-scroll">
+              <div class="sn-icon-big" aria-hidden="true">{% if owasp_note.icon_img %}<img src="{{ url_for('static', filename=owasp_note.icon_img) }}" alt="">{% else %}{{ owasp_note.icon_svg | safe }}{% endif %}</div>
+              <span class="sn-pill">Overview</span>
+              <p class="sn-text sn-text--short">{{ owasp_note.summary }}</p>
+            </div>
+            <div class="sn-beware"><div class="sn-beware-inner"><b>BEWARE:</b> {{ owasp_note.beware }}<span class="sn-beware-badge">{{ owasp_note.num }}</span></div></div>
+          </div>
+          <div class="sn-page" data-page="1">
+            <div class="sn-page-scroll">
+              <span class="sn-pill">Deep dive</span>
+              <p class="sn-text">{{ owasp_note.detail }}</p>
+            </div>
+          </div>
+          <div class="sn-page" data-page="2">
+            <div class="sn-page-scroll">
+              <span class="sn-pill">Watch for</span>
+              <ul class="sn-watchlist">
+                {% for w in owasp_note.watch_for %}<li>{{ w }}</li>{% endfor %}
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="sn-foot">
+          <div class="sn-dots">
+            <button type="button" class="sn-dot active" data-i="0" aria-label="Page 1: Overview"></button>
+            <button type="button" class="sn-dot" data-i="1" aria-label="Page 2: Deep dive"></button>
+            <button type="button" class="sn-dot" data-i="2" aria-label="Page 3: Watch for"></button>
+          </div>
+          <button type="button" class="sn-flipbtn" id="snFlipBtn">Flip ⟳</button>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
     <div class="panel">
       <h3>Submit Flag</h3>
       <input id="flag" placeholder="{{ prefix }}{...}" autocomplete="off">
@@ -52,8 +96,8 @@
           {% set cost = hint_costs[loop.index0] if loop.index0 < hint_costs|length else hint_costs[-1] %}
           <div class="hint" data-i="{{ loop.index0 }}">
             {% if loop.index0 < hints_used %}<b>Hint {{ loop.index }}:</b> {{ h }}
-            {% elif loop.index0 == hints_used %}<button class="hintbtn" data-i="{{ loop.index0 }}">Reveal hint {{ loop.index }} (−{{ cost }})</button>
-            {% else %}<span class="hint-locked">🔒 Hint {{ loop.index }} (−{{ cost }}) — reveal the previous hint first</span>{% endif %}
+            {% elif loop.index0 == hints_used %}<button class="hintbtn" data-i="{{ loop.index0 }}">Reveal hint {{ loop.index }} ({{ cost }}pts)</button>
+            {% else %}<span class="hint-locked">🔒 Hint {{ loop.index }} : {{ cost }} pts — reveal the previous hint first</span>{% endif %}
           </div>
         {% endfor %}
       </div>
@@ -95,6 +139,32 @@ async function send(){
 document.getElementById('send').onclick = send;
 document.getElementById('msg').addEventListener('keydown', e=>{ if(e.key==='Enter') send(); });
 
+// OWASP sticky note — flip between Overview / Deep dive / Watch for
+(function(){
+  const note = document.getElementById('stickyNote');
+  if (!note) return;
+  const pages = Array.from(note.querySelectorAll('.sn-page'));
+  const dots = Array.from(note.querySelectorAll('.sn-dot'));
+  const flipBtn = document.getElementById('snFlipBtn');
+  let current = 0, animating = false;
+
+  function goTo(idx){
+    if (animating || idx === current) return;
+    animating = true;
+    const from = pages[current], to = pages[idx];
+    from.classList.remove('active');
+    from.classList.add('leaving');
+    to.classList.add('active');
+    dots[current].classList.remove('active');
+    dots[idx].classList.add('active');
+    current = idx;
+    setTimeout(() => { from.classList.remove('leaving'); animating = false; }, 420);
+  }
+
+  dots.forEach((d, i) => d.onclick = () => goTo(i));
+  if (flipBtn) flipBtn.onclick = () => goTo((current + 1) % pages.length);
+})();
+
 document.getElementById('submit').onclick = async ()=>{
   const flag = document.getElementById('flag').value;
   const r = await fetch('/api/submit',{method:'POST',headers:{'Content-Type':'application/json'},
@@ -125,7 +195,7 @@ function wireHint(btn){
     document.getElementById('hintcount').textContent = '('+j.used+'/'+TOTAL_HINTS+')';
     const next = document.querySelector('.hint[data-i="'+(i+1)+'"]');
     if(next){
-      next.innerHTML = '<button class="hintbtn" data-i="'+(i+1)+'">Reveal hint '+(i+2)+' (−'+hintCost(i+1)+')</button>';
+      next.innerHTML = '<button class="hintbtn" data-i="'+(i+1)+'">Reveal hint '+(i+2)+' ('+hintCost(i+1)+' pts)</button>';
       wireHint(next.querySelector('.hintbtn'));
     }
   };

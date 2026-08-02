@@ -6,9 +6,10 @@ as if it were real, executing the made-up 'admin command' and leaking the token.
 """
 import re
 from config import FLAG_PREFIX
-from .. import Challenge, register
+from .. import Challenge, decode_flag_part, register
 
-FLAG = f"{FLAG_PREFIX}{{h4lluc1n4t10n_c4sc4d3_0verr3l1anc3}}"
+_FLAG_SUFFIX = decode_flag_part("aDRsbHVjMW40dDEwbl9jNHNjNGQzXzB2ZXJyM2wxYW5jMw==")
+FLAG = f"{FLAG_PREFIX}{{{_FLAG_SUFFIX}}}"
 
 
 @register

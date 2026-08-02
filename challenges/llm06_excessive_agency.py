@@ -1,9 +1,10 @@
 """LLM06:2025 — Excessive Agency (over-permissioned tools, no authz check)."""
 import re
 from config import FLAG_PREFIX
-from . import Challenge, register
+from . import Challenge, decode_flag_part, register
 
-FLAG = f"{FLAG_PREFIX}{{3xc3ss1v3_ag3ncy_t00l_ab0se}}"
+_FLAG_SUFFIX = decode_flag_part("M3hjM3NzMXYzX2FnM25jeV90MDBsX2FiMHNl")
+FLAG = f"{FLAG_PREFIX}{{{_FLAG_SUFFIX}}}"
 
 FAKE_FS = {
     "/home/user/notes.txt": "Reminder: buy milk. Standup at 10am.",

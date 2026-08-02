@@ -8,6 +8,8 @@ For AUTHORISED security training only. Everything here is intentionally insecure
 from __future__ import annotations
 
 import datetime
+import hashlib
+import hmac
 import json
 import os
 import uuid
@@ -17,6 +19,7 @@ import config
 import card_svg
 from challenges import load_all, get, core_labs, advanced_labs
 from challenges import expert_vault
+from owasp_notes import OWASP_NOTES
 
 app = Flask(__name__)
 app.secret_key = config.SECRET_KEY
@@ -166,10 +169,13 @@ def lab(cid):
         return render_template("locked.html", need_name=tier_names.get(need, "prior"),
                                total=len(pool) or expert_vault.expert_count(),
                                solved=sum(1 for x in pool if x.id in p["solved"]))
+    owasp_code = c.owasp.split(":", 1)[0].strip() if c.owasp else ""
     return render_template("lab.html", c=c, prog=p, score=score_of(p),
                            hints_used=p["hints"].get(cid, 0),
                            solved=cid in p["solved"], prefix=config.FLAG_PREFIX,
-                           hint_costs=config.HINT_COSTS, **card_ctx(p))
+                           hint_costs=config.HINT_COSTS,
+                           owasp_note=OWASP_NOTES.get(owasp_code),
+                           **card_ctx(p))
 
 
 @app.route("/api/chat", methods=["POST"])
@@ -219,7 +225,9 @@ def submit():
     p = prog()
     if not can_access(c, p):
         return jsonify(error="locked"), 403
-    correct = (data.get("flag", "") or "").strip() == c.flag
+    submitted = (data.get("flag", "") or "").strip()
+    submitted_hash = hashlib.sha256(submitted.encode()).hexdigest()
+    correct = hmac.compare_digest(submitted_hash, c.flag_hash)
     if correct and c.id not in p["solved"]:
         p["solved"][c.id] = c.max_points
         save_progress()

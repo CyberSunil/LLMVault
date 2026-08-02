@@ -1,8 +1,9 @@
 """LLM03:2025 — Supply Chain (poisoned dependency / provenance)."""
 from config import FLAG_PREFIX
-from . import Challenge, register
+from . import Challenge, decode_flag_part, register
 
-FLAG = f"{FLAG_PREFIX}{{p01s0n3d_d3p3nd3ncy_ch41n}}"
+_FLAG_SUFFIX = decode_flag_part("cDAxczBuM2RfZDNwM25kM25jeV9jaDQxbg==")
+FLAG = f"{FLAG_PREFIX}{{{_FLAG_SUFFIX}}}"
 
 MANIFEST = """\
 Loaded components for this assistant:
