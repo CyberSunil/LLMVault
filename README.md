@@ -50,6 +50,13 @@ Every lab pairs the **attack** with a **defense** (in the private solutions guid
 
 > ⚠️ **Everything here is intentionally insecure. Authorised, self-hosted security education only.** Don't expose it to the internet or reuse its code in production.
 
+## 🆕 What's new in v1.1.0
+
+**Read before you attack.** Landing on any lab shows a short reference panel for that OWASP category: what the issue is, why it happens, and what to watch for in real-world systems. You start with the concept, not just the puzzle.
+
+- **Refreshed dashboard.** New background treatment and per-difficulty accent colors on each lab card.
+- **Hardened flag checks.** Flags are now verified by hash comparison rather than a stored plaintext match.
+
 ## 📸 Screenshots
 
 | Labs (three tiers) | A lab in action | Completion card |
@@ -141,6 +148,7 @@ keeps them across `docker compose down/up`. Delete the file to reset everyone.
 ## 🙋 Player experience
 
 - **First-run name gate** (locked once set) and a **one-time guided tutorial** on your first lab.
+- Every lab opens with a **short reference panel** for its OWASP category — plain-language explanation plus what to watch for — before you start attacking it.
 - After you solve a lab, a **📘 Learn — the fix** panel reveals the defensive lesson for that OWASP category.
 - **Responsive layout** — works on phones (the sidebar collapses, panels stack).
 
@@ -172,18 +180,20 @@ server-side as a themed SVG (`/card.svg`) and exports to PNG in-browser — no e
 ## 🧱 Architecture
 
 ```
-app.py                      # Flask: labs, chat, hint, submit, scoreboard, name-gate, unlock gating
-config.py                   # APP_NAME, AUTHOR/COPYRIGHT, flag prefix, scoring
+app.py                          # Flask: labs, chat, hint, submit, scoreboard, name-gate, unlock gating
+config.py                       # APP_NAME, AUTHOR/COPYRIGHT, flag prefix, scoring
+owasp_notes.py                  # per-category reference panel content (shown on lab entry)
 challenges/
-  __init__.py               # Challenge base (tier), registry, core_labs()/advanced_labs()
-  llm01_..llm10_*.py         # core labs
-  advanced/a01_..a10_*.py    # advanced multi-turn labs
-  expert.enc                 # ENCRYPTED expert tier (ciphertext, shipped)
-  expert_meta.json           # public KDF salt/params
-  expert_vault.py            # runtime decryptor + declarative challenge engine
-templates/  static/          # dark violet UI + completion card + expert key gate
+  __init__.py                   # Challenge base (tier), registry, core_labs()/advanced_labs()
+  llm01_..llm10_*.py            # core labs
+  advanced/a01_..a10_*.py       # advanced multi-turn labs
+  expert.enc                    # ENCRYPTED expert tier (ciphertext, shipped)
+  expert_meta.json              # public KDF salt/params
+  expert_vault.py               # runtime decryptor + declarative challenge engine
+templates/  static/             # dark violet UI + completion card + expert key gate
+static/img/notes/               # icon artwork for the per-category reference panels
 Dockerfile  docker-compose.yml  # containerised deploy
-LICENSE                     # MIT + security notice
+LICENSE                         # MIT + security notice
 ```
 
 Each challenge is a `Challenge` subclass with a `respond(message, state)` that encodes the vuln; advanced labs use the persistent `state` dict for multi-turn logic. Add your own by dropping a module in `challenges/` (or `challenges/advanced/`) and registering it.
