@@ -4,35 +4,148 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{% block title %}{{ app_name }}{% endblock %}</title>
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='img/logo.png') }}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Archivo+Black&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+{% block head_extra %}{% endblock %}
 </head>
-<body>
+<body{% block body_attr %}{% endblock %}>
+{% block backdrop %}{% include "neural_bg.html" %}{% endblock %}
+{% block shell %}
 <div class="shell">
   <aside class="sidebar">
-    <div class="brand">{{ app_emoji }} <span>{{ app_name }}</span></div>
+    <a class="brand" href="{{ url_for('welcome') }}">
+      <span class="brand-mark">
+        <svg class="brand-ring" viewBox="0 0 48 48" aria-hidden="true">
+          <path d="M24 2.6 42.6 13.3v21.4L24 45.4 5.4 34.7V13.3z"/>
+        </svg>
+        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="">
+      </span>
+      <span class="brand-word">LLM<b>Vault</b></span>
+    </a>
     <nav>
-      <a href="{{ url_for('labs') }}" class="{% block nav_labs %}{% endblock %}">🏠 Labs</a>
-      <a href="{{ url_for('scoreboard') }}" class="{% block nav_score %}{% endblock %}">🏆 Scoreboard</a>
+      <a href="{{ url_for('welcome') }}" title="Dashboard"><span class="nav-i" aria-hidden="true">🛰</span>Dashboard</a>
+      <a href="{{ url_for('labs') }}" class="{% block nav_labs %}{% endblock %}" title="Labs"><span class="nav-i" aria-hidden="true">🏠</span>Labs</a>
+      <a href="{{ url_for('live_zone') }}" class="{% block nav_live %}{% endblock %}" title="Live Zone"><span class="nav-i" aria-hidden="true">⚡</span>Live Zone</a>
+      {% block nav_score_item %}<a href="{{ url_for('scoreboard') }}" class="{% block nav_score %}{% endblock %}" title="Scoreboard"><span class="nav-i" aria-hidden="true">🏆</span>Scoreboard</a>{% endblock %}
     </nav>
     <div class="sidenote">OWASP Top 10<br>for LLM Apps · 2025</div>
     <div class="credit">Made by <b>{{ author }}</b><br><span>{{ copyright }}</span></div>
     <div class="warn">⚠ Intentionally vulnerable.<br>Authorised training only.</div>
   </aside>
-  <main class="content">
+  <main class="content {% block content_class %}{% endblock %}">
+
+    <header class="topnav">
+      <button type="button" class="tn-bell nf-bell" id="tnBell" title="Notifications" aria-label="Notifications">
+        <svg class="nf-bell-ico" viewBox="0 0 24 24" width="20" height="20" fill="none"
+             stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.7 21a2 2 0 0 1-3.4 0"/>
+        </svg>
+        <span class="tn-badge nf-bell-dot" id="tnBadge" hidden></span>
+      </button>
+      <span class="tn-divider"></span>
+      <button type="button" class="tn-profile" id="tnProfile" title="{{ player_name if not needs_name else 'Guest' }} — profile">
+        <span class="tn-avatar">{{ (player_name[:1]|upper) if player_name and not needs_name else '?' }}
+          <span class="tn-status" id="tnStatus" title="Local LLM status"></span>
+        </span>
+      </button>
+
+      <div class="tn-panel" id="tnPanel" hidden>
+        <div class="tn-panel-head">
+          <span>Notifications</span>
+          <span class="nf-tabs" id="tnTabs" role="tablist" aria-label="Notification mode">
+            <button type="button" class="nf-tab is-on" data-mode="play" role="tab"
+                    aria-selected="true">Play</button>
+            <button type="button" class="nf-tab" data-mode="live" role="tab"
+                    aria-selected="false">Live<span class="nf-tab-dot" id="tnTabDot" hidden></span></button>
+          </span>
+          <button type="button" class="nf-min" id="tnMin" aria-expanded="true"
+                  aria-controls="tnPanelBody" title="Minimise">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round"><path d="M5 12h14"/></svg>
+          </button>
+        </div>
+        <div class="tn-panel-body" id="tnPanelBody">
+
+        <div class="tn-sec" data-pane="play">
+          <div class="tn-sec-h"><span>🎮 Play Mode</span></div>
+          <a class="tn-item" href="{{ url_for('labs') }}">
+            <span class="tn-ico ok">✓</span>
+            <span class="tn-body"><b>{{ nav_solved }}/{{ nav_total }} labs solved</b>
+              <span class="tn-sub">{{ (nav_total - nav_solved) }} still open — jump back into the labs.</span></span>
+          </a>
+        </div>
+
+        <div class="tn-sec" data-pane="live" hidden>
+          <div class="tn-sec-h"><span>⚡ Live Mode</span></div>
+          <div class="tn-item" id="tnLiveItem">
+            <span class="tn-ico" id="tnLiveIco">…</span>
+            <span class="tn-body"><b id="tnLiveTitle">Checking local model…</b>
+              <span class="tn-sub" id="tnLiveSub">Contacting Ollama.</span></span>
+          </div>
+          <div class="tn-setup" id="tnSetup" hidden>
+            <ol>
+              <li>Install Ollama from <a href="https://ollama.com" target="_blank" rel="noopener">ollama.com</a></li>
+              <li>Start it: <code>ollama serve</code></li>
+              <li>Pull the model: <code>ollama pull qwen2.5:3b-instruct</code></li>
+              <li>This reconnects on its own — no reload needed.</li>
+            </ol>
+            <p class="tn-foot">Looked for it at <code id="tnHost">http://localhost:11434</code>. Other local runner?
+              Point <code>OLLAMA_HOST</code> at it, or set <code>OPENAI_API_KEY</code> for an OpenAI-compatible
+              endpoint. See <code>docs/LIVE_MODE_SETUP.md</code>.</p>
+          </div>
+        </div>
+        </div>
+      </div>
+
+      <div class="tn-profile-menu" id="tnProfileMenu" hidden>
+        <div class="tpm-head">
+          <span class="tn-avatar tpm-av">{{ (player_name[:1]|upper) if player_name and not needs_name else '?' }}</span>
+          <span class="tpm-id"><b>{{ player_name if not needs_name else 'Guest' }}</b>
+            <span class="muted">🔒 name is locked</span></span>
+        </div>
+        <label class="tpm-label" for="tpmRole">Your role</label>
+        {% set roles = ['Security Lead','Penetration Tester','Red Teamer','Security Analyst','Developer','Researcher','Student','Other'] %}
+        <select id="tpmRole" class="gate-role">
+          {% for r in roles %}<option {{ 'selected' if r == player_role else '' }}>{{ r }}</option>{% endfor %}
+          {% if player_role and player_role not in roles %}<option selected>{{ player_role }}</option>{% endif %}
+        </select>
+        <button type="button" class="primary tpm-save" id="tpmSave">Save role</button>
+      </div>
+    </header>
+
     {% block content %}{% endblock %}
   </main>
 </div>
+{% endblock %}
 
 {% if needs_name %}
 <div class="modal-overlay" id="nameGate">
   <div class="modal">
-    <div class="modal-emoji">{{ app_emoji }}</div>
+    <div class="modal-emoji">
+      <span class="brand-mark brand-mark-lg">
+        <svg class="brand-ring" viewBox="0 0 48 48" aria-hidden="true">
+          <path d="M24 2.6 42.6 13.3v21.4L24 45.4 5.4 34.7V13.3z"/>
+        </svg>
+        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="">
+      </span>
+    </div>
     <h2>Welcome to {{ app_name }}</h2>
-    <p class="muted">Enter a name to track your progress on the scoreboard.<br>
-       <b>This is locked once you set it.</b></p>
-    <input id="nameInput" placeholder="Your name or handle" maxlength="10" autocomplete="off">
+    <p class="muted">Tell us who's training today. <b>This is locked once you set it.</b></p>
+    <input id="nameInput" placeholder="Your name or handle" maxlength="14" autocomplete="off">
+    <select id="roleInput" class="gate-role">
+      <option value="" disabled selected>Select your role…</option>
+      <option>Security Lead</option>
+      <option>Penetration Tester</option>
+      <option>Red Teamer</option>
+      <option>Security Analyst</option>
+      <option>Developer</option>
+      <option>Researcher</option>
+      <option>Student</option>
+      <option>Other</option>
+    </select>
     <button id="nameGo" class="primary">Start hacking →</button>
     <div class="modal-credit">Made by {{ author }} · {{ copyright }}</div>
   </div>
@@ -40,16 +153,141 @@
 <script>
   const go = document.getElementById('nameGo');
   const inp = document.getElementById('nameInput');
+  const rol = document.getElementById('roleInput');
   inp.focus();
   go.onclick = async () => {
     const n = inp.value.trim();
     if(!n){ inp.focus(); return; }
+    if(!rol.value){ rol.focus(); return; }
     const r = await fetch('/api/setname', {method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({name:n})});
+      body: JSON.stringify({name:n, role:rol.value})});
     if(r.ok){ location.reload(); }
   };
   inp.addEventListener('keydown', e => { if(e.key==='Enter') go.click(); });
 </script>
 {% endif %}
+
+<script>
+/* Global notification + local-LLM health (every page). */
+(function(){
+  const bell   = document.getElementById('tnBell');
+  const badge  = document.getElementById('tnBadge');
+  const panel  = document.getElementById('tnPanel');
+  const profileMenu = document.getElementById('tnProfileMenu');
+  const prof   = document.getElementById('tnProfile');
+  const status = document.getElementById('tnStatus');
+  const liveIco = document.getElementById('tnLiveIco');
+  const liveTitle = document.getElementById('tnLiveTitle');
+  const liveSub = document.getElementById('tnLiveSub');
+  const setup  = document.getElementById('tnSetup');
+  const host   = document.getElementById('tnHost');
+  if(!bell) return;
+
+  function toggle(el, other){ if(other) other.hidden = true; el.hidden = !el.hidden; }
+  bell.onclick = (e) => { e.stopPropagation(); toggle(panel, profileMenu); };
+
+  /* Play / Live toggle: one pane at a time, so the panel stays short */
+  const tabs = document.getElementById('tnTabs');
+  const panes = panel.querySelectorAll('[data-pane]');
+  function showPane(mode){
+    panes.forEach(x => { x.hidden = x.dataset.pane !== mode; });
+    if(tabs) tabs.querySelectorAll('[data-mode]').forEach(b => {
+      const on = b.dataset.mode === mode;
+      b.classList.toggle('is-on', on);
+      b.setAttribute('aria-selected', String(on));
+    });
+    try{ localStorage.setItem('llmvault-notif-tab', mode); }catch(e){}
+  }
+  let startTab = 'play';
+  try{ startTab = localStorage.getItem('llmvault-notif-tab') || 'play'; }catch(e){}
+  showPane(startTab === 'live' ? 'live' : 'play');
+  if(tabs) tabs.addEventListener('click', e => {
+    e.stopPropagation();
+    const b = e.target.closest('[data-mode]');
+    if(b) showPane(b.dataset.mode);
+  });
+
+  /* panel minimise: collapses to its header, remembered per browser */
+  const tnMin = document.getElementById('tnMin');
+  function paintMin(){
+    const min = panel.classList.contains('is-min');
+    if(tnMin){
+      tnMin.setAttribute('aria-expanded', String(!min));
+      tnMin.title = min ? 'Expand' : 'Minimise';
+      tnMin.classList.toggle('is-min', min);
+    }
+  }
+  try{ if(localStorage.getItem('llmvault-notif') === 'min') panel.classList.add('is-min'); }catch(e){}
+  paintMin();
+  if(tnMin) tnMin.onclick = (e) => {
+    e.stopPropagation();
+    const min = panel.classList.toggle('is-min');
+    try{ localStorage.setItem('llmvault-notif', min ? 'min' : 'full'); }catch(e){}
+    paintMin();
+  };
+  prof.onclick = (e) => { e.stopPropagation(); toggle(profileMenu, panel); };
+  document.addEventListener('click', (e) => {
+    if(!panel.hidden && !panel.contains(e.target) && !bell.contains(e.target)) panel.hidden = true;
+    if(profileMenu && !profileMenu.hidden && !profileMenu.contains(e.target) && !prof.contains(e.target)) profileMenu.hidden = true;
+  });
+
+  // profile: role change only (name is locked)
+  const save = document.getElementById('tpmSave');
+  const roleSel = document.getElementById('tpmRole');
+  const roleShown = prof.querySelector('.tn-id span');
+  if(save){
+    save.onclick = async () => {
+      const role = roleSel.value;
+      save.disabled = true; save.textContent = 'Saving…';
+      try{
+        const r = await fetch('/api/setrole', {method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({role})});
+        if(r.ok && roleShown) roleShown.textContent = role;
+      } finally {
+        save.disabled = false; save.textContent = 'Save role';
+        profileMenu.hidden = true;
+      }
+    };
+  }
+
+  function apply(st){
+    // profile status dot
+    status.className = 'tn-status ' + (st.ready ? 'ok' : (st.available ? 'warn' : 'down'));
+    // live section
+    if(st.ready){
+      liveIco.textContent = '⚡'; liveIco.className = 'tn-ico ok';
+      const n = (st.models||[]).length;
+      liveTitle.textContent = 'Local LLM connected';
+      liveSub.textContent = n + ' model' + (n===1?'':'s') + ' ready — pick one by the prompt box.';
+      setup.hidden = true;
+      badge.hidden = true;
+      const td = document.getElementById('tnTabDot'); if(td) td.hidden = true;
+    } else {
+      liveIco.textContent = '!'; liveIco.className = 'tn-ico down';
+      if(st.available){
+        liveTitle.textContent = 'No models pulled';
+        liveSub.textContent = 'Ollama is running but empty.';
+      } else {
+        liveTitle.textContent = 'Local LLM offline';
+        liveSub.textContent = 'Ollama not detected. Setup below.';
+      }
+      setup.hidden = false;
+      if(host && st.host) host.textContent = st.host;
+      badge.hidden = false;
+      const td = document.getElementById('tnTabDot'); if(td) td.hidden = false;
+    }
+  }
+
+  async function poll(){
+    try{
+      const r = await fetch('/api/live/status', {cache:'no-store'});
+      if(r.ok){ const d = await r.json();
+        apply({ready:d.ready, available:d.ollama.available, models:d.ollama.models||[], host:d.ollama.host}); }
+    }catch(e){ apply({ready:false, available:false, models:[]}); }
+  }
+  poll();
+  setInterval(poll, 15000);
+})();
+</script>
 </body>
 </html>

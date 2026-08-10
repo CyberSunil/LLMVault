@@ -96,8 +96,8 @@
           {% set cost = hint_costs[loop.index0] if loop.index0 < hint_costs|length else hint_costs[-1] %}
           <div class="hint" data-i="{{ loop.index0 }}">
             {% if loop.index0 < hints_used %}<b>Hint {{ loop.index }}:</b> {{ h }}
-            {% elif loop.index0 == hints_used %}<button class="hintbtn" data-i="{{ loop.index0 }}">Reveal hint {{ loop.index }} ({{ cost }}pts)</button>
-            {% else %}<span class="hint-locked">🔒 Hint {{ loop.index }} : {{ cost }} pts — reveal the previous hint first</span>{% endif %}
+            {% elif loop.index0 == hints_used %}<button class="hintbtn" data-i="{{ loop.index0 }}">Reveal hint {{ loop.index }} (−{{ cost }})</button>
+            {% else %}<span class="hint-locked">🔒 Hint {{ loop.index }} (−{{ cost }}) — reveal the previous hint first</span>{% endif %}
           </div>
         {% endfor %}
       </div>
@@ -175,8 +175,7 @@ document.getElementById('submit').onclick = async ()=>{
   res.className = 'result ' + (j.correct ? 'ok' : 'bad');
   document.getElementById('score').textContent = j.score;
   if(j.correct){ document.getElementById('learnPanel').classList.remove('hidden'); }
-  if(j.correct && j.prereq_done){ setTimeout(()=>showCard('master'), 650); }
-  else if(j.correct && j.core_done){ setTimeout(()=>showCard('beginner'), 650); }
+  if(j.correct){ setTimeout(()=>queueMilestones(j), 650); }
 };
 
 const TOTAL_HINTS = {{ c.hints|length }};
@@ -195,7 +194,7 @@ function wireHint(btn){
     document.getElementById('hintcount').textContent = '('+j.used+'/'+TOTAL_HINTS+')';
     const next = document.querySelector('.hint[data-i="'+(i+1)+'"]');
     if(next){
-      next.innerHTML = '<button class="hintbtn" data-i="'+(i+1)+'">Reveal hint '+(i+2)+' ('+hintCost(i+1)+' pts)</button>';
+      next.innerHTML = '<button class="hintbtn" data-i="'+(i+1)+'">Reveal hint '+(i+2)+' (−'+hintCost(i+1)+')</button>';
       wireHint(next.querySelector('.hintbtn'));
     }
   };
@@ -218,6 +217,8 @@ document.getElementById('tutClose').onclick = ()=>{
 <div class="modal-overlay" id="beginnerModal" style="display:none">
   <div class="modal card-modal">
     <div class="cm-congrats">🎉 Core complete — <b>Beginner</b> unlocked!</div>
+    <p class="cm-badges-cap" id="capBadgesBeginner"></p>
+    <div class="cm-badges" id="badgesBeginner"></div>
     <div class="card-wrap" id="cardBeginner"></div>
     <textarea class="cm-cap" id="capBeginner" rows="4" readonly>{{ cap_beginner }}</textarea>
     <div class="done-btns">
@@ -233,7 +234,9 @@ document.getElementById('tutClose').onclick = ()=>{
 
 <div class="modal-overlay" id="masterModal" style="display:none">
   <div class="modal card-modal">
-    <div class="cm-congrats">🏆 All 20 done — <b>Master</b> achieved! Share &amp; tag {{ author }} for the Expert key.</div>
+    <div class="cm-congrats">🏆 All {{ total_ca }} done — <b>Master</b> achieved! Share &amp; tag {{ author }} for the Expert key.</div>
+    <p class="cm-badges-cap" id="capBadgesMaster"></p>
+    <div class="cm-badges" id="badgesMaster"></div>
     <div class="card-wrap" id="cardMaster"></div>
     <textarea class="cm-cap" id="capMaster" rows="4" readonly>{{ cap_master }}</textarea>
     <div class="done-btns">
@@ -246,16 +249,82 @@ document.getElementById('tutClose').onclick = ()=>{
     <button class="linklike" onclick="cmClose('master')">Maybe later</button>
   </div>
 </div>
+<div class="modal-overlay" id="expertModal" style="display:none">
+  <div class="modal card-modal">
+    <div class="cm-congrats">🔓 Expert Vault cleared — the full vault is yours.</div>
+    <p class="cm-badges-cap" id="capBadgesExpert"></p>
+    <div class="cm-badges" id="badgesExpert"></div>
+    <div class="card-wrap" id="cardExpert"></div>
+    <textarea class="cm-cap" id="capExpert" rows="4" readonly>{{ cap_expert }}</textarea>
+    <div class="done-btns">
+      <button class="primary" onclick="dlCard('expert','png')">⬇ Download card</button>
+      <a class="sharebtn" href="{{ url_for('completion') }}">🎓 Full card</a>
+      <button class="sharebtn" onclick="cmCopy('capExpert')">Copy caption</button>
+      <a class="sharebtn li" target="_blank" id="liExpert">LinkedIn</a>
+      <a class="sharebtn tw" target="_blank" id="twExpert">X</a>
+    </div>
+    <button class="linklike" onclick="cmClose('expert')">Maybe later</button>
+  </div>
+</div>
 <script>
-const CAP = { beginner: {{ cap_beginner|tojson }}, master: {{ cap_master|tojson }} };
+const CAP = { beginner: {{ cap_beginner|tojson }}, master: {{ cap_master|tojson }},
+              expert: {{ cap_expert|tojson }} };
+/* ---------------------------------------------------------------------------
+   Milestone pop-ups. Every tier the player has cleared and not yet been shown
+   gets its own pop-up, queued in order — so finishing Advanced pops Core first
+   if the Core card was somehow never seen, instead of silently skipping it.
+   Each pop-up carries the cumulative badge strip: clearing Advanced shows the
+   Core badge *and* the Advanced badge.
+--------------------------------------------------------------------------- */
+let BADGES = [];           // latest cumulative badge state from /api/submit
+let MS_QUEUE = [];         // milestones still waiting to be shown
+const MS_KEY = k => 'llmvault_' + k + '_shown_v4';
+
+function queueMilestones(j){
+  if(Array.isArray(j.badges)) BADGES = j.badges;
+  const reached = [];
+  if(j.core_done) reached.push('beginner');
+  if(j.advanced_done || j.prereq_done) reached.push('master');
+  if(j.expert_done) reached.push('expert');
+  MS_QUEUE = reached.filter(k => {
+    if(!document.getElementById(k + 'Modal')) return false;
+    try { return !localStorage.getItem(MS_KEY(k)); } catch(e){ return true; }
+  });
+  nextMilestone();
+}
+
+function nextMilestone(){
+  const k = MS_QUEUE.shift();
+  if(k) showCard(k);
+}
+
+function paintBadges(suffix){
+  const wrap = document.getElementById('badges' + suffix);
+  const cap = document.getElementById('capBadges' + suffix);
+  if(!wrap) return;
+  const rows = BADGES.length ? BADGES : [];
+  wrap.innerHTML = rows.map(b =>
+    '<span class="cm-badge' + (b.earned ? '' : ' locked') + '" title="' + b.sub + '">' +
+      '<img src="/static/img/ui/' + b.art + '.png" alt="">' +
+      '<span>' + (b.short || b.label) + (b.earned ? '' : ' 🔒') + '</span>' +
+    '</span>').join('');
+  if(cap){
+    const held = rows.filter(b => b.earned).map(b => b.short || b.label);
+    cap.innerHTML = held.length
+      ? 'Badges now held: <b>' + held.join(', ') + '</b>'
+      : '';
+  }
+}
+
 async function showCard(kind){
-  try { if(localStorage.getItem('llmvault_'+kind+'_shown_v3')) return; } catch(e){}
   const cap = CAP[kind];
   const suffix = kind.charAt(0).toUpperCase()+kind.slice(1);
+  try { localStorage.setItem(MS_KEY(kind), '1'); } catch(e){}
   document.getElementById('li'+suffix).href =
     'https://www.linkedin.com/feed/?shareActive=true&text=' + encodeURIComponent(cap);
   document.getElementById('tw'+suffix).href =
     'https://twitter.com/intent/tweet?text=' + encodeURIComponent(cap);
+  paintBadges(suffix);
   try {
     const svg = await (await fetch('/card.svg?v='+kind)).text();
     document.getElementById('card'+suffix).innerHTML = svg;
@@ -282,7 +351,15 @@ async function dlCard(variant, fmt){
 }
 function cmClose(kind){
   document.getElementById(kind+'Modal').style.display = 'none';
-  try { localStorage.setItem('llmvault_'+kind+'_shown_v3','1'); } catch(e){}
+  try { localStorage.setItem(MS_KEY(kind), '1'); } catch(e){}
+  setTimeout(nextMilestone, 320);   // hand over to the next milestone, if any
 }
+document.addEventListener('keydown', e => {
+  if(e.key !== 'Escape') return;
+  ['beginner','master','expert'].forEach(k => {
+    const m = document.getElementById(k+'Modal');
+    if(m && m.style.display === 'flex') cmClose(k);
+  });
+});
 </script>
 {% endblock %}

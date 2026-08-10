@@ -13,7 +13,7 @@ The Ultimate Hands-On OWASP LLM Top 10 Training Platform
 ## 🎬 Demo
 
 <p align="center">
-  <img src="./docs/demo_updated.gif" width="650" alt="LLMVault Demo">
+  <img src="./docs/demo.gif" width="650" alt="LLMVault Demo">
 </p>
 
 <p align="center">
@@ -44,18 +44,63 @@ The Ultimate Hands-On OWASP LLM Top 10 Training Platform
 
 </p>
 
-A deliberately-vulnerable, CTF-style **training range for the OWASP Top 10 for LLM Applications (2025)** — WebGoat / KubeGoat, but for AI. **25 labs across three tiers:** ten core one-per-category labs; ten **advanced, multi-turn** labs (jailbreaking, data poisoning, agent exploitation, model extraction); and five **expert** labs modelling real-world attack classes. Each tier unlocks the next.
+A deliberately-vulnerable, CTF-style **training range for the OWASP Top 10 for LLM Applications (2025)** — WebGoat / KubeGoat, but for AI.
 
-Every lab pairs the **attack** with a **defense** (in the private solutions guide): learn the fix by practising the break.
+It runs in two modes, and you pick one from the dashboard:
+
+**Play Mode** is the scored range. **25 labs across three tiers:** ten core one-per-category labs; ten **advanced, multi-turn** labs (jailbreaking, data poisoning, agent exploitation, model extraction); and five **expert** labs modelling real-world attack classes. Each tier unlocks the next. The assistants are scripted, so flags reproduce every time and you can practise a technique until it's muscle memory.
+
+**Live Mode** points the same attacks at a **real model running on your machine**. Nothing is scripted, the secret is generated fresh per session, and there is no flag to look up — you either talk the model into leaking it or you don't. No score, no penalties, unlimited hints.
+
+Every lab pairs the **attack** with a **defense**: solve it, then read what would have stopped you.
 
 > ⚠️ **Everything here is intentionally insecure. Authorised, self-hosted security education only.** Don't expose it to the internet or reuse its code in production.
 
-## 🆕 What's new in v1.1.0
+## 🆕 What's new in v2.0.0
 
-**Read before you attack.** Landing on any lab shows a short reference panel for that OWASP category: what the issue is, why it happens, and what to watch for in real-world systems. You start with the concept, not just the puzzle.
+**Live Mode.** The headline feature. Instead of a scripted bot, you're now talking to a real
+local model (Ollama, ~2 GB, CPU is fine) and the target secret is minted per session. The model
+is genuinely unpredictable, which is the point: a payload that worked yesterday may not work
+today, and you have to read what the model actually does with your text. Three scenarios ship
+with it, covering prompt injection, indirect injection through an uploaded image, and output
+handling where the leak only shows up downstream. Hints are free and unlimited here — there's
+no score to protect. Play Mode is untouched, and if you skip the Ollama setup the Live Zone just
+shows you the install steps and everything else works as before.
 
-- **Refreshed dashboard.** New background treatment and per-difficulty accent colors on each lab card.
-- **Hardened flag checks.** Flags are now verified by hash comparison rather than a stored plaintext match.
+**A real dashboard.** `/` is now Mission Command rather than a splash page: the two modes
+side by side, per-tier progress meters, your rank and score, a live activity feed across both
+modes, badges, and a status readout that tells you whether the local model is actually reachable.
+Everything on it is computed from your real progress — if there's no data yet, the panel says so
+instead of inventing a number.
+
+**Milestone pop-ups that don't skip.** Finish Core, Advanced or Expert and the card pops up on
+the spot, each one carrying the badges you now hold. Earning Advanced lights Core alongside it
+rather than quietly replacing it.
+
+**Notification centre.** One bell, identical on every page, with a Play / Live toggle so you see
+one mode at a time, a minimise control, and a dot on the Live tab when the local model needs
+attention.
+
+**Two dashboard themes.** Neon (the orange-and-lime default) and Phosphor, a green-CRT reading of
+the same screen. Colour only — no layout shifts either way.
+
+### Upgrading from 1.x
+
+Nothing to migrate. Pull the new files and run it:
+
+- **Your progress carries over.** `data/progress.json` from 1.x loads as-is — names, solves, hints and scores all intact. No schema change, no conversion step.
+- **No new dependencies.** `requirements.txt` is unchanged. Live Mode talks to Ollama over plain HTTP, so there's no client library to install.
+- **Live Mode is opt-in.** Skip the Ollama setup and the Live Zone just shows you the install steps; the 25 scripted labs work offline exactly as before.
+- **Custom labs still work.** The `Challenge` interface hasn't changed, so anything you dropped in `challenges/` needs no edits.
+- **The dark theme is gone,** replaced by Phosphor. If you had Dark selected, you'll open on Neon — pick Phosphor from Settings if you want the darker read.
+
+The major version is about the landing page and the second mode, not about breakage.
+
+### Previously, in v1.1.0
+
+- **Read before you attack.** Landing on any lab shows a short reference panel for that OWASP category — what the issue is, why it happens, and what to watch for in the wild.
+- **Refreshed Labs page,** including per-difficulty accent colours on each card.
+- **Hardened flag checks.** Flags are verified by hash comparison instead of a stored plaintext match.
 
 ## 📸 Screenshots
 
@@ -111,6 +156,68 @@ Five **expert** labs modelling real-world, disclosed-vulnerability attack classe
 
 ---
 
+## ⚡ Live Mode — a real model, no script
+
+Play Mode teaches you the shape of each attack against a bot that always answers the same way.
+Live Mode takes that away. The assistant is a real LLM running locally, the secret it's guarding
+is generated per session, and it streams its reply token by token so you can watch a jailbreak
+land or fall apart mid-sentence.
+
+There's no score here and no flag box. You win when the model itself gives up the secret, and the
+app checks its output rather than your typing. Hints are free and there are as many as you want —
+gating them behind a cost would only punish curiosity.
+
+| Scenario | OWASP | What you're actually learning |
+|---|---|---|
+| **The Helpdesk Override** | LLM01 Prompt Injection | A secret in a system prompt is not stored, it's just *context*. You'll get the model to hand over a Tier-2 escalation code by out-framing its instructions — and find that authority, urgency and role-play all still work on a live model. |
+| **The Screenshot Triage** | LLM01 Prompt Injection (multimodal) | **Indirect** injection. You never type the payload — you hide it in an image you upload, and the triage assistant reads it as instructions. This is the lesson people skip: text extracted from a file is user input, and OCR is an attack surface. |
+| **The Report Renderer** | LLM05 Improper Output Handling | The model's reply looks harmless; the damage happens *downstream*, when a template engine renders it. You'll make the rendered report leak a value the model never saw, which is the difference between "the model said something bad" and "the model's output was executed". |
+
+Each one ends with the defence — why the bug exists and what actually fixes it, not just
+"sanitise your inputs".
+
+### Getting Live Mode running
+
+```bash
+# 1. install Ollama from https://ollama.com, then make sure it's serving
+curl http://localhost:11434/api/tags
+
+# 2. pull the model (~2 GB, CPU only, no GPU needed)
+ollama pull qwen2.5:3b-instruct
+
+# 3. start LLMVault as usual — the Live Zone connects on its own
+python app.py
+```
+
+Expect a few seconds per reply on a laptop CPU; that's normal. Running Ollama elsewhere? Point
+`OLLAMA_HOST` at it. Prefer an OpenAI-compatible endpoint? Set `OPENAI_API_KEY`. Full notes in
+[`docs/LIVE_MODE_SETUP.md`](docs/LIVE_MODE_SETUP.md).
+
+**Skip this section entirely and nothing breaks.** Without a local model the Live Zone shows the
+setup steps and the other 25 labs carry on working offline.
+
+---
+
+## 🛰️ The dashboard
+
+`/` is Mission Command — where you land, and where you choose a mode.
+
+- **Two ways in.** Play Mode and Live Mode as the two things on the page, because they're the two
+  decisions you actually make. Live Mode asks for confirmation first: it's a live model and the
+  disclaimer is worth reading once.
+- **Progress that's real.** Four meters (Core, Advanced, Expert, Live), an overall completion ring,
+  your rank and how far you are from the next one, and an activity feed that merges Play solves and
+  Live wins. Nothing on the page is decorative filler with a plausible-looking number in it.
+- **Badges.** Core, Advanced and Expert, cumulative — clearing Advanced lights Core too, since you
+  can't reach one without the other.
+- **Local model status.** A dot in the topbar and a line in the notification drawer telling you
+  whether Ollama is reachable, how many models are pulled, and what to run if not.
+- **Where you are.** A small map placed from your system timezone. No IP lookup, nothing leaves
+  the machine.
+- **Themes.** Neon or Phosphor, from Settings. Colour only.
+
+---
+
 ## 🚀 Run it
 
 ```bash
@@ -119,7 +226,9 @@ python app.py
 # open http://127.0.0.1:5000
 ```
 
-No API key needed — the vulnerable assistants are **deterministic/scripted**, so flags reproduce reliably and the whole range runs fully offline.
+No API key needed, ever. Play Mode's assistants are **scripted**, so flags reproduce reliably and
+the whole range runs offline. Live Mode adds a real model, but it runs on your machine too — see
+[Live Mode](#-live-mode--a-real-model-no-script) below. Nothing in LLMVault calls a hosted API.
 
 ---
 
@@ -150,26 +259,34 @@ keeps them across `docker compose down/up`. Delete the file to reset everyone.
 - **First-run name gate** (locked once set) and a **one-time guided tutorial** on your first lab.
 - Every lab opens with a **short reference panel** for its OWASP category — plain-language explanation plus what to watch for — before you start attacking it.
 - After you solve a lab, a **📘 Learn — the fix** panel reveals the defensive lesson for that OWASP category.
+- **Milestone cards pop up the moment you clear a tier**, with the badges you've earned so far.
+- **One notification bell on every page**, with a Play / Live toggle and a minimise control.
 - **Responsive layout** — works on phones (the sidebar collapses, panels stack).
 
 ## 🕹️ How to play
 
 1. On first launch you set a **player name** (locked once chosen — it can't be changed after).
-2. Work the **core** labs; make each assistant leak its flag using that category's technique.
-3. Clear all 10 core labs to unlock the **advanced tier**; clear all advanced to unlock the **expert tier**.
-4. Reveal **hints** if stuck (−5 pts each). Submit flags (`LLMVAULT{...}`, configurable in `config.py`).
-5. Cards **float on hover** and turn **green when solved**; track everything on the **Scoreboard**.
+2. From the dashboard, pick **Play Mode** for the scored labs or **Live Mode** for the real model.
+3. Work the **core** labs; make each assistant leak its flag using that category's technique.
+4. Clear all 10 core labs to unlock the **advanced tier**; clear all advanced to unlock the **expert tier**.
+5. Reveal **hints** if stuck. Submit flags (`LLMVAULT{...}`, configurable in `config.py`).
+6. Cards **float on hover** and turn **green when solved**; track everything on the **Scoreboard**.
 
-**Scoring:** core 100–300 pts, advanced 400, expert 500; hints cost 10 / 25 / 50 (escalating).
+**Scoring (Play Mode only):** core 100–300 pts, advanced 400, expert 500; hints cost
+10 / 25 / 50, escalating. Your **rank** — Initiate up to Vault Master — is the highest threshold
+your score has passed. Live Mode is deliberately outside all of this: no points either way, so
+it can never move your scoreboard position.
 
 ---
 
 
 ## 🎓 Completion card & sharing
 
-Two milestone cards unlock automatically as a pop-up the moment you finish a tier:
-a **green Beginner** card (all 10 Core labs) and a **blue Master** card (all 20 Core +
-Advanced). Both are also at `/completion`. Each has a **Download card (PNG/SVG)** button,
+Three milestone cards unlock automatically as a pop-up the moment you finish a tier:
+a **green Beginner** card (all 10 Core labs), a **blue Master** card (all 20 Core +
+Advanced), and a **purple Expert** card (the full 25). Each pop-up also shows the badges you now
+hold, and they queue rather than overwrite each other — clear two tiers in one submit and you see
+both. All three live at `/completion` as well. Each has a **Download card (PNG/SVG)** button,
 a pre-written caption (Copy), and LinkedIn/X openers.
 
 **Sharing an image:** social sites can't auto-attach an image from a share link, so the
@@ -180,8 +297,8 @@ server-side as a themed SVG (`/card.svg`) and exports to PNG in-browser — no e
 ## 🧱 Architecture
 
 ```
-app.py                          # Flask: labs, chat, hint, submit, scoreboard, name-gate, unlock gating
-config.py                       # APP_NAME, AUTHOR/COPYRIGHT, flag prefix, scoring
+app.py                          # Flask: dashboard, labs, chat, hint, submit, live SSE, scoreboard, gating
+config.py                       # APP_NAME, AUTHOR/COPYRIGHT, flag prefix, scoring, Ollama host/model
 owasp_notes.py                  # per-category reference panel content (shown on lab entry)
 challenges/
   __init__.py                   # Challenge base (tier), registry, core_labs()/advanced_labs()
@@ -190,7 +307,15 @@ challenges/
   expert.enc                    # ENCRYPTED expert tier (ciphertext, shipped)
   expert_meta.json              # public KDF salt/params
   expert_vault.py               # runtime decryptor + declarative challenge engine
-templates/  static/             # dark violet UI + completion card + expert key gate
+live/
+  __init__.py                   # Scenario base + registry, per-session secrets, win checks
+  ollama_client.py              # streaming HTTP client for the local model
+  model_registry.py             # discovery: is a model actually reachable?
+  render_engine.py              # sandboxed template renderer (the LLM05 downstream sink)
+  image_probe.py                # text/metadata extraction from uploads (the LLM01 image path)
+  scenarios/                    # the Live Mode scenarios
+templates/  static/             # dashboard (Mission Command) + labs UI + cards + expert key gate
+  static/dashboard.css          # scoped dashboard stylesheet — Neon + Phosphor themes
 static/img/notes/               # icon artwork for the per-category reference panels
 Dockerfile  docker-compose.yml  # containerised deploy
 LICENSE                         # MIT + security notice
