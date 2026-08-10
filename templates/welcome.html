@@ -1,0 +1,909 @@
+{% extends "base.html" %}
+{% block title %}Mission Command — {{ app_name }}{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+<script>try{if(localStorage.getItem('llmvault-theme')==='phosphor')
+  document.documentElement.classList.add('is-crt');}catch(e){}</script>
+{% endblock %}
+
+{% block body_attr %} class="sg-page"{% endblock %}
+{% block backdrop %}{% endblock %}
+
+{% block shell %}
+{# ============================ icon sprite ================================ #}
+<svg class="sg-sprite" aria-hidden="true" focusable="false">
+<defs>
+  <linearGradient id="sgSparkGrad" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#a8e33a" stop-opacity=".28"/>
+    <stop offset="100%" stop-color="#a8e33a" stop-opacity="0"/>
+  </linearGradient>
+</defs>
+<symbol id="i-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9.5 9-7 9 7V20a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9.5 22v-8h5v8"/></symbol>
+<symbol id="i-trophy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M5 22h14"/><path d="M10 14.7V17c0 1.2-1.4 1.6-2 3"/><path d="M14 14.7V17c0 1.2 1.4 1.6 2 3"/><path d="M18 2H6v7a6 6 0 0 0 12 0z"/></symbol>
+<symbol id="i-award" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="5.5"/><path d="M8.5 13.9 7 22l5-2.8L17 22l-1.5-8.1"/></symbol>
+<symbol id="i-flask" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v7.4"/><path d="M14 9.4V2"/><path d="M8.5 2h7"/><path d="M14 9.4a6.5 6.5 0 1 1-4 0"/><path d="M5.6 16h12.8"/></symbol>
+<symbol id="i-book" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></symbol>
+<symbol id="i-cog" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v2.6M12 18.9v2.6M4.9 4.9l1.9 1.9M17.2 17.2l1.9 1.9M2.5 12h2.6M18.9 12h2.6M4.9 19.1l1.9-1.9M17.2 6.8l1.9-1.9"/></symbol>
+<symbol id="i-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M12 16.5V11"/><path d="M12 7.6h.01"/></symbol>
+<symbol id="i-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></symbol>
+<symbol id="i-terminal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m5 8 4 4-4 4"/><path d="M12.5 16H19"/></symbol>
+<symbol id="i-zap" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 13.5h6.5L9.5 22l9-11.5H12z"/></symbol>
+<symbol id="i-star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2.8 2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.6l-5.8 3.1 1.1-6.5-4.7-4.6 6.5-.9z"/></symbol>
+<symbol id="i-target" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.2"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2"/></symbol>
+<symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21.5s7.5-3.8 7.5-9.5V5L12 2.4 4.5 5v7c0 5.7 7.5 9.5 7.5 9.5z"/></symbol>
+<symbol id="i-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="10.5" width="17" height="11" rx="2.2"/><path d="M7.5 10.5V7a4.5 4.5 0 0 1 9 0v3.5"/></symbol>
+<symbol id="i-coin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.2"/><path d="M12 6.5v11"/><path d="M14.8 9H10.6a2.1 2.1 0 0 0 0 4.2h2.8a2.1 2.1 0 0 1 0 4.2H9.2"/></symbol>
+<symbol id="i-wifi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.6a11 11 0 0 1 14 0"/><path d="M1.6 9.1a16 16 0 0 1 20.8 0"/><path d="M8.4 16.1a6 6 0 0 1 7.2 0"/><path d="M12 19.8h.01"/></symbol>
+<symbol id="i-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h15"/><path d="m13 6 6 6-6 6"/></symbol>
+<symbol id="i-db" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5.5" rx="7.5" ry="3"/><path d="M4.5 5.5v6c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3v-6"/><path d="M4.5 11.5v6c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3v-6"/></symbol>
+<symbol id="i-cube" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m21 8-9-5-9 5v8l9 5 9-5z"/><path d="m3.3 7.6 8.7 5 8.7-5"/><path d="M12 21.4v-8.8"/></symbol>
+<symbol id="i-kebab" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></symbol>
+<symbol id="i-corner" viewBox="0 0 34 34" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square"><path d="M1.5 12.5v-11h11"/><path d="M5.5 20.5v-15h15" opacity=".45"/><path d="M17.5 1.5h6" opacity=".7"/><path d="M1.5 17.5v6" opacity=".7"/></symbol>
+<symbol id="i-hex" viewBox="0 0 48 48" fill="none" stroke="currentColor"><path d="M24 2.2 43 13.1v21.8L24 45.8 5 34.9V13.1z" stroke-width="1.7"/><path d="M24 7 38.8 15.5v17L24 41 9.2 32.5v-17z" stroke-width="1" opacity=".45"/></symbol>
+</svg>
+
+<div class="sg-shell">
+
+  {# ========================== left rail ================================= #}
+  <aside class="sg-side">
+
+    <a class="sg-brand sg-rise" style="--i:0" href="{{ url_for('welcome') }}">
+      <span class="sg-brand-mark">
+        <svg class="sg-brand-ring" viewBox="0 0 48 48" aria-hidden="true">
+          <path d="M24 2.6 42.6 13.3v21.4L24 45.4 5.4 34.7V13.3z"/>
+        </svg>
+        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="">
+      </span>
+      <span class="sg-brand-txt">
+        <span class="sg-brand-name">LLM<b>Vault</b></span>
+      </span>
+    </a>
+
+    <nav class="sg-nav sg-rise" style="--i:1" aria-label="Primary">
+      <a href="{{ url_for('welcome') }}" class="is-on" aria-current="page" title="Dashboard">
+        <svg class="sg-ico"><use href="#i-home"/></svg> <span class="sg-nav-t">Dashboard</span>
+        <span class="sg-nav-sp sg-kebab"><svg class="sg-ico-sm"><use href="#i-kebab"/></svg></span>
+      </a>
+      <a href="{{ url_for('labs') }}" title="Labs">
+        <svg class="sg-ico"><use href="#i-flask"/></svg> <span class="sg-nav-t">Labs</span>
+        <span class="sg-nav-sp">{{ nav_solved }}/{{ nav_total }}</span>
+      </a>
+      <a href="{{ url_for('live_zone') }}" title="Live Zone">
+        <svg class="sg-ico"><use href="#i-zap"/></svg> <span class="sg-nav-t">Live Zone</span>
+        <span class="sg-nav-sp">{{ tiers[3].done }}/{{ tiers[3].total }}</span>
+      </a>
+      <a href="{{ url_for('scoreboard') }}" title="Scoreboard">
+        <svg class="sg-ico"><use href="#i-trophy"/></svg> <span class="sg-nav-t">Scoreboard</span>
+      </a>
+      <a href="{{ url_for('completion') }}" title="Achievements">
+        <svg class="sg-ico"><use href="#i-award"/></svg> <span class="sg-nav-t">Achievements</span>
+      </a>
+      <button type="button" class="sg-nav-btn" id="sgSettings" aria-expanded="false" title="Settings">
+        <svg class="sg-ico"><use href="#i-cog"/></svg> <span class="sg-nav-t">Settings</span>
+      </button>
+      <button type="button" class="sg-nav-btn" id="sgAbout" aria-expanded="false" title="About">
+        <svg class="sg-ico"><use href="#i-info"/></svg> <span class="sg-nav-t">About</span>
+      </button>
+    </nav>
+
+    <div class="sg-panel sg-mini sg-rise" style="--i:2">
+      <div class="sg-mini-h">
+        <span class="sg-eyebrow">Local model</span>
+        <span class="sg-kebab"><svg class="sg-ico-sm"><use href="#i-kebab"/></svg></span>
+      </div>
+      <div class="sg-mini-v">
+        <span class="sg-dot" id="sgModelDot"></span>
+        <span id="sgModelState">Checking…</span>
+      </div>
+      <div class="sg-mini-v sg-mini-sub">
+        <span class="sg-dot {{ 'on' if store_ok else 'off' }}"></span>
+        <span>Store {{ 'ready' if store_ok else 'read-only' }} &middot; {{ store_sessions }} profile{{ '' if store_sessions == 1 else 's' }}</span>
+      </div>
+      <svg class="sg-spark" viewBox="0 0 210 38" preserveAspectRatio="none" aria-hidden="true">
+        <path class="sg-spark-fill" d="M0 34 14 30 28 32 42 25 56 27 70 20 84 23 98 15 112 18 126 11 140 14 154 8 168 11 182 5 196 8 210 3 210 38 0 38Z"/>
+        <path class="sg-spark-line" d="M0 34 14 30 28 32 42 25 56 27 70 20 84 23 98 15 112 18 126 11 140 14 154 8 168 11 182 5 196 8 210 3"/>
+      </svg>
+    </div>
+
+    <div class="sg-panel sg-mini sg-rise" style="--i:3">
+      <div class="sg-mini-h">
+        <span class="sg-eyebrow">Clearance</span>
+        <span class="sg-val" style="font-size:11px;color:var(--sg-green)">{{ rank.name }}</span>
+      </div>
+      {% set lit = (rank.pct * 9 / 100) | round(0, 'ceil') | int %}
+      <div class="sg-bars{{ ' hot' if rank.pct > 66 else '' }}">
+        {% for n in range(9) %}<i class="{{ 'on' if n < lit else '' }}"></i>{% endfor %}
+      </div>
+    </div>
+
+    <div class="sg-panel sg-mini sg-map sg-rise" style="--i:4">
+      <div class="sg-mini-h">
+        <span class="sg-eyebrow">Your location</span>
+        <span class="sg-map-approx">approx</span>
+      </div>
+      {% include "_worldmap.svg" %}
+      <div class="sg-map-cap">
+        <span class="sg-dot on"></span>
+        <span id="sgMapPlace">Resolving&hellip;</span>
+      </div>
+      <p class="sg-map-note" id="sgMapNote">From your system timezone. No IP lookup,
+        nothing leaves this machine.</p>
+    </div>
+  </aside>
+
+  {# ============================== stage ================================= #}
+  <div class="sg-stage">
+
+    {# ------------------------------ topbar ----------------------------- #}
+    <header class="sg-top sg-rise" style="--i:1">
+      <img class="sg-wordmark" src="{{ url_for('static', filename='img/ui/banner-lockup.png') }}"
+           alt="{{ app_name }}">
+      <span class="sg-rule sg-rule-brand"></span>
+
+      <div class="sg-top-greet">
+        <span class="sg-eyebrow">Welcome back.</span>
+        <div class="sg-top-name">{{ player_name if not needs_name else 'Operator' }}</div>
+      </div>
+
+      <div class="sg-top-mid" aria-hidden="true">
+        <img class="sg-globe" src="{{ url_for('static', filename='img/ui/globe.png') }}" alt="">
+        <span class="sg-chips">
+          <span class="sg-chip"><svg class="sg-ico"><use href="#i-terminal"/></svg>Prompt Injection</span>
+          <span class="sg-chip"><svg class="sg-ico"><use href="#i-db"/></svg>RAG &amp; Vector DB</span>
+          <span class="sg-chip"><svg class="sg-ico"><use href="#i-cube"/></svg>Agents</span>
+          <span class="sg-chip"><svg class="sg-ico"><use href="#i-shield"/></svg>LLM Security</span>
+        </span>
+      </div>
+
+      <div class="sg-top-stats">
+        <div class="sg-stat">
+          <span class="sg-eyebrow">Status</span>
+          <span class="sg-stat-v sg-help" id="sgTopStatus" tabindex="0"
+                title="Checking the local model runner…">
+            <span id="sgTopStatusTxt">Local</span>
+            <span class="sg-dot" id="sgTopDot"></span>
+          </span>
+        </div>
+        <span class="sg-rule"></span>
+        <div class="sg-stat">
+          <span class="sg-eyebrow">Rank</span>
+          <span class="sg-stat-v">{{ rank.name }}
+            <img class="sg-rank-hex" src="{{ url_for('static', filename='img/ui/' ~ rank.art ~ '.png') }}" alt="">
+          </span>
+        </div>
+        <span class="sg-rule"></span>
+        <div class="sg-stat">
+          <span class="sg-eyebrow">Score</span>
+          <span class="sg-stat-v sg-stat-score {{ 'neg' if score < 0 else '' }}">
+            {{ '%04d'|format(score) if score >= 0 else score }}
+          </span>
+        </div>
+        <span class="sg-rule"></span>
+        <button type="button" class="sg-bell nf-bell" id="sgBell" title="Notifications"
+                aria-label="Notifications" aria-expanded="false">
+          <svg class="sg-ico nf-bell-ico"><use href="#i-bell"/></svg>
+          <span class="sg-bell-dot nf-bell-dot" id="sgBellDot" hidden></span>
+        </button>
+      </div>
+
+      <div class="sg-drawer" id="sgDrawer" hidden>
+        <div class="sg-drw-h">
+          <span>Notifications</span>
+          <span class="nf-tabs" id="sgDrwTabs" role="tablist" aria-label="Notification mode">
+            <button type="button" class="nf-tab is-on" data-mode="play" role="tab"
+                    aria-selected="true">Play</button>
+            <button type="button" class="nf-tab" data-mode="live" role="tab"
+                    aria-selected="false">Live<span class="nf-tab-dot" id="sgTabDot" hidden></span></button>
+          </span>
+          <button type="button" class="nf-min" id="sgDrawerMin" aria-expanded="true"
+                  aria-controls="sgDrawerBody" title="Minimise">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round"><path d="M5 12h14"/></svg>
+          </button>
+        </div>
+        <div class="sg-drw-body" id="sgDrawerBody">
+        <div class="sg-drw-sec" data-pane="play">
+          <span class="sg-eyebrow">Play mode</span>
+          <a class="sg-drw-item" href="{{ url_for('labs') }}">
+            <span class="sg-pip ok">&#10003;</span>
+            <span><b>{{ nav_solved }} of {{ nav_total }} labs solved</b>
+              <span class="sg-sub">{{ nav_total - nav_solved }} still open. Pick up where you left off.</span></span>
+          </a>
+        </div>
+        <div class="sg-drw-sec" data-pane="live" hidden>
+          <span class="sg-eyebrow">Live mode</span>
+          <div class="sg-drw-item">
+            <span class="sg-pip" id="sgLivePip">…</span>
+            <span><b id="sgLiveTitle">Checking local model…</b>
+              <span class="sg-sub" id="sgLiveSub">Contacting Ollama.</span></span>
+          </div>
+          <div class="sg-setup" id="sgSetup" hidden>
+            <ol>
+              <li>Install Ollama from <a href="https://ollama.com" target="_blank" rel="noopener">ollama.com</a></li>
+              <li>Start it: <code>ollama serve</code></li>
+              <li>Pull the model: <code>ollama pull qwen2.5:3b-instruct</code></li>
+              <li>This reconnects on its own. No reload needed.</li>
+            </ol>
+            <p class="sg-sub" style="margin-top:6px">Looking at <code id="sgHost">{{ ollama_host }}</code>.
+              Running elsewhere? Point <code>OLLAMA_HOST</code> at it.</p>
+          </div>
+        </div>
+        </div>
+      </div>
+    </header>
+
+    {# ------------------------------- body ------------------------------ #}
+    <div class="sg-body">
+      <div class="sg-main">
+
+        {# ---- the two ways in ---- #}
+        <div class="sg-hero">
+          <a class="sg-mode sg-rise" style="--i:2" href="{{ url_for('labs') }}">
+            <svg class="sg-corner tl"><use href="#i-corner"/></svg>
+            <svg class="sg-corner tr"><use href="#i-corner"/></svg>
+            <svg class="sg-corner br"><use href="#i-corner"/></svg>
+            <svg class="sg-corner bl"><use href="#i-corner"/></svg>
+
+            <span class="sg-emblem-wrap">
+              <img class="sg-emblem sg-emblem-beat" src="{{ url_for('static', filename='img/ui/emblem-play.png') }}" alt="">
+            </span>
+
+            <h2>Play Mode</h2>
+            <p class="sg-mode-tag">Break it. Flag it. Fix it.</p>
+            <p class="sg-mode-copy">{{ nav_total }} scored labs across the OWASP LLM Top 10.</p>
+            <span class="sg-mode-cta">Enter the labs <svg class="sg-ico"><use href="#i-arrow"/></svg></span>
+          </a>
+
+          <button type="button" class="sg-mode is-train sg-rise" style="--i:3" id="sgGoLive">
+            <svg class="sg-corner tl"><use href="#i-corner"/></svg>
+            <svg class="sg-corner tr"><use href="#i-corner"/></svg>
+            <svg class="sg-corner br"><use href="#i-corner"/></svg>
+            <svg class="sg-corner bl"><use href="#i-corner"/></svg>
+
+            <span class="sg-emblem-wrap">
+              <svg class="sg-orbit" viewBox="0 0 100 100" aria-hidden="true">
+                <circle cx="50" cy="50" r="47"/>
+                <circle cx="50" cy="50" r="41"/>
+              </svg>
+              <img class="sg-emblem" src="{{ url_for('static', filename='img/ui/emblem-live.png') }}" alt="">
+            </span>
+
+            <h2>Live Mode</h2>
+            <p class="sg-mode-tag">Real model. Real stakes.</p>
+            <p class="sg-mode-copy">{{ live_total }} unscripted scenarios on a live local model.</p>
+            <span class="sg-mode-cta">Go live <svg class="sg-ico"><use href="#i-arrow"/></svg></span>
+          </button>
+        </div>
+
+        {# ---- three readouts ---- #}
+        <div class="sg-metrics">
+          <section class="sg-panel sg-rise" style="--i:4">
+            <div class="sg-panel-h">
+              <h2>Vault overview</h2>
+              <span class="sg-kebab"><svg class="sg-ico-sm"><use href="#i-kebab"/></svg></span>
+            </div>
+            <div class="sg-metric-b">
+              <div class="sg-meters">
+                {% for t in tiers %}
+                <div class="sg-meter">
+                  <span class="sg-meter-k">{{ t.key }}</span>
+                  <span class="sg-cells {{ t.tone }}">
+                    {% for n in range(12) %}<i class="{{ 'on' if n < t.cells else '' }}" style="--d:{{ n * 26 }}ms"></i>{% endfor %}
+                  </span>
+                  <span class="sg-meter-n">{{ t.done }}/{{ t.total }}</span>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+          </section>
+
+          <section class="sg-panel sg-rise" style="--i:5">
+            <div class="sg-panel-h">
+              <h2>Progress</h2>
+              <span class="sg-kebab"><svg class="sg-ico-sm"><use href="#i-kebab"/></svg></span>
+            </div>
+            <div class="sg-metric-b sg-donut-wrap">
+              <div class="sg-donut">
+                <svg viewBox="0 0 126 126" aria-hidden="true">
+                  <circle class="sg-donut-track" cx="63" cy="63" r="54"/>
+                  <circle class="sg-donut-arc" cx="63" cy="63" r="54"
+                          style="--circ:339.3;--off:{{ (339.3 * (100 - overall_pct) / 100) | round(1) }}"/>
+                </svg>
+                <span class="sg-donut-mid">{{ overall_pct }}%</span>
+              </div>
+              <span class="sg-donut-cap">{{ overall_done }} of {{ overall_total }} cleared</span>
+            </div>
+          </section>
+
+          <section class="sg-panel sg-rise" style="--i:6">
+            <div class="sg-panel-h">
+              <h2>Rank</h2>
+              <span class="sg-kebab"><svg class="sg-ico-sm"><use href="#i-kebab"/></svg></span>
+            </div>
+            <div class="sg-metric-b sg-rank">
+              <img class="sg-rank-art" src="{{ url_for('static', filename='img/ui/' ~ rank.art ~ '.png') }}" alt="">
+              <span class="sg-rank-name">{{ rank.name }}</span>
+              {% if rank.next %}
+                <span class="sg-rank-next">Next: {{ rank.next }}</span>
+                <span class="sg-track"><i style="--w:{{ rank.pct }}%"></i></span>
+                <span class="sg-rank-xp">{{ rank.at }} / {{ rank.goal }} pts</span>
+              {% else %}
+                <span class="sg-rank-next">Top rank reached</span>
+                <span class="sg-track"><i style="--w:100%"></i></span>
+                <span class="sg-rank-xp">{{ rank.at }} pts</span>
+              {% endif %}
+            </div>
+          </section>
+        </div>
+      </div>
+
+      {# ------------------------------ rail ----------------------------- #}
+      <div class="sg-rail">
+
+        <section class="sg-panel sg-feed sg-rise" style="--i:4">
+          <div class="sg-panel-h">
+            <h2>Activity</h2>
+            <span class="sg-tabs" id="sgTabs">
+              <button type="button" class="sg-ghost is-on" data-tab="all">All</button>
+              <button type="button" class="sg-ghost" data-tab="play">Play</button>
+              <button type="button" class="sg-ghost" data-tab="live">Live</button>
+            </span>
+          </div>
+          {% if activity %}
+          <ul class="sg-feed-list" id="sgFeed">
+            {% for item in activity %}
+            <li data-mode="{{ item.mode }}">
+              <span class="sg-fi {{ item.mode }}">
+                <svg class="sg-ico">
+                  {%- if item.status == 'done' -%}
+                    <use href="{{ '#i-zap' if item.mode == 'live' else '#i-star' }}"/>
+                  {%- else -%}
+                    <use href="{{ '#i-target' if item.mode == 'live' else '#i-flask' }}"/>
+                  {%- endif -%}
+                </svg>
+              </span>
+              <span class="sg-fb">
+                <b>{{ item.title }}</b>
+                <span>{{ item.owasp.split(':')[0] }} &middot; {{ 'live' if item.mode == 'live' else 'play' }}</span>
+              </span>
+              <span class="sg-fm {{ 'done' if item.status == 'done' else '' }}">
+                {%- if item.status == 'done' -%}
+                  {{ '+' ~ item.points if item.points is not none else 'solved' }}
+                {%- else -%}
+                  open
+                {%- endif -%}
+              </span>
+            </li>
+            {% endfor %}
+          </ul>
+          <p class="sg-empty" id="sgFeedEmpty" hidden>Nothing in this mode yet.</p>
+          {% else %}
+          <p class="sg-empty">No runs logged yet.<br>Solve your first lab and it lands here.</p>
+          {% endif %}
+        </section>
+
+        <section class="sg-panel sg-rise" style="--i:5">
+          <div class="sg-panel-h">
+            <h2>Badges</h2>
+            <a class="sg-ghost" href="{{ url_for('completion') }}">View all</a>
+          </div>
+          {% set earned_n = badges | selectattr('earned') | list | length %}
+          <div class="sg-badges">
+            {% for b in badges %}
+            <span class="sg-badge {{ '' if b.earned else 'locked' }}"
+                  title="{{ b.label }} — {{ b.sub }}{{ '' if b.earned else ' (locked)' }}">
+              <img src="{{ url_for('static', filename='img/ui/' ~ b.art ~ '.png') }}" alt="">
+              <em class="sg-badge-t">{{ b.short }}</em>
+            </span>
+            {% endfor %}
+          </div>
+          <div class="sg-badges-foot">
+            <span>{{ earned_n }} of {{ badges|length }} held</span>
+            <span class="sg-badges-held">
+              {%- if earned_n -%}
+                {{ badges | selectattr('earned') | map(attribute='short') | join(', ') }}
+              {%- else -%}none yet{%- endif -%}
+            </span>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    {# ---------------------------- status bar --------------------------- #}
+    <footer class="sg-foot sg-rise" style="--i:7">
+      <div class="sg-foot-mid">
+        <div class="sg-facts">
+      <div class="sg-fact">
+        <svg class="sg-ico"><use href="#i-lock"/></svg>
+        <span><b>No API key</b><span>100% local</span></span>
+      </div>
+      <div class="sg-fact g">
+        <svg class="sg-ico"><use href="#i-coin"/></svg>
+        <span><b>Zero cost</b><span>Open source</span></span>
+      </div>
+      <div class="sg-fact o">
+        <svg class="sg-ico"><use href="#i-wifi"/></svg>
+        <span><b>Runs offline</b><span>Nothing leaves the box</span></span>
+      </div>
+        </div>
+        <a class="sg-sig" href="{{ repo_url }}" target="_blank" rel="noopener">@{{ author_handle }}</a>
+      </div>
+
+      <div class="sg-clock">
+        <svg class="sg-ico"><use href="#i-terminal"/></svg>
+        <span>
+          <span class="sg-clock-t" id="sgClock">--:--:--</span>
+          <span class="sg-clock-d"><span id="sgDate">&nbsp;</span> <span class="sg-tz" id="sgTz"></span></span>
+        </span>
+      </div>
+    </footer>
+  </div>
+</div>
+
+{# ============================ Settings dialog =========================== #}
+<div class="sg-dlg" id="sgSettingsDlg" hidden role="dialog" aria-modal="true" aria-label="Settings">
+  <div class="sg-dlg-box">
+    <div class="sg-dlg-h">
+      <h2>Settings</h2>
+      <button type="button" class="sg-dlg-x" data-close aria-label="Close">&times;</button>
+    </div>
+    <div class="sg-dlg-b">
+
+      <section class="sg-fset">
+        <h3>Operator</h3>
+        <div class="sg-frow">
+          <span class="sg-flab">Handle</span>
+          <span class="sg-fval">{{ player_name if not needs_name else 'Guest' }}
+            <em>locked once set</em></span>
+        </div>
+        <label class="sg-flab" for="sgRole">Role</label>
+        {% set roles = ['Security Lead','Penetration Tester','Red Teamer','Security Analyst','Developer','Researcher','Student','Other'] %}
+        <select id="sgRole" class="sg-select">
+          {% for r in roles %}<option {{ 'selected' if r == player_role else '' }}>{{ r }}</option>{% endfor %}
+          {% if player_role and player_role not in roles %}<option selected>{{ player_role }}</option>{% endif %}
+        </select>
+        <button type="button" class="sg-btn" id="sgRoleSave">Save role</button>
+        <p class="sg-note" id="sgRoleMsg" hidden></p>
+      </section>
+
+      <section class="sg-fset">
+        <h3>Appearance</h3>
+        <div class="sg-seg" id="sgTheme" role="group" aria-label="Dashboard theme">
+          <button type="button" data-theme="neon">Neon</button>
+          <button type="button" data-theme="phosphor">Phosphor</button>
+        </div>
+        <p class="sg-note">Neon is the orange-and-lime default. Phosphor is a
+          green CRT reading of the same screen — monochrome terminal, heavier
+          scanlines, nothing moves. Applies to this dashboard.</p>
+      </section>
+    </div>
+  </div>
+</div>
+
+{# ============================== About dialog ============================ #}
+<div class="sg-dlg" id="sgAboutDlg" hidden role="dialog" aria-modal="true" aria-label="About">
+  <div class="sg-dlg-box">
+    <div class="sg-dlg-h">
+      <h2>About {{ app_name }}</h2>
+      <button type="button" class="sg-dlg-x" data-close aria-label="Close">&times;</button>
+    </div>
+    <div class="sg-dlg-b">
+
+      <p class="sg-lede">A deliberately vulnerable training range for the
+        <b>OWASP Top 10 for LLM Applications (2025)</b>. You learn each weakness by
+        exploiting it, then read the defence that would have stopped you.</p>
+      <div class="sg-warn">Every lab is intentionally insecure. Authorised security
+        training only.</div>
+
+      <section class="sg-fset">
+        <h3>What's inside</h3>
+        <ul class="sg-list">
+          <li>{{ core_n + adv_n }} scored labs — {{ core_n }} Core, {{ adv_n }} Advanced, {{ points_pool }} points.</li>
+          <li>{{ expert_count }} Expert labs, encrypted until you earn the key.</li>
+          <li>{{ live_total }} Live scenarios against a real local model.</li>
+        </ul>
+      </section>
+
+      <section class="sg-fset">
+        <h3>Ranks</h3>
+        <p class="sg-note">Score is lab points minus hint penalties (10 / 25 / 50, escalating).
+          Your rank is the highest threshold your score has passed.</p>
+        <div class="sg-ranks">
+          {% for r in ranks %}
+          <span class="sg-rankchip {{ 'is-on' if r.name == rank.name else '' }}">
+            <img src="{{ url_for('static', filename='img/ui/rank-' ~ loop.index ~ '.png') }}" alt="">
+            <b>{{ r.name }}</b><em>{{ r.at }}</em>
+          </span>
+          {% endfor %}
+        </div>
+      </section>
+
+      <section class="sg-fset">
+        <p class="sg-note">Built by {{ author }} &middot; {{ copyright }}</p>
+        <div class="sg-dlg-links">
+          <a class="sg-btn" href="{{ repo_url }}" target="_blank" rel="noopener">Source &#8599;</a>
+          <a class="sg-btn ghost" href="https://genai.owasp.org/llm-top-10/" target="_blank" rel="noopener">OWASP LLM Top 10 &#8599;</a>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+{# ===================== Live Zone disclaimer (unchanged flow) ============= #}
+<div class="lz-modal" id="lzModal" hidden>
+  <div class="lz-modal-inner" id="lzModalInner">
+    <img class="lz-modal-art" src="{{ url_for('static', filename='img/live_zone_panel.png') }}"
+         alt="You are in Live Zone. Real-time, unfiltered, unforgiving. Disclaimer: you are about to access a live environment. Mistakes here can have real consequences. Ensure you have authorization and full understanding before proceeding.">
+    <div class="lz-modal-actions">
+      <a href="{{ url_for('live_zone') }}" class="lz-modal-enter">Enter Live Zone &nbsp;&rarr;</a>
+      <button type="button" class="lz-modal-cancel" id="lzCancelBtn">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ------------------------------------------- location heat (no IP lookup) --- */
+(function(){
+  const svg = document.querySelector('.sg-map-svg');
+  const heat = document.getElementById('sgHeat');
+  const place = document.getElementById('sgMapPlace');
+  const note = document.getElementById('sgMapNote');
+  if(!svg || !heat || !place) return;
+
+  /* IANA zone -> [lat, lon, label]. Covers the common zones; anything missing
+     falls back to deriving longitude from the UTC offset, which is what a
+     timezone fundamentally encodes. */
+  const ZONES = {
+    'Asia/Kolkata':[22.6,88.4,'Kolkata'], 'Asia/Calcutta':[22.6,88.4,'Kolkata'],
+    'Asia/Delhi':[28.6,77.2,'Delhi'], 'Asia/Karachi':[24.9,67.0,'Karachi'],
+    'Asia/Dhaka':[23.8,90.4,'Dhaka'], 'Asia/Colombo':[6.9,79.9,'Colombo'],
+    'Asia/Kathmandu':[27.7,85.3,'Kathmandu'], 'Asia/Dubai':[25.2,55.3,'Dubai'],
+    'Asia/Tehran':[35.7,51.4,'Tehran'], 'Asia/Jerusalem':[31.8,35.2,'Jerusalem'],
+    'Asia/Riyadh':[24.7,46.7,'Riyadh'], 'Asia/Baghdad':[33.3,44.4,'Baghdad'],
+    'Asia/Tashkent':[41.3,69.2,'Tashkent'], 'Asia/Almaty':[43.2,76.9,'Almaty'],
+    'Asia/Bangkok':[13.8,100.5,'Bangkok'], 'Asia/Jakarta':[-6.2,106.8,'Jakarta'],
+    'Asia/Singapore':[1.35,103.8,'Singapore'], 'Asia/Kuala_Lumpur':[3.1,101.7,'Kuala Lumpur'],
+    'Asia/Manila':[14.6,121.0,'Manila'], 'Asia/Ho_Chi_Minh':[10.8,106.7,'Ho Chi Minh'],
+    'Asia/Hong_Kong':[22.3,114.2,'Hong Kong'], 'Asia/Shanghai':[31.2,121.5,'Shanghai'],
+    'Asia/Taipei':[25.0,121.6,'Taipei'], 'Asia/Seoul':[37.6,127.0,'Seoul'],
+    'Asia/Tokyo':[35.7,139.7,'Tokyo'], 'Asia/Yekaterinburg':[56.8,60.6,'Yekaterinburg'],
+    'Europe/London':[51.5,-0.13,'London'], 'Europe/Dublin':[53.3,-6.26,'Dublin'],
+    'Europe/Lisbon':[38.7,-9.14,'Lisbon'], 'Europe/Madrid':[40.4,-3.7,'Madrid'],
+    'Europe/Paris':[48.9,2.35,'Paris'], 'Europe/Brussels':[50.8,4.35,'Brussels'],
+    'Europe/Amsterdam':[52.4,4.9,'Amsterdam'], 'Europe/Berlin':[52.5,13.4,'Berlin'],
+    'Europe/Zurich':[47.4,8.54,'Zurich'], 'Europe/Rome':[41.9,12.5,'Rome'],
+    'Europe/Vienna':[48.2,16.4,'Vienna'], 'Europe/Prague':[50.1,14.4,'Prague'],
+    'Europe/Warsaw':[52.2,21.0,'Warsaw'], 'Europe/Stockholm':[59.3,18.1,'Stockholm'],
+    'Europe/Oslo':[59.9,10.75,'Oslo'], 'Europe/Copenhagen':[55.7,12.6,'Copenhagen'],
+    'Europe/Helsinki':[60.2,24.9,'Helsinki'], 'Europe/Athens':[38.0,23.7,'Athens'],
+    'Europe/Bucharest':[44.4,26.1,'Bucharest'], 'Europe/Kyiv':[50.5,30.5,'Kyiv'],
+    'Europe/Kiev':[50.5,30.5,'Kyiv'], 'Europe/Istanbul':[41.0,29.0,'Istanbul'],
+    'Europe/Moscow':[55.8,37.6,'Moscow'],
+    'Africa/Lagos':[6.5,3.4,'Lagos'], 'Africa/Cairo':[30.0,31.2,'Cairo'],
+    'Africa/Nairobi':[-1.3,36.8,'Nairobi'], 'Africa/Johannesburg':[-26.2,28.0,'Johannesburg'],
+    'Africa/Accra':[5.6,-0.19,'Accra'], 'Africa/Casablanca':[33.6,-7.6,'Casablanca'],
+    'America/New_York':[40.7,-74.0,'New York'], 'America/Toronto':[43.7,-79.4,'Toronto'],
+    'America/Chicago':[41.9,-87.6,'Chicago'], 'America/Denver':[39.7,-105.0,'Denver'],
+    'America/Phoenix':[33.4,-112.1,'Phoenix'], 'America/Los_Angeles':[34.1,-118.2,'Los Angeles'],
+    'America/Vancouver':[49.3,-123.1,'Vancouver'], 'America/Mexico_City':[19.4,-99.1,'Mexico City'],
+    'America/Bogota':[4.7,-74.1,'Bogota'], 'America/Lima':[-12.0,-77.0,'Lima'],
+    'America/Santiago':[-33.4,-70.7,'Santiago'], 'America/Sao_Paulo':[-23.5,-46.6,'Sao Paulo'],
+    'America/Argentina/Buenos_Aires':[-34.6,-58.4,'Buenos Aires'],
+    'America/Halifax':[44.6,-63.6,'Halifax'], 'America/Anchorage':[61.2,-149.9,'Anchorage'],
+    'Australia/Perth':[-31.9,115.9,'Perth'], 'Australia/Adelaide':[-34.9,138.6,'Adelaide'],
+    'Australia/Brisbane':[-27.5,153.0,'Brisbane'], 'Australia/Sydney':[-33.9,151.2,'Sydney'],
+    'Australia/Melbourne':[-37.8,145.0,'Melbourne'],
+    'Pacific/Auckland':[-36.8,174.8,'Auckland'], 'Pacific/Honolulu':[21.3,-157.9,'Honolulu'],
+    'UTC':[51.5,0,'UTC'], 'Etc/UTC':[51.5,0,'UTC'], 'GMT':[51.5,0,'GMT'],
+  };
+
+  function resolve(){
+    let zone = '';
+    try{ zone = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; }catch(e){}
+    if(ZONES[zone]) return {lat:ZONES[zone][0], lon:ZONES[zone][1],
+                            label:ZONES[zone][2], zone, exact:true};
+    // fall back: a timezone is an offset, and an offset is a longitude
+    const offMin = -new Date().getTimezoneOffset();
+    const lon = Math.max(-179, Math.min(179, offMin / 60 * 15));
+    const city = zone ? zone.split('/').pop().replace(/_/g,' ') : 'Unknown';
+    return {lat: 30, lon, label: city, zone: zone || 'offset only', exact:false};
+  }
+
+  const W = +svg.dataset.w, H = +svg.dataset.h;
+  const top = +svg.dataset.latTop, bot = +svg.dataset.latBot;
+  const at = resolve();
+  const x = (at.lon + 180) / 360 * W;
+  const y = (top - at.lat) / (top - bot) * H;
+
+  heat.setAttribute('transform', `translate(${x.toFixed(1)} ${y.toFixed(1)})`);
+  heat.removeAttribute('hidden');
+  place.textContent = at.label;
+  place.title = at.zone ? 'Timezone: ' + at.zone : '';
+  if(!at.exact && note){
+    note.textContent = 'Placed from your UTC offset (' + at.zone +
+      '). No IP lookup, nothing leaves this machine.';
+  }
+})();
+
+/* ------------------------------------------------- clock (host wall time) --- */
+(function(){
+  const t = document.getElementById('sgClock'), d = document.getElementById('sgDate');
+  const z = document.getElementById('sgTz');
+  const M = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+  const p = n => String(n).padStart(2,'0');
+  let baseMs = null, tookAt = null, offMin = 0;
+
+  function paint(){
+    if(baseMs === null) return;
+    // shift into the host's offset, then read UTC parts to get its wall clock
+    const w = new Date(baseMs + (Date.now() - tookAt) + offMin * 60000);
+    t.textContent = p(w.getUTCHours())+':'+p(w.getUTCMinutes())+':'+p(w.getUTCSeconds());
+    d.textContent = p(w.getUTCDate())+' '+M[w.getUTCMonth()]+' '+w.getUTCFullYear();
+  }
+  async function sync(){
+    try{
+      const r = await fetch('/api/time', {cache:'no-store'});
+      if(!r.ok) throw new Error('time');
+      const j = await r.json();
+      baseMs = j.epoch * 1000; tookAt = Date.now(); offMin = j.offset_min;
+      if(z) z.textContent = j.tz;
+    }catch(e){
+      // no server reachable: fall back to this device so the panel is never blank
+      baseMs = Date.now(); tookAt = Date.now();
+      offMin = -new Date().getTimezoneOffset();
+      if(z) z.textContent = 'DEVICE';
+    }
+    paint();
+  }
+  sync(); setInterval(paint, 1000); setInterval(sync, 300000);
+})();
+
+/* ------------------------------------------------------ activity filters --- */
+(function(){
+  const tabs = document.getElementById('sgTabs');
+  const feed = document.getElementById('sgFeed');
+  const empty = document.getElementById('sgFeedEmpty');
+  if(!tabs || !feed) return;
+  const rows = Array.from(feed.children);
+  tabs.addEventListener('click', e => {
+    const b = e.target.closest('[data-tab]'); if(!b) return;
+    const mode = b.dataset.tab;
+    tabs.querySelectorAll('[data-tab]').forEach(x => x.classList.toggle('is-on', x === b));
+    let shown = 0;
+    rows.forEach(li => {
+      const on = mode === 'all' || li.dataset.mode === mode;
+      li.hidden = !on; if(on) shown++;
+    });
+    empty.hidden = shown !== 0;
+  });
+})();
+
+/* ------------------------------------------------- bell + modal dialogs --- */
+(function(){
+  const bell = document.getElementById('sgBell');
+  const drawer = document.getElementById('sgDrawer');
+  if(!bell || !drawer) return;
+
+  /* drawer minimise: collapses to its own header, remembered per browser */
+  const minBtn = document.getElementById('sgDrawerMin');
+  function paintMin(){
+    const min = drawer.classList.contains('is-min');
+    if(minBtn){
+      minBtn.setAttribute('aria-expanded', String(!min));
+      minBtn.title = min ? 'Expand' : 'Minimise';
+      minBtn.classList.toggle('is-min', min);
+    }
+  }
+  try{ if(localStorage.getItem('llmvault-notif') === 'min') drawer.classList.add('is-min'); }catch(e){}
+  paintMin();
+  if(minBtn) minBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    const min = drawer.classList.toggle('is-min');
+    try{ localStorage.setItem('llmvault-notif', min ? 'min' : 'full'); }catch(e){}
+    paintMin();
+  });
+
+  /* Play / Live toggle: one pane at a time, so the drawer stays short */
+  const tabs = document.getElementById('sgDrwTabs');
+  const panes = drawer.querySelectorAll('[data-pane]');
+  function showPane(mode){
+    panes.forEach(x => { x.hidden = x.dataset.pane !== mode; });
+    if(tabs) tabs.querySelectorAll('[data-mode]').forEach(b => {
+      const on = b.dataset.mode === mode;
+      b.classList.toggle('is-on', on);
+      b.setAttribute('aria-selected', String(on));
+    });
+    try{ localStorage.setItem('llmvault-notif-tab', mode); }catch(e){}
+  }
+  let startTab = 'play';
+  try{ startTab = localStorage.getItem('llmvault-notif-tab') || 'play'; }catch(e){}
+  showPane(startTab === 'live' ? 'live' : 'play');
+  if(tabs) tabs.addEventListener('click', e => {
+    e.stopPropagation();
+    const b = e.target.closest('[data-mode]');
+    if(b) showPane(b.dataset.mode);
+  });
+  window.__nfShowPane = showPane;
+
+  bell.addEventListener('click', e => {
+    e.stopPropagation();
+    const open = drawer.hidden;
+    drawer.hidden = !open;
+    bell.setAttribute('aria-expanded', String(open));
+  });
+  document.addEventListener('click', e => {
+    if(!drawer.hidden && !drawer.contains(e.target) && !bell.contains(e.target)){
+      drawer.hidden = true; bell.setAttribute('aria-expanded','false');
+    }
+  });
+
+  /* --- dialogs: Settings and About --------------------------------------- */
+  const dialogs = [
+    ['sgSettings', 'sgSettingsDlg'],
+    ['sgAbout',    'sgAboutDlg'],
+  ];
+  let openDlg = null, opener = null;
+
+  function close(){
+    if(!openDlg) return;
+    openDlg.classList.remove('is-open');
+    const d = openDlg; openDlg = null;
+    document.body.style.overflow = '';
+    setTimeout(() => { d.hidden = true; }, 200);
+    if(opener){ opener.setAttribute('aria-expanded','false'); opener.focus(); }
+  }
+  function open(dlg, btn){
+    close();
+    openDlg = dlg; opener = btn || null;
+    dlg.hidden = false;
+    requestAnimationFrame(() => dlg.classList.add('is-open'));
+    document.body.style.overflow = 'hidden';
+    if(btn) btn.setAttribute('aria-expanded','true');
+    const first = dlg.querySelector('select, input, button:not([data-close])');
+    (first || dlg.querySelector('[data-close]')).focus();
+  }
+
+  dialogs.forEach(([btnId, dlgId]) => {
+    const btn = document.getElementById(btnId), dlg = document.getElementById(dlgId);
+    if(!btn || !dlg) return;
+    btn.addEventListener('click', e => { e.stopPropagation(); open(dlg, btn); });
+    dlg.addEventListener('click', e => {
+      if(e.target === dlg || e.target.closest('[data-close]')) close();
+    });
+  });
+  document.addEventListener('keydown', e => {
+    if(e.key !== 'Escape') return;
+    if(openDlg) close();
+    else if(!drawer.hidden){ drawer.hidden = true; bell.setAttribute('aria-expanded','false'); }
+  });
+
+  /* --- save role -------------------------------------------------------- */
+  function flash(el, text, ok){
+    if(!el) return;
+    el.hidden = false; el.textContent = text;
+    el.className = 'sg-note ' + (ok ? 'ok' : 'bad');
+  }
+  const save = document.getElementById('sgRoleSave');
+  const sel  = document.getElementById('sgRole');
+  const rmsg = document.getElementById('sgRoleMsg');
+  if(save) save.addEventListener('click', async () => {
+    save.disabled = true; const was = save.textContent; save.textContent = 'Saving…';
+    try{
+      const r = await fetch('/api/setrole', {method:'POST',
+        headers:{'Content-Type':'application/json'}, body: JSON.stringify({role: sel.value})});
+      const j = await r.json().catch(() => ({}));
+      if(r.ok && j.ok !== false) flash(rmsg, 'Role saved.', true);
+      else flash(rmsg, j.error || 'Could not save that role.', false);
+    }catch(err){ flash(rmsg, 'No response from the server.', false); }
+    save.disabled = false; save.textContent = was;
+  });
+
+  /* --- theme switch ----------------------------------------------------- */
+  const seg = document.getElementById('sgTheme');
+  function readTheme(){
+    // 'dark' is the retired theme — anyone still carrying it lands on Neon
+    try{ return localStorage.getItem('llmvault-theme') === 'phosphor' ? 'phosphor' : 'neon'; }
+    catch(e){ return document.documentElement.classList.contains('is-crt') ? 'phosphor' : 'neon'; }
+  }
+  function applyTheme(name){
+    document.documentElement.classList.toggle('is-crt', name === 'phosphor');
+    try{ localStorage.setItem('llmvault-theme', name); }catch(e){}
+    if(seg) seg.querySelectorAll('[data-theme]').forEach(
+      b => b.classList.toggle('is-on', b.dataset.theme === name));
+  }
+  applyTheme(readTheme());
+  if(seg) seg.addEventListener('click', e => {
+    const b = e.target.closest('[data-theme]');
+    if(b) applyTheme(b.dataset.theme);
+  });
+})();
+
+/* --------------------------------------------- local model health polling --- */
+(function(){
+  const dot = document.getElementById('sgModelDot');
+  const state = document.getElementById('sgModelState');
+  const topDot = document.getElementById('sgTopDot');
+  const topTxt = document.getElementById('sgTopStatusTxt');
+  const topWrap = document.getElementById('sgTopStatus');
+  const pip = document.getElementById('sgLivePip');
+  const title = document.getElementById('sgLiveTitle');
+  const sub = document.getElementById('sgLiveSub');
+  const setup = document.getElementById('sgSetup');
+  const host = document.getElementById('sgHost');
+  const badge = document.getElementById('sgBellDot');
+  if(!dot) return;
+
+  function apply(s){
+    const ok = !!s.ready;
+    dot.className = 'sg-dot ' + (ok ? 'on' : 'off');
+    topDot.className = 'sg-dot ' + (ok ? 'on' : 'off');
+    state.textContent = ok ? 'Connected' : (s.available ? 'No models' : 'Offline');
+    topTxt.textContent = ok ? 'Online' : 'Offline';
+    if(topWrap){
+      const host = s.host || {{ ollama_host|tojson }};
+      topWrap.title = ok
+        ? 'Ollama connected at ' + host + ' — ' + (s.models || []).length +
+          ' model(s) ready. Live Mode available.'
+        : (s.available
+            ? 'Ollama is running at ' + host + ' but no models are pulled. ' +
+              'Run: ollama pull {{ ollama_model }}'
+            : 'Ollama not detected at ' + host + '. Live Mode is unavailable; ' +
+              'Play Mode still works offline.');
+    }
+    if(ok){
+      const n = (s.models || []).length;
+      pip.textContent = '\u26a1'; pip.className = 'sg-pip ok';
+      title.textContent = 'Local LLM connected';
+      sub.textContent = n + ' model' + (n === 1 ? '' : 's') + ' ready. Pick one by the prompt box.';
+      setup.hidden = true; badge.hidden = true;
+      const td = document.getElementById('sgTabDot'); if(td) td.hidden = true;
+    }else{
+      pip.textContent = '!'; pip.className = 'sg-pip bad';
+      title.textContent = s.available ? 'No models pulled' : 'Local LLM offline';
+      sub.textContent = s.available ? 'Ollama is running but empty.' : 'Ollama not detected. Setup below.';
+      if(host && s.host) host.textContent = s.host;
+      setup.hidden = false; badge.hidden = false;
+      const td = document.getElementById('sgTabDot'); if(td) td.hidden = false;
+    }
+  }
+  async function poll(){
+    try{
+      const r = await fetch('/api/live/status', {cache:'no-store'});
+      if(!r.ok) throw new Error('status');
+      const d = await r.json();
+      apply({ready:d.ready, available:d.ollama.available, models:d.ollama.models || [], host:d.ollama.host});
+    }catch(e){ apply({ready:false, available:false, models:[]}); }
+  }
+  poll(); setInterval(poll, 15000);
+})();
+
+/* ------------------------------------------------ Live Zone gate (modal) --- */
+(function(){
+  const modal = document.getElementById('lzModal');
+  const cancel = document.getElementById('lzCancelBtn');
+  if(!modal) return;
+  let last = null;
+  function open(btn){
+    last = btn || null;
+    modal.hidden = false;
+    requestAnimationFrame(() => modal.classList.add('is-open'));
+    document.body.style.overflow = 'hidden';
+    const enter = modal.querySelector('.lz-modal-enter');
+    if(enter) enter.focus();
+  }
+  function close(){
+    modal.classList.remove('is-open');
+    document.body.style.overflow = '';
+    setTimeout(() => { modal.hidden = true; if(last) last.focus(); }, 420);
+  }
+  ['sgGoLive'].forEach(id => {
+    const b = document.getElementById(id);
+    if(b) b.addEventListener('click', () => open(b));
+  });
+  if(cancel) cancel.addEventListener('click', close);
+  modal.addEventListener('click', e => { if(e.target === modal) close(); });
+  document.addEventListener('keydown', e => { if(e.key === 'Escape' && !modal.hidden) close(); });
+})();
+</script>
+{% endblock %}
