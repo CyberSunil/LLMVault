@@ -181,26 +181,6 @@ setup steps and the other 25 labs carry on working offline.
 
 ---
 
-## 🛰️ The dashboard
-
-`/` is Mission Command — where you land, and where you choose a mode.
-
-- **Two ways in.** Play Mode and Live Mode as the two things on the page, because they're the two
-  decisions you actually make. Live Mode asks for confirmation first: it's a live model and the
-  disclaimer is worth reading once.
-- **Progress that's real.** Four meters (Core, Advanced, Expert, Live), an overall completion ring,
-  your rank and how far you are from the next one, and an activity feed that merges Play solves and
-  Live wins. Nothing on the page is decorative filler with a plausible-looking number in it.
-- **Badges.** Core, Advanced and Expert, cumulative — clearing Advanced lights Core too, since you
-  can't reach one without the other.
-- **Local model status.** A dot in the topbar and a line in the notification drawer telling you
-  whether Ollama is reachable, how many models are pulled, and what to run if not.
-- **Where you are.** A small map placed from your system timezone. No IP lookup, nothing leaves
-  the machine.
-- **Themes.** Neon or Phosphor, from Settings. Colour only.
-
----
-
 ## 🚀 Run it
 
 ```bash
