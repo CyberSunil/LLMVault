@@ -6,7 +6,7 @@
 
 <h3 align="center">
 
-The Ultimate Hands-On OWASP LLM Top 10 Training Platform
+LLMVault 2.0 — The Ultimate Hands-On OWASP LLM Top 10 Training Platform
 
 </h3>
 
