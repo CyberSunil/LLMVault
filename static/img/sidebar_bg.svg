@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 230 860" preserveAspectRatio="xMidYMin slice">
+  <defs>
+    <linearGradient id="trace" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8b5cf6"/>
+      <stop offset="1" stop-color="#38bdf8"/>
+    </linearGradient>
+  </defs>
+  <!-- circuit / token-flow traces running down the pane -->
+  <g fill="none" stroke="url(#trace)" stroke-width="1.1" opacity="0.16">
+    <path d="M30 -10 V90 q0 22 22 30 t26 34 V300 q0 20 -18 30 t-20 34 V620 q0 22 24 30 T70 870"/>
+    <path d="M120 -10 V70 q0 20 18 28 T152 172 V360 q0 22 -22 30 T110 472 V700 q0 20 20 28 V870"/>
+    <path d="M200 -10 V140 q0 20 -20 28 T166 242 V430 q0 22 24 30 T210 542 V870"/>
+  </g>
+  <!-- token nodes -->
+  <g fill="#38bdf8" opacity="0.5">
+    <circle cx="30" cy="90" r="2.3"/><circle cx="78" cy="154" r="2"/><circle cx="60" cy="300" r="2.4"/>
+    <circle cx="152" cy="172" r="2"/><circle cx="110" cy="472" r="2.2"/><circle cx="189" cy="462" r="2"/>
+    <circle cx="70" cy="640" r="2"/><circle cx="130" cy="728" r="2.3"/><circle cx="200" cy="542" r="2"/>
+  </g>
+  <!-- faint prompt-injection glyph watermark -->
+  <g font-family="'JetBrains Mono',monospace" fill="#8b5cf6" opacity="0.13" font-weight="700">
+    <text x="18" y="44" font-size="21">&gt;_</text>
+    <text x="146" y="250" font-size="17">{{ }}</text>
+    <text x="24" y="432" font-size="15">&lt;/&gt;</text>
+    <text x="120" y="560" font-size="12">ignore&#8230;</text>
+    <text x="28" y="704" font-size="15">token</text>
+    <text x="142" y="812" font-size="19">&gt;_</text>
+  </g>
+</svg>

@@ -62,15 +62,9 @@ def prog() -> dict:
         sid = session["sid"] = uuid.uuid4().hex
     p = PROGRESS.setdefault(sid, {"name": "anon-" + sid[:4], "role": "", "solved": {}, "hints": {},
                                   "state": {}, "expert_unlocked": False})
-    # Backfill for records written by older versions. A 1.x file always has
-    # these, but a hand-edited or truncated one may not, and the multi-turn
-    # labs index straight into p["state"].
     p.setdefault("expert_unlocked", False)
     p.setdefault("expert_cleared", False)
     p.setdefault("role", "")
-    p.setdefault("solved", {})
-    p.setdefault("hints", {})
-    p.setdefault("state", {})
     return p
 
 
