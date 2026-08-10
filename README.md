@@ -6,7 +6,7 @@
 
 <h3 align="center">
 
-LLMVault 2.0 — The Ultimate Hands-On OWASP LLM Top 10 Training Platform
+The Ultimate Hands-On OWASP LLM Top 10 Training Platform
 
 </h3>
 
@@ -56,21 +56,47 @@ Every lab pairs the **attack** with a **defense**: solve it, then read what woul
 
 > ⚠️ **Everything here is intentionally insecure. Authorised, self-hosted security education only.** Don't expose it to the internet or reuse its code in production.
 
-## 🆕 What's new in v2.0.0
+## 🆕 What's new in v1.2.0
 
-- **Live Mode** — point the attacks at a real local model (Ollama), not a scripted bot. The secret changes every session, so there's nothing to google. Three scenarios, no scoring, hints are free.
-- **A proper dashboard** — modes, progress, rank, badges and model status, all in one place.
-- **Milestone pop-ups** when you finish a tier, with the badges you've earned.
-- **One notification bell** across the app, with a Play / Live toggle.
-- **Two themes** — Neon, and a green-CRT one called Phosphor.
+**Live Mode.** The headline feature. Instead of a scripted bot, you're now talking to a real
+local model (Ollama, ~2 GB, CPU is fine) and the target secret is minted per session. The model
+is genuinely unpredictable, which is the point: a payload that worked yesterday may not work
+today, and you have to read what the model actually does with your text. Three scenarios ship
+with it, covering prompt injection, indirect injection through an uploaded image, and output
+handling where the leak only shows up downstream. Hints are free and unlimited here — there's
+no score to protect. Play Mode is untouched, and if you skip the Ollama setup the Live Zone just
+shows you the install steps and everything else works as before.
 
-Upgrading from 1.x is nothing special: your progress carries over, no new dependencies, and Live Mode is optional. The old dark theme is now Phosphor.
+**A real dashboard.** `/` is now Mission Command rather than a splash page: the two modes
+side by side, per-tier progress meters, your rank and score, a live activity feed across both
+modes, badges, and a status readout that tells you whether the local model is actually reachable.
+Everything on it is computed from your real progress — if there's no data yet, the panel says so
+instead of inventing a number.
+
+**Milestone pop-ups that don't skip.** Finish Core, Advanced or Expert and the card pops up on
+the spot, each one carrying the badges you now hold. Earning Advanced lights Core alongside it
+rather than quietly replacing it.
+
+**Notification centre.** One bell, identical on every page, with a Play / Live toggle so you see
+one mode at a time, a minimise control, and a dot on the Live tab when the local model needs
+attention.
+
+**Two dashboard themes.** Neon (the orange-and-lime default) and Phosphor, a green-CRT reading of
+the same screen. Colour only — no layout shifts either way.
+
+### Previously, in v1.1.0
+
+- **Read before you attack.** Landing on any lab shows a short reference panel for that OWASP category — what the issue is, why it happens, and what to watch for in the wild.
+- **Refreshed Labs page,** including per-difficulty accent colours on each card.
+- **Hardened flag checks.** Flags are verified by hash comparison instead of a stored plaintext match.
 
 ## 📸 Screenshots
 
 | Labs (three tiers) | A lab in action | Completion card |
 |---|---|---|
 | <img src="docs/labs.svg" width="300"> | <img src="docs/lab.svg" width="300"> | <img src="docs/completion-card.png" width="300"> |
+
+
 
 ---
 
