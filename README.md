@@ -58,57 +58,19 @@ Every lab pairs the **attack** with a **defense**: solve it, then read what woul
 
 ## 🆕 What's new in v2.0.0
 
-**Live Mode.** The headline feature. Instead of a scripted bot, you're now talking to a real
-local model (Ollama, ~2 GB, CPU is fine) and the target secret is minted per session. The model
-is genuinely unpredictable, which is the point: a payload that worked yesterday may not work
-today, and you have to read what the model actually does with your text. Three scenarios ship
-with it, covering prompt injection, indirect injection through an uploaded image, and output
-handling where the leak only shows up downstream. Hints are free and unlimited here — there's
-no score to protect. Play Mode is untouched, and if you skip the Ollama setup the Live Zone just
-shows you the install steps and everything else works as before.
+- **Live Mode** — point the attacks at a real local model (Ollama), not a scripted bot. The secret changes every session, so there's nothing to google. Three scenarios, no scoring, hints are free.
+- **A proper dashboard** — modes, progress, rank, badges and model status, all in one place.
+- **Milestone pop-ups** when you finish a tier, with the badges you've earned.
+- **One notification bell** across the app, with a Play / Live toggle.
+- **Two themes** — Neon, and a green-CRT one called Phosphor.
 
-**A real dashboard.** `/` is now Mission Command rather than a splash page: the two modes
-side by side, per-tier progress meters, your rank and score, a live activity feed across both
-modes, badges, and a status readout that tells you whether the local model is actually reachable.
-Everything on it is computed from your real progress — if there's no data yet, the panel says so
-instead of inventing a number.
-
-**Milestone pop-ups that don't skip.** Finish Core, Advanced or Expert and the card pops up on
-the spot, each one carrying the badges you now hold. Earning Advanced lights Core alongside it
-rather than quietly replacing it.
-
-**Notification centre.** One bell, identical on every page, with a Play / Live toggle so you see
-one mode at a time, a minimise control, and a dot on the Live tab when the local model needs
-attention.
-
-**Two dashboard themes.** Neon (the orange-and-lime default) and Phosphor, a green-CRT reading of
-the same screen. Colour only — no layout shifts either way.
-
-### Upgrading from 1.x
-
-Nothing to migrate. Pull the new files and run it:
-
-- **Your progress carries over.** `data/progress.json` from 1.x loads as-is — names, solves, hints and scores all intact. No schema change, no conversion step.
-- **No new dependencies.** `requirements.txt` is unchanged. Live Mode talks to Ollama over plain HTTP, so there's no client library to install.
-- **Live Mode is opt-in.** Skip the Ollama setup and the Live Zone just shows you the install steps; the 25 scripted labs work offline exactly as before.
-- **Custom labs still work.** The `Challenge` interface hasn't changed, so anything you dropped in `challenges/` needs no edits.
-- **The dark theme is gone,** replaced by Phosphor. If you had Dark selected, you'll open on Neon — pick Phosphor from Settings if you want the darker read.
-
-The major version is about the landing page and the second mode, not about breakage.
-
-### Previously, in v1.1.0
-
-- **Read before you attack.** Landing on any lab shows a short reference panel for that OWASP category — what the issue is, why it happens, and what to watch for in the wild.
-- **Refreshed Labs page,** including per-difficulty accent colours on each card.
-- **Hardened flag checks.** Flags are verified by hash comparison instead of a stored plaintext match.
+Upgrading from 1.x is nothing special: your progress carries over, no new dependencies, and Live Mode is optional. The old dark theme is now Phosphor.
 
 ## 📸 Screenshots
 
 | Labs (three tiers) | A lab in action | Completion card |
 |---|---|---|
 | <img src="docs/labs.svg" width="300"> | <img src="docs/lab.svg" width="300"> | <img src="docs/completion-card.png" width="300"> |
-
-
 
 ---
 
