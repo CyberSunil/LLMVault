@@ -12,7 +12,7 @@
 
 ## 🎬 Demo
 
-<p align="center">
+<p align="center"> 
   <img src="./docs/demo.gif" width="650" alt="LLMVault Demo">
 </p>
 
