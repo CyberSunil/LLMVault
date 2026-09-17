@@ -6,9 +6,10 @@ unhiding the flag element. Second-order, so it needs two steps.
 """
 import re
 from config import FLAG_PREFIX
-from .. import Challenge, register
+from .. import Challenge, decode_flag_part, register
 
-FLAG = f"{FLAG_PREFIX}{{st0r3d_s3c0nd_0rd3r_1nj3ct10n}}"
+_FLAG_SUFFIX = decode_flag_part("c3QwcjNkX3MzYzBuZF8wcmQzcl8xbmozY3QxMG4=")
+FLAG = f"{FLAG_PREFIX}{{{_FLAG_SUFFIX}}}"
 
 
 @register

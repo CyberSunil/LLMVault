@@ -7,9 +7,10 @@ breaks the guardrail.
 """
 import re
 from config import FLAG_PREFIX
-from .. import Challenge, register
+from .. import Challenge, decode_flag_part, register
 
-FLAG = f"{FLAG_PREFIX}{{jailbr0ken_v14_r0l3play_esc4l4t10n}}"
+_FLAG_SUFFIX = decode_flag_part("amFpbGJyMGtlbl92MTRfcjBsM3BsYXlfZXNjNGw0dDEwbg==")
+FLAG = f"{FLAG_PREFIX}{{{_FLAG_SUFFIX}}}"
 
 FRAME = re.compile(r"roleplay|role-play|let'?s play|pretend|imagine|fiction|story|game|"
                    r"you are (now )?(a|an|dan|aim|dev mode|debug)", re.I)

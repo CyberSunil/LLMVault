@@ -6,9 +6,10 @@ it contains a substring. Assemble the flag piece by piece across many turns.
 """
 import re
 from config import FLAG_PREFIX
-from .. import Challenge, register
+from .. import Challenge, decode_flag_part, register
 
-FLAG = f"{FLAG_PREFIX}{{fr4gm3nt3d_l34k_r3c0nstruct3d}}"
+_FLAG_SUFFIX = decode_flag_part("ZnI0Z20zbnQzZF9sMzRrX3IzYzBuc3RydWN0M2Q=")
+FLAG = f"{FLAG_PREFIX}{{{_FLAG_SUFFIX}}}"
 
 
 @register

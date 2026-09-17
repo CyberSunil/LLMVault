@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Live Zone — {{ app_name }}{% endblock %}
+{% block nav_live %}active{% endblock %}
+{% block nav_score_item %}{% endblock %}
+{% block content %}
+<a href="{{ url_for('welcome') }}" class="backlink">&larr; Back to dashboard</a>
+
+<div class="lz-head">
+  <h1>⚡ Live Zone</h1>
+  <p class="muted">Real local models, not scripted bots. Nothing here is deterministic —
+     the assistant genuinely has to be out-thought, and your target code is unique to your session.</p>
+</div>
+
+<div class="lz-note {{ 'ok' if info.ready else 'down' }}">
+  <span class="lz-note-tape"></span>
+  <div class="lz-note-h">
+    <span class="lz-note-dot {{ 'ok' if info.ready else 'down' }}"></span>
+    {% if info.ready %}OLLAMA CONNECTED{% else %}OLLAMA NOT DETECTED{% endif %}
+  </div>
+  {% if info.ready %}
+    <p class="lz-note-body"><b>{{ info.ollama.models|length }} model{{ '' if info.ollama.models|length == 1 else 's' }}</b>
+      available at <code>{{ info.ollama.host }}</code>. Pick a scenario below — your target
+      code is unique to this session.</p>
+  {% else %}
+    <p class="lz-note-body">Live scenarios need a local model. Setup takes about two minutes:</p>
+    <ol class="lz-note-steps">
+      <li>Install Ollama from <code>ollama.com</code></li>
+      <li>Pull the model: <code>ollama pull qwen2.5:3b-instruct</code></li>
+      <li>Serve it: <code>ollama serve</code></li>
+      <li>This reconnects on its own — no reload needed.</li>
+    </ol>
+    <p class="lz-note-foot">Looked at <code>{{ info.ollama.host }}</code>. CPU-only, ~2&nbsp;GB on disk.
+      Play Mode is unaffected either way.</p>
+  {% endif %}
+</div>
+
+<div class="lz-grid">
+  {% for s in scenarios %}
+  <a class="lz-card {{ 'is-solved' if s.id in solved }} {{ '' if info.ready else 'is-disabled' }}"
+     href="{{ url_for('live_lab', sid=s.id) if info.ready else '#' }}">
+    <div class="lz-card-top">
+      <span class="lz-tag">{{ s.owasp }}</span>
+      {% if s.id in solved %}<span class="lz-solved">✓ objective met</span>{% endif %}
+    </div>
+    <h3>{{ s.title }}</h3>
+    <p>{{ s.premise }}</p>
+    <div class="lz-card-foot">
+      <span class="diff {{ s.difficulty|lower }}">{{ s.difficulty }}</span>
+      <span class="lz-org">{{ s.org }} · {{ s.system_name }}</span>
+    </div>
+  </a>
+  {% endfor %}
+</div>
+
+<p class="muted lz-more">More scenarios (Ops Assistant, Knowledge Assistant, Compliance Copilot)
+   are on the roadmap — see <code>docs/LIVE_MODE_PLAN.md</code>.</p>
+{% endblock %}

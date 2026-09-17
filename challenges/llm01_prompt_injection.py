@@ -1,9 +1,10 @@
 """LLM01:2025 — Prompt Injection (direct)."""
 import re
 from config import FLAG_PREFIX
-from . import Challenge, register
+from . import Challenge, decode_flag_part, register
 
-FLAG = f"{FLAG_PREFIX}{{pr0mpt_1nj3ct10n_0verr1de}}"
+_FLAG_SUFFIX = decode_flag_part("cHIwbXB0XzFuajNjdDEwbl8wdmVycjFkZQ==")
+FLAG = f"{FLAG_PREFIX}{{{_FLAG_SUFFIX}}}"
 
 INJECTION = re.compile(
     r"ignore (all )?(previous|prior|above)|disregard.*(instruction|rule)|"

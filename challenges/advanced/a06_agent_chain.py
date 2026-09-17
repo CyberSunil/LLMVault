@@ -6,9 +6,10 @@ fetch that internal URL (it has no egress allow-list), which returns the secret.
 """
 import re
 from config import FLAG_PREFIX
-from .. import Challenge, register
+from .. import Challenge, decode_flag_part, register
 
-FLAG = f"{FLAG_PREFIX}{{4g3nt_t00l_ch41n_ssrf_pwn}}"
+_FLAG_SUFFIX = decode_flag_part("NGczbnRfdDAwbF9jaDQxbl9zc3JmX3B3bg==")
+FLAG = f"{FLAG_PREFIX}{{{_FLAG_SUFFIX}}}"
 INTERNAL_URL = "http://169.254.169.254/latest/meta-data/app-credentials"
 
 TICKETS = {

@@ -6,9 +6,10 @@ page, CSS-hidden; inject markup that reveals it. Benign payload by design — it
 only unhides a node already on your own local page.
 """
 from config import FLAG_PREFIX
-from . import Challenge, register
+from . import Challenge, decode_flag_part, register
 
-FLAG = f"{FLAG_PREFIX}{{uns4n1t1z3d_llm_0utput_xss}}"
+_FLAG_SUFFIX = decode_flag_part("dW5zNG4xdDF6M2RfbGxtXzB1dHB1dF94c3M=")
+FLAG = f"{FLAG_PREFIX}{{{_FLAG_SUFFIX}}}"
 
 
 @register

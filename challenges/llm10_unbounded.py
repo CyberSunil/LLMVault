@@ -1,9 +1,10 @@
 """LLM10:2025 — Unbounded Consumption (recursive expansion -> leaky error path)."""
 import re
 from config import FLAG_PREFIX
-from . import Challenge, register
+from . import Challenge, decode_flag_part, register
 
-FLAG = f"{FLAG_PREFIX}{{unb0und3d_c0nsumpt10n_d0w}}"
+_FLAG_SUFFIX = decode_flag_part("dW5iMHVuZDNkX2MwbnN1bXB0MTBuX2Qwdw==")
+FLAG = f"{FLAG_PREFIX}{{{_FLAG_SUFFIX}}}"
 BUDGET = 10_000   # simulated token budget
 
 

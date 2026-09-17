@@ -5,8 +5,30 @@ Each challenge is a deliberately-vulnerable mini-assistant. `respond()` encodes
 the vulnerability; the intended attack technique makes it emit `self.flag`.
 Every challenge also carries a `defense` string — the whole point is to learn the
 fix by practising the break.
+
+Flag handling: `self.flag` still holds the real plaintext, because each
+`respond()` has to be able to reveal/redact/reverse/encode/spell it out — that IS
+the leak mechanic. What changed is (1) the literal answer is no longer sitting in
+each module as a bare, grep-able `PREFIX{...}` string — see `decode_flag_part()` —
+and (2) verification never compares plaintext at all: `/api/submit` checks a
+SHA-256 digest (`flag_hash`, below) instead of `== c.flag`. None of this claims to
+make the flag unrecoverable from source (the app has to be able to say it out
+loud when you win); it just removes the "answers are handed to you if you grep
+the repo" shortcut and gets validation off plaintext comparison.
 """
 from __future__ import annotations
+
+import base64
+import hashlib
+
+
+def decode_flag_part(encoded: str) -> str:
+    """Reverse the base64 obfuscation used for the secret portion of a flag.
+
+    Kept as a tiny, named indirection (rather than inlining base64.b64decode
+    everywhere) so every challenge module's intent is obvious at a glance.
+    """
+    return base64.b64decode(encoded.encode()).decode()
 
 
 class Challenge:
@@ -24,6 +46,16 @@ class Challenge:
     defense: str = ""
     render_html: bool = False   # if True the UI renders assistant output as raw HTML
                                 # (used ONLY to demonstrate LLM05 output-handling)
+
+    @property
+    def flag_hash(self) -> str:
+        """SHA-256 hex digest of the correct flag.
+
+        This — not `self.flag` — is what `/api/submit` checks a guess against,
+        via a constant-time comparison. Computed on demand so subclasses don't
+        need to set anything extra.
+        """
+        return hashlib.sha256(self.flag.encode()).hexdigest()
 
     def respond(self, message: str, state: dict) -> str:
         raise NotImplementedError

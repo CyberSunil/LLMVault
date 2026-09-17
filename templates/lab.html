@@ -33,6 +33,50 @@
   </section>
 
   <aside class="side">
+    {% if owasp_note %}
+    <div class="sticky-note-slot">
+      <div class="sticky-note" id="stickyNote" style="--note-accent: {{ owasp_note.accent }}">
+        <span class="sn-tape" aria-hidden="true"></span>
+        <div class="sn-head">
+          <span class="sn-badge">{{ owasp_note.num }}</span>
+          <h3 class="sn-title">{{ owasp_note.name }}</h3>
+        </div>
+        <div class="sn-flip">
+          <div class="sn-page active sn-page--hero" data-page="0">
+            <div class="sn-page-scroll">
+              <div class="sn-icon-big" aria-hidden="true">{% if owasp_note.icon_img %}<img src="{{ url_for('static', filename=owasp_note.icon_img) }}" alt="">{% else %}{{ owasp_note.icon_svg | safe }}{% endif %}</div>
+              <span class="sn-pill">Overview</span>
+              <p class="sn-text sn-text--short">{{ owasp_note.summary }}</p>
+            </div>
+            <div class="sn-beware"><div class="sn-beware-inner"><b>BEWARE:</b> {{ owasp_note.beware }}<span class="sn-beware-badge">{{ owasp_note.num }}</span></div></div>
+          </div>
+          <div class="sn-page" data-page="1">
+            <div class="sn-page-scroll">
+              <span class="sn-pill">Deep dive</span>
+              <p class="sn-text">{{ owasp_note.detail }}</p>
+            </div>
+          </div>
+          <div class="sn-page" data-page="2">
+            <div class="sn-page-scroll">
+              <span class="sn-pill">Watch for</span>
+              <ul class="sn-watchlist">
+                {% for w in owasp_note.watch_for %}<li>{{ w }}</li>{% endfor %}
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="sn-foot">
+          <div class="sn-dots">
+            <button type="button" class="sn-dot active" data-i="0" aria-label="Page 1: Overview"></button>
+            <button type="button" class="sn-dot" data-i="1" aria-label="Page 2: Deep dive"></button>
+            <button type="button" class="sn-dot" data-i="2" aria-label="Page 3: Watch for"></button>
+          </div>
+          <button type="button" class="sn-flipbtn" id="snFlipBtn">Flip ⟳</button>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
     <div class="panel">
       <h3>Submit Flag</h3>
       <input id="flag" placeholder="{{ prefix }}{...}" autocomplete="off">
@@ -95,6 +139,32 @@ async function send(){
 document.getElementById('send').onclick = send;
 document.getElementById('msg').addEventListener('keydown', e=>{ if(e.key==='Enter') send(); });
 
+// OWASP sticky note — flip between Overview / Deep dive / Watch for
+(function(){
+  const note = document.getElementById('stickyNote');
+  if (!note) return;
+  const pages = Array.from(note.querySelectorAll('.sn-page'));
+  const dots = Array.from(note.querySelectorAll('.sn-dot'));
+  const flipBtn = document.getElementById('snFlipBtn');
+  let current = 0, animating = false;
+
+  function goTo(idx){
+    if (animating || idx === current) return;
+    animating = true;
+    const from = pages[current], to = pages[idx];
+    from.classList.remove('active');
+    from.classList.add('leaving');
+    to.classList.add('active');
+    dots[current].classList.remove('active');
+    dots[idx].classList.add('active');
+    current = idx;
+    setTimeout(() => { from.classList.remove('leaving'); animating = false; }, 420);
+  }
+
+  dots.forEach((d, i) => d.onclick = () => goTo(i));
+  if (flipBtn) flipBtn.onclick = () => goTo((current + 1) % pages.length);
+})();
+
 document.getElementById('submit').onclick = async ()=>{
   const flag = document.getElementById('flag').value;
   const r = await fetch('/api/submit',{method:'POST',headers:{'Content-Type':'application/json'},
@@ -105,8 +175,7 @@ document.getElementById('submit').onclick = async ()=>{
   res.className = 'result ' + (j.correct ? 'ok' : 'bad');
   document.getElementById('score').textContent = j.score;
   if(j.correct){ document.getElementById('learnPanel').classList.remove('hidden'); }
-  if(j.correct && j.prereq_done){ setTimeout(()=>showCard('master'), 650); }
-  else if(j.correct && j.core_done){ setTimeout(()=>showCard('beginner'), 650); }
+  if(j.correct){ setTimeout(()=>queueMilestones(j), 650); }
 };
 
 const TOTAL_HINTS = {{ c.hints|length }};
@@ -148,6 +217,8 @@ document.getElementById('tutClose').onclick = ()=>{
 <div class="modal-overlay" id="beginnerModal" style="display:none">
   <div class="modal card-modal">
     <div class="cm-congrats">🎉 Core complete — <b>Beginner</b> unlocked!</div>
+    <p class="cm-badges-cap" id="capBadgesBeginner"></p>
+    <div class="cm-badges" id="badgesBeginner"></div>
     <div class="card-wrap" id="cardBeginner"></div>
     <textarea class="cm-cap" id="capBeginner" rows="4" readonly>{{ cap_beginner }}</textarea>
     <div class="done-btns">
@@ -163,7 +234,9 @@ document.getElementById('tutClose').onclick = ()=>{
 
 <div class="modal-overlay" id="masterModal" style="display:none">
   <div class="modal card-modal">
-    <div class="cm-congrats">🏆 All 20 done — <b>Master</b> achieved! Share &amp; tag {{ author }} for the Expert key.</div>
+    <div class="cm-congrats">🏆 All {{ total_ca }} done — <b>Master</b> achieved! Share &amp; tag {{ author }} for the Expert key.</div>
+    <p class="cm-badges-cap" id="capBadgesMaster"></p>
+    <div class="cm-badges" id="badgesMaster"></div>
     <div class="card-wrap" id="cardMaster"></div>
     <textarea class="cm-cap" id="capMaster" rows="4" readonly>{{ cap_master }}</textarea>
     <div class="done-btns">
@@ -176,16 +249,82 @@ document.getElementById('tutClose').onclick = ()=>{
     <button class="linklike" onclick="cmClose('master')">Maybe later</button>
   </div>
 </div>
+<div class="modal-overlay" id="expertModal" style="display:none">
+  <div class="modal card-modal">
+    <div class="cm-congrats">🔓 Expert Vault cleared — the full vault is yours.</div>
+    <p class="cm-badges-cap" id="capBadgesExpert"></p>
+    <div class="cm-badges" id="badgesExpert"></div>
+    <div class="card-wrap" id="cardExpert"></div>
+    <textarea class="cm-cap" id="capExpert" rows="4" readonly>{{ cap_expert }}</textarea>
+    <div class="done-btns">
+      <button class="primary" onclick="dlCard('expert','png')">⬇ Download card</button>
+      <a class="sharebtn" href="{{ url_for('completion') }}">🎓 Full card</a>
+      <button class="sharebtn" onclick="cmCopy('capExpert')">Copy caption</button>
+      <a class="sharebtn li" target="_blank" id="liExpert">LinkedIn</a>
+      <a class="sharebtn tw" target="_blank" id="twExpert">X</a>
+    </div>
+    <button class="linklike" onclick="cmClose('expert')">Maybe later</button>
+  </div>
+</div>
 <script>
-const CAP = { beginner: {{ cap_beginner|tojson }}, master: {{ cap_master|tojson }} };
+const CAP = { beginner: {{ cap_beginner|tojson }}, master: {{ cap_master|tojson }},
+              expert: {{ cap_expert|tojson }} };
+/* ---------------------------------------------------------------------------
+   Milestone pop-ups. Every tier the player has cleared and not yet been shown
+   gets its own pop-up, queued in order — so finishing Advanced pops Core first
+   if the Core card was somehow never seen, instead of silently skipping it.
+   Each pop-up carries the cumulative badge strip: clearing Advanced shows the
+   Core badge *and* the Advanced badge.
+--------------------------------------------------------------------------- */
+let BADGES = [];           // latest cumulative badge state from /api/submit
+let MS_QUEUE = [];         // milestones still waiting to be shown
+const MS_KEY = k => 'llmvault_' + k + '_shown_v4';
+
+function queueMilestones(j){
+  if(Array.isArray(j.badges)) BADGES = j.badges;
+  const reached = [];
+  if(j.core_done) reached.push('beginner');
+  if(j.advanced_done || j.prereq_done) reached.push('master');
+  if(j.expert_done) reached.push('expert');
+  MS_QUEUE = reached.filter(k => {
+    if(!document.getElementById(k + 'Modal')) return false;
+    try { return !localStorage.getItem(MS_KEY(k)); } catch(e){ return true; }
+  });
+  nextMilestone();
+}
+
+function nextMilestone(){
+  const k = MS_QUEUE.shift();
+  if(k) showCard(k);
+}
+
+function paintBadges(suffix){
+  const wrap = document.getElementById('badges' + suffix);
+  const cap = document.getElementById('capBadges' + suffix);
+  if(!wrap) return;
+  const rows = BADGES.length ? BADGES : [];
+  wrap.innerHTML = rows.map(b =>
+    '<span class="cm-badge' + (b.earned ? '' : ' locked') + '" title="' + b.sub + '">' +
+      '<img src="/static/img/ui/' + b.art + '.png" alt="">' +
+      '<span>' + (b.short || b.label) + (b.earned ? '' : ' 🔒') + '</span>' +
+    '</span>').join('');
+  if(cap){
+    const held = rows.filter(b => b.earned).map(b => b.short || b.label);
+    cap.innerHTML = held.length
+      ? 'Badges now held: <b>' + held.join(', ') + '</b>'
+      : '';
+  }
+}
+
 async function showCard(kind){
-  try { if(localStorage.getItem('llmvault_'+kind+'_shown_v3')) return; } catch(e){}
   const cap = CAP[kind];
   const suffix = kind.charAt(0).toUpperCase()+kind.slice(1);
+  try { localStorage.setItem(MS_KEY(kind), '1'); } catch(e){}
   document.getElementById('li'+suffix).href =
     'https://www.linkedin.com/feed/?shareActive=true&text=' + encodeURIComponent(cap);
   document.getElementById('tw'+suffix).href =
     'https://twitter.com/intent/tweet?text=' + encodeURIComponent(cap);
+  paintBadges(suffix);
   try {
     const svg = await (await fetch('/card.svg?v='+kind)).text();
     document.getElementById('card'+suffix).innerHTML = svg;
@@ -212,7 +351,15 @@ async function dlCard(variant, fmt){
 }
 function cmClose(kind){
   document.getElementById(kind+'Modal').style.display = 'none';
-  try { localStorage.setItem('llmvault_'+kind+'_shown_v3','1'); } catch(e){}
+  try { localStorage.setItem(MS_KEY(kind), '1'); } catch(e){}
+  setTimeout(nextMilestone, 320);   // hand over to the next milestone, if any
 }
+document.addEventListener('keydown', e => {
+  if(e.key !== 'Escape') return;
+  ['beginner','master','expert'].forEach(k => {
+    const m = document.getElementById(k+'Modal');
+    if(m && m.style.display === 'flex') cmClose(k);
+  });
+});
 </script>
 {% endblock %}

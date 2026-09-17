@@ -7,10 +7,11 @@ query budget is itself the Unbounded-Consumption flaw (model-extraction / DoW).
 """
 import re
 from config import FLAG_PREFIX
-from .. import Challenge, register
+from .. import Challenge, decode_flag_part, register
 
 SECRET = "shadowkey"     # the keyword to be extracted character-by-character
-FLAG = f"{FLAG_PREFIX}{{m0d3l_3xtr4ct10n_{SECRET}}}"
+_FLAG_SUFFIX_PREFIX = decode_flag_part("bTBkM2xfM3h0cjRjdDEwbl8=")
+FLAG = f"{FLAG_PREFIX}{{{_FLAG_SUFFIX_PREFIX}{SECRET}}}"
 
 
 @register

@@ -20,6 +20,14 @@ THEMES = {
         "acc": "#12E08A", "azure": "#0BB56A", "bright": "#7CFFC0",
         "glow": "#12E08A", "tA": "#9CFFD0", "tB": "#0BB56A", "shield": "#08latch",
     },
+    # Expert Vault — deliberately the "rarest" of the three: deeper base, violet
+    # accent that sits a step above master's electric blue, and a hotter highlight
+    # so the trophy reads brighter than either of the lower tiers.
+    "expert": {
+        "navy1": "#0B0416", "navy2": "#170A2E",
+        "acc": "#A855F7", "azure": "#7C3AED", "bright": "#DDB4FF",
+        "glow": "#A855F7", "tA": "#E9D5FF", "tB": "#7C3AED", "shield": "#160A2A",
+    },
 }
 MUTED, DIM, TEXT = "#93A6C9", "#63748F", "#FFFFFF"
 FONT = "'Segoe UI',system-ui,-apple-system,Arial,sans-serif"
@@ -66,14 +74,20 @@ def _github(x, y, fill, s=1.0):
 
 
 def _badge(level, acc, bright, right_x, y=64, h=54):
-    w = 60 + len(level) * 15.5
+    # 21px bold with 2px tracking measures ~15.6px per character. Reserve exactly
+    # that and pin it with textLength, so a viewer whose fallback font is wider
+    # can't push the label past the pill (which it previously did by up to 8px).
+    tw = len(level) * 15.6
+    pad_l, pad_r = 52, 26
+    w = pad_l + tw + pad_r
     x = right_x - w
     cy = y + h / 2
     icon = (f'<g transform="translate({x+18},{cy-11})">'
             f'<path d="M11 0 2 3v6c0 6 4 9.5 9 11 5-1.5 9-5 9-11V3L11 0Z" fill="{acc}" fill-opacity="0.3" stroke="{bright}" stroke-width="1.6"/>'
             f'<path d="m7 10.5 2.6 2.6L15 7.5" fill="none" stroke="{bright}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g>')
-    txt = (f'<text x="{x+52}" y="{cy+7:.0f}" fill="{TEXT}" font-size="21" font-weight="700" '
-           f'letter-spacing="2" font-family="{FONT}">{_e(level)}</text>')
+    txt = (f'<text x="{x+pad_l}" y="{cy+7:.0f}" fill="{TEXT}" font-size="21" font-weight="700" '
+           f'letter-spacing="2" font-family="{FONT}" textLength="{tw:.0f}" '
+           f'lengthAdjust="spacingAndGlyphs">{_e(level)}</text>')
     rect = (f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="{h/2}" fill="{acc}" fill-opacity="0.14" '
             f'stroke="{acc}" stroke-opacity="0.7" stroke-width="1.6" filter="url(#softglow)"/>')
     return rect + icon + txt
@@ -166,8 +180,11 @@ def render(variant, level, name, count, score, desc, bullets, date, repo_display
 
     right_x = W - 54
     badge = _badge(level, acc, bright, right_x)
-    urlw = len(repo_display) * 8.4
-    gh_x = (W - 78) - urlw - 26
+    # 14px mono measures ~8.7px per character; the old 8.4 under-reserved, which
+    # let the URL's tail run into the bottom-right corner bracket. Pinned below
+    # with textLength, and the right margin now clears the bracket (x >= 1052).
+    urlw = len(repo_display) * 8.7
+    gh_x = (W - 162) - urlw - 26
 
     return f'''<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" font-family="{FONT}">
   <defs>
@@ -210,7 +227,7 @@ def render(variant, level, name, count, score, desc, bullets, date, repo_display
   {badge}
   <rect x="{right_x-326}" y="134" width="326" height="50" rx="12" fill="{t['navy1']}" fill-opacity="0.4" stroke="{acc}" stroke-width="2"/>
   <rect x="{right_x-321}" y="139" width="316" height="40" rx="9" fill="none" stroke="{bright}" stroke-opacity="0.35" stroke-width="1"/>
-  <text x="{right_x-163}" y="166" fill="{bright}" font-size="21" font-weight="700" letter-spacing="1" text-anchor="middle">OWASP LLM TOP 10 &#8226; 2025</text>
+  <text x="{right_x-163}" y="165" fill="{bright}" font-size="19" font-weight="700" letter-spacing="0.6" text-anchor="middle" textLength="288" lengthAdjust="spacingAndGlyphs">OWASP LLM TOP 10 &#8226; 2025</text>
 
   <text x="66" y="234" font-size="19">&#128275;</text><text x="98" y="232" fill="{MUTED}" font-size="17" letter-spacing="7" font-family="{MONO}">ACHIEVEMENT UNLOCKED</text>
   <text x="66" y="272" fill="{acc}" font-size="25" font-weight="700" letter-spacing="2" filter="url(#softglow_{sfx})">MILESTONE ACHIEVED</text>
@@ -231,7 +248,7 @@ def render(variant, level, name, count, score, desc, bullets, date, repo_display
   <text x="120" y="752" fill="{DIM}" font-size="14" font-family="{MONO}">{_e(date)}</text>
   <text x="{W//2}" y="752" fill="{DIM}" font-size="14" text-anchor="middle" font-family="{MONO}">built by&#160;<tspan fill="{bright}" font-weight="700">{_e(author)}</tspan></text>
   {_github(gh_x, 739, DIM, 0.8)}
-  <text x="{gh_x+26}" y="752" fill="{DIM}" font-size="14" font-family="{MONO}">{_e(repo_display)}</text>
+  <text x="{gh_x+26}" y="752" fill="{DIM}" font-size="14" font-family="{MONO}" textLength="{urlw:.0f}" lengthAdjust="spacingAndGlyphs">{_e(repo_display)}</text>
 
   {_trophy(972, 384, acc, bright, sfx)}
 </svg>'''

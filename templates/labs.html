@@ -26,7 +26,7 @@
 </div>
 <div class="lab-grid">
   {% for c in core %}
-  <a class="lab-card {{ 'done' if c.id in prog.solved else '' }}" href="{{ url_for('lab', cid=c.id) }}">
+  <a class="lab-card {{ c.difficulty|lower }} {{ 'done' if c.id in prog.solved else '' }}" href="{{ url_for('lab', cid=c.id) }}">
     <div class="lab-owasp">{{ c.owasp }}</div>
     <div class="lab-title">{{ c.title }}</div>
     <div class="lab-blurb">{{ c.blurb }}</div>
@@ -49,7 +49,7 @@
 <div class="lab-grid">
   {% for c in advanced %}
   {% if core_done %}
-  <a class="lab-card adv {{ 'done' if c.id in prog.solved else '' }}" href="{{ url_for('lab', cid=c.id) }}">
+  <a class="lab-card adv {{ c.difficulty|lower }} {{ 'done' if c.id in prog.solved else '' }}" href="{{ url_for('lab', cid=c.id) }}">
     <div class="lab-owasp">{{ c.owasp }}</div>
     <div class="lab-title">{{ c.title }}</div>
     <div class="lab-blurb">{{ c.blurb }}</div>

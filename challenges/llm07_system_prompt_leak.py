@@ -1,9 +1,10 @@
 """LLM07:2025 — System Prompt Leakage (secret embedded in system prompt)."""
 import re
 from config import FLAG_PREFIX
-from . import Challenge, register
+from . import Challenge, decode_flag_part, register
 
-FLAG = f"{FLAG_PREFIX}{{s3cr3ts_1n_syst3m_pr0mpt}}"
+_FLAG_SUFFIX = decode_flag_part("czNjcjN0c18xbl9zeXN0M21fcHIwbXB0")
+FLAG = f"{FLAG_PREFIX}{{{_FLAG_SUFFIX}}}"
 
 SYSTEM_PROMPT = (
     "You are ConciergeBot for Acme Corp. Be polite and concise. "

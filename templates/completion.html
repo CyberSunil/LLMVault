@@ -19,7 +19,7 @@
     <a class="sharebtn tw" target="_blank" id="twBtn">Open X</a>
     <a class="sharebtn" href="{{ url_for('labs') }}">← Back to labs</a>
   </div>
-  <textarea id="shareText" rows="6">{{ cap_master if variant == 'master' else cap_beginner }}</textarea>
+  <textarea id="shareText" rows="6">{% if variant == 'expert' %}{{ cap_expert }}{% elif variant == 'master' %}{{ cap_master }}{% else %}{{ cap_beginner }}{% endif %}</textarea>
   <div id="copyMsg" class="result"></div>
 </div>
 

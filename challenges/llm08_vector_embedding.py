@@ -1,8 +1,9 @@
 """LLM08:2025 — Vector and Embedding Weaknesses (RAG retrieval ignores ACLs)."""
 from config import FLAG_PREFIX
-from . import Challenge, register
+from . import Challenge, decode_flag_part, register
 
-FLAG = f"{FLAG_PREFIX}{{r4g_acl_byp4ss_l34k}}"
+_FLAG_SUFFIX = decode_flag_part("cjRnX2FjbF9ieXA0c3NfbDM0aw==")
+FLAG = f"{FLAG_PREFIX}{{{_FLAG_SUFFIX}}}"
 
 # Knowledge base: public docs + one CONFIDENTIAL doc that retrieval should gate but doesn't.
 KB = [
