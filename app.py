@@ -13,6 +13,7 @@ import hmac
 import json
 import os
 import uuid
+from logging.config import dictConfig
 from flask import (Flask, render_template, request, jsonify, session, Response,
                    abort, stream_with_context)
 
@@ -25,6 +26,21 @@ from owasp_notes import OWASP_NOTES
 import live
 from live import model_registry
 from live.ollama_client import OllamaError, chat_stream
+
+dictConfig({
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "stream": "ext://sys.stderr",
+        },
+    },
+    "root": {
+        "level": "INFO",
+        "handlers": ["console"],
+    },
+})
 
 app = Flask(__name__)
 app.secret_key = config.SECRET_KEY
@@ -51,6 +67,14 @@ def save_progress():
     with open(tmp, "w") as fh:
         json.dump(PROGRESS, fh)
     os.replace(tmp, config.DATA_FILE)
+
+
+def log_expert_unlock(result: str) -> None:
+    """Record an unlock attempt without logging the access key or player name."""
+    sid = session.get("sid", "")
+    sid_tag = hashlib.sha256(sid.encode()).hexdigest()[:12] if sid else "none"
+    app.logger.info("expert_unlock result=%s session=%s remote_addr=%s", result, sid_tag,
+                    request.remote_addr or "unknown")
 
 
 _load_progress()
@@ -653,10 +677,18 @@ def unlock_expert():
     key = (request.get_json(force=True).get("key", "") or "").strip()
     if not key:
         return jsonify(ok=False, error="Enter the access key."), 400
-    if expert_vault.try_unlock(key):
+    try:
+        unlocked = expert_vault.try_unlock(key)
+    except expert_vault.VaultLoadError:
+        log_expert_unlock("error")
+        app.logger.exception("expert vault could not be loaded")
+        return jsonify(ok=False, error="Expert vault is temporarily unavailable."), 500
+    if unlocked:
         p["expert_unlocked"] = True
         save_progress()
+        log_expert_unlock("success")
         return jsonify(ok=True, count=expert_vault.expert_count())
+    log_expert_unlock("invalid_key")
     return jsonify(ok=False, error="Invalid access key."), 403
 
 
