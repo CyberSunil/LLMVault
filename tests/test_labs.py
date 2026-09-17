@@ -113,3 +113,19 @@ def test_tier_gating_via_api():
     for c in core_labs():
         assert cl.post("/api/submit", json={"cid": c.id, "flag": c.flag}).get_json()["solved"]
     assert cl.post("/api/chat", json={"cid": "llm01a", "message": "hi"}).status_code == 200
+
+
+def test_save_progress_batching_and_immediate():
+    import app as app_mod
+    import time
+
+    app_mod.PROGRESS["test_key"] = {"val": 1}
+    # Non-immediate save sets dirty and timer without writing synchronously
+    app_mod.save_progress(immediate=False)
+    assert app_mod._PROGRESS_DIRTY is True
+
+    # Immediate save flushes synchronously
+    app_mod.save_progress(immediate=True)
+    assert app_mod._PROGRESS_DIRTY is False
+    assert os.path.exists(config.DATA_FILE)
+
