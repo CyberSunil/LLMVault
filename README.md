@@ -2,17 +2,17 @@
   <img src="docs/banner.png" alt="LLMVault Banner" width="100%">
 </p>
 
-#  LLMVault
+#  LLMVault v2.0
 
 <h3 align="center">
 
-The Ultimate Hands-On OWASP LLM Top 10 Training Platform
+### 🚀 The Ultimate Hands-On OWASP LLM Top 10 Training Platform
 
 </h3>
 
 ## 🎬 Demo
 
-<p align="center">
+<p align="center"> 
   <img src="./docs/demo.gif" width="650" alt="LLMVault Demo">
 </p>
 
@@ -56,33 +56,28 @@ Every lab pairs the **attack** with a **defense**: solve it, then read what woul
 
 > ⚠️ **Everything here is intentionally insecure. Authorised, self-hosted security education only.** Don't expose it to the internet or reuse its code in production.
 
-## 🆕 What's new in v1.2.0
+## 🚀 What's new in v2.0.0
 
-**Live Mode.** The headline feature. Instead of a scripted bot, you're now talking to a real
-local model (Ollama, ~2 GB, CPU is fine) and the target secret is minted per session. The model
-is genuinely unpredictable, which is the point: a payload that worked yesterday may not work
-today, and you have to read what the model actually does with your text. Three scenarios ship
-with it, covering prompt injection, indirect injection through an uploaded image, and output
-handling where the leak only shows up downstream. Hints are free and unlimited here — there's
-no score to protect. Play Mode is untouched, and if you skip the Ollama setup the Live Zone just
-shows you the install steps and everything else works as before.
+### 🔴 Live Mode
 
-**A real dashboard.** `/` is now Mission Command rather than a splash page: the two modes
-side by side, per-tier progress meters, your rank and score, a live activity feed across both
-modes, badges, and a status readout that tells you whether the local model is actually reachable.
-Everything on it is computed from your real progress — if there's no data yet, the panel says so
-instead of inventing a number.
+A real local model instead of a scripted bot — genuinely unpredictable, so yesterday's payload may die today.
 
-**Milestone pop-ups that don't skip.** Finish Core, Advanced or Expert and the card pops up on
-the spot, each one carrying the badges you now hold. Earning Advanced lights Core alongside it
-rather than quietly replacing it.
+- 🧠 Ollama, ~2 GB, CPU is fine; secret minted fresh each session
+- 🎯 Three scenarios: prompt injection, indirect injection via image, downstream output handling
 
-**Notification centre.** One bell, identical on every page, with a Play / Live toggle so you see
-one mode at a time, a minimise control, and a dot on the Live tab when the local model needs
-attention.
+### 📊 A real dashboard
 
-**Two dashboard themes.** Neon (the orange-and-lime default) and Phosphor, a green-CRT reading of
-the same screen. Colour only — no layout shifts either way.
+- ⚔️ Both modes side by side, per-tier progress, rank, score, live activity feed
+- 🎨 Two themes: Neon (default) and Phosphor green-CRT
+
+### 🏅 Milestones and alerts
+
+- 🎖️ Core / Advanced / Expert cards pop on the spot, carrying your badges
+- 🔔 One Notification everywhere, Play / Live toggle, dot when the model needs attention
+
+### 🕹️ Play Mode is untouched
+
+Everything you had still works exactly as before.
 
 ### Previously, in v1.1.0
 
@@ -183,26 +178,6 @@ Expect a few seconds per reply on a laptop CPU; that's normal. Running Ollama el
 
 **Skip this section entirely and nothing breaks.** Without a local model the Live Zone shows the
 setup steps and the other 25 labs carry on working offline.
-
----
-
-## 🛰️ The dashboard
-
-`/` is Mission Command — where you land, and where you choose a mode.
-
-- **Two ways in.** Play Mode and Live Mode as the two things on the page, because they're the two
-  decisions you actually make. Live Mode asks for confirmation first: it's a live model and the
-  disclaimer is worth reading once.
-- **Progress that's real.** Four meters (Core, Advanced, Expert, Live), an overall completion ring,
-  your rank and how far you are from the next one, and an activity feed that merges Play solves and
-  Live wins. Nothing on the page is decorative filler with a plausible-looking number in it.
-- **Badges.** Core, Advanced and Expert, cumulative — clearing Advanced lights Core too, since you
-  can't reach one without the other.
-- **Local model status.** A dot in the topbar and a line in the notification drawer telling you
-  whether Ollama is reachable, how many models are pulled, and what to run if not.
-- **Where you are.** A small map placed from your system timezone. No IP lookup, nothing leaves
-  the machine.
-- **Themes.** Neon or Phosphor, from Settings. Colour only.
 
 ---
 
