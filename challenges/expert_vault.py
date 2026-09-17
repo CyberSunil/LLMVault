@@ -61,11 +61,14 @@ def try_unlock(access_key: str) -> bool:
         return _verify(access_key)
     if not (os.path.exists(_ENC) and os.path.exists(_META)):
         return False
-    meta = json.load(open(_META))
+    with open(_META, "r", encoding="utf-8") as f:
+        meta = json.load(f)
     salt = base64.b64decode(meta["salt"])
     fkey = _derive(access_key.strip(), salt, meta["iterations"])
     try:
-        plain = Fernet(fkey).decrypt(open(_ENC, "rb").read())
+        with open(_ENC, "rb") as f:
+            enc_bytes = f.read()
+        plain = Fernet(fkey).decrypt(enc_bytes)
     except (InvalidToken, Exception):
         return False
     _SPECS = json.loads(plain)
@@ -84,7 +87,8 @@ def is_loaded() -> bool:
 
 def expert_count() -> int:
     try:
-        return json.load(open(_META)).get("count", 0)
+        with open(_META, "r", encoding="utf-8") as f:
+            return json.load(f).get("count", 0)
     except Exception:
         return 0
 
