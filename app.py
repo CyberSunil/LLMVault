@@ -7,11 +7,13 @@ For AUTHORISED security training only. Everything here is intentionally insecure
 """
 from __future__ import annotations
 
+import atexit
 import datetime
 import hashlib
 import hmac
 import json
 import os
+import threading
 import uuid
 from flask import (Flask, render_template, request, jsonify, session, Response,
                    abort, stream_with_context)
@@ -34,6 +36,10 @@ TOTAL_LABS = len(CHALLENGES) + expert_vault.expert_count()
 
 # ---------------- persistence (JSON file — survives refresh AND restart) ---------
 PROGRESS: dict[str, dict] = {}
+_PROGRESS_DIRTY = False
+_FLUSH_LOCK = threading.Lock()
+_FLUSH_TIMER: threading.Timer | None = None
+_BATCH_INTERVAL = 2.0  # seconds between batched disk writes during continuous activity
 
 
 def _load_progress():
@@ -45,13 +51,52 @@ def _load_progress():
         PROGRESS = {}
 
 
-def save_progress():
-    os.makedirs(os.path.dirname(config.DATA_FILE) or ".", exist_ok=True)
-    tmp = config.DATA_FILE + ".tmp"
-    with open(tmp, "w") as fh:
-        json.dump(PROGRESS, fh)
-    os.replace(tmp, config.DATA_FILE)
+def _write_progress_disk():
+    global _PROGRESS_DIRTY
+    with _FLUSH_LOCK:
+        if not _PROGRESS_DIRTY:
+            return
+        os.makedirs(os.path.dirname(config.DATA_FILE) or ".", exist_ok=True)
+        tmp = config.DATA_FILE + ".tmp"
+        with open(tmp, "w") as fh:
+            json.dump(PROGRESS, fh)
+        os.replace(tmp, config.DATA_FILE)
+        _PROGRESS_DIRTY = False
 
+
+def save_progress(immediate: bool = False):
+    """Persist session progress to disk.
+
+    To avoid disk saturation when multiple students in a workshop interact
+    simultaneously, non-critical turns (e.g. repeated chat turns) batch writes
+    behind a short debounce timer. State-changing milestone events (flag submission,
+    expert unlock, identity lock) pass immediate=True to flush synchronously.
+    """
+    global _PROGRESS_DIRTY, _FLUSH_TIMER
+    _PROGRESS_DIRTY = True
+
+    if immediate:
+        if _FLUSH_TIMER is not None:
+            _FLUSH_TIMER.cancel()
+            _FLUSH_TIMER = None
+        _write_progress_disk()
+        return
+
+    with _FLUSH_LOCK:
+        if _FLUSH_TIMER is None:
+            _FLUSH_TIMER = threading.Timer(_BATCH_INTERVAL, _flush_timer_callback)
+            _FLUSH_TIMER.daemon = True
+            _FLUSH_TIMER.start()
+
+
+def _flush_timer_callback():
+    global _FLUSH_TIMER
+    with _FLUSH_LOCK:
+        _FLUSH_TIMER = None
+    _write_progress_disk()
+
+
+atexit.register(_write_progress_disk)
 
 _load_progress()
 
@@ -107,7 +152,7 @@ def expert_complete(p) -> bool:
         return False
     if sum(1 for c in expert_vault.all_expert() if c.id in p["solved"]) == n:
         p["expert_cleared"] = True
-        save_progress()
+        save_progress(immediate=True)
         return True
     return False
 
@@ -636,7 +681,7 @@ def submit():
     correct = hmac.compare_digest(submitted_hash, c.flag_hash)
     if correct and c.id not in p["solved"]:
         p["solved"][c.id] = c.max_points
-        save_progress()
+        save_progress(immediate=True)
     return jsonify(correct=correct, score=score_of(p), solved=c.id in p["solved"],
                    defense=c.defense if correct else None,
                    core_done=core_complete(p), prereq_done=prereq_done(p),
@@ -655,7 +700,7 @@ def unlock_expert():
         return jsonify(ok=False, error="Enter the access key."), 400
     if expert_vault.try_unlock(key):
         p["expert_unlocked"] = True
-        save_progress()
+        save_progress(immediate=True)
         return jsonify(ok=True, count=expert_vault.expert_count())
     return jsonify(ok=False, error="Invalid access key."), 403
 
@@ -672,7 +717,7 @@ def setname():
         p["name"] = name
         if role:
             p["role"] = role
-        save_progress()
+        save_progress(immediate=True)
         return jsonify(ok=True)
     return jsonify(ok=False, error="empty name"), 400
 
@@ -685,7 +730,7 @@ def setrole():
     role = (request.get_json(force=True).get("role", "") or "").strip()[:24]
     if role:
         p["role"] = role
-        save_progress()
+        save_progress(immediate=True)
         return jsonify(ok=True, role=role)
     return jsonify(ok=False, error="empty role"), 400
 
