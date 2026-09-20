@@ -9,8 +9,8 @@ import re
 from config import FLAG_PREFIX
 from .. import Challenge, decode_flag_part, register
 
-SECRET = "shadowkey"     # the keyword to be extracted character-by-character
-_FLAG_SUFFIX_PREFIX = decode_flag_part("bTBkM2xfM3h0cjRjdDEwbl8=")
+SECRET = decode_flag_part("WfDNxIUxbYcD0mL4Q+MICGbfkDqFZmnQ74ZFs8o1wn8+DU/fmSLxLx0=")  # extracted char-by-char
+_FLAG_SUFFIX_PREFIX = decode_flag_part("9VCHuoviblr+jm1KYt6Itn6Mf42wXFJFbRSu2ExPlpvD7tJqLtdAe85CR8M9B4uU8w==")
 FLAG = f"{FLAG_PREFIX}{{{_FLAG_SUFFIX_PREFIX}{SECRET}}}"
 
 
@@ -30,13 +30,10 @@ class ModelExtraction(Challenge):
         "extraction oracle (and the missing query budget is the LLM10 flaw itself).",
         "Probe character by character: 'is character 1 == s?', 'does it start with sha?', "
         "'is the length 9?'. Narrow it down with enough queries.",
-        "Extract the keyword one letter at a time, then submit the flag: "
-        f"{FLAG_PREFIX}{{{'m0d3l_3xtr4ct10n_<keyword>'}}}.",
+        "Once you've recovered the whole keyword letter by letter, wrap it in the "
+        "standard flag format for this range and submit it.",
     ]
     flag = FLAG
-    solution = ("Query-based extraction. Use the yes/no oracle to recover 'shadowkey' "
-                "(length query + per-character guesses / prefix checks). No rate or query "
-                "budget exists (the LLM10 flaw). Assemble the keyword into the flag.")
     defense = ("Rate-limit and budget queries per user, detect systematic extraction "
                "patterns, avoid exposing exact oracles over secrets, and add per-tenant cost "
                "caps / circuit breakers (OWASP LLM10 — extraction & unbounded consumption).")

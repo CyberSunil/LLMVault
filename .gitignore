@@ -12,3 +12,7 @@ build_expert_vault.py
 
 # runtime progress (self-host)
 data/
+
+# plaintext solution master — operator only
+_OPERATOR_ONLY/solutions.source.json
+.env

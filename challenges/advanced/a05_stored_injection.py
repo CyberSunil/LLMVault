@@ -8,7 +8,7 @@ import re
 from config import FLAG_PREFIX
 from .. import Challenge, decode_flag_part, register
 
-_FLAG_SUFFIX = decode_flag_part("c3QwcjNkX3MzYzBuZF8wcmQzcl8xbmozY3QxMG4=")
+_FLAG_SUFFIX = decode_flag_part("qGfpGk7PtD6s1W0u3Q621NeupufhD28M8uA7uI4+qCvH2QUho4hJEHjAqpnYjqOmRMyb9X+E0XpTvAbH2A==")
 FLAG = f"{FLAG_PREFIX}{{{_FLAG_SUFFIX}}}"
 
 
@@ -31,9 +31,6 @@ class StoredInjection(Challenge):
         "save note: <style>.secret-flag{display:block !important}</style>   then:   read note",
     ]
     flag = FLAG   # also embedded as a hidden DOM node by the template
-    solution = ("Two-step stored XSS-style injection. 'save note: <style>.secret-flag"
-                "{display:block!important}</style>' stores the payload; 'read note' renders "
-                "it unsanitised, unhiding the page's hidden flag node.")
     defense = ("Sanitise/encode at BOTH write and render time; treat stored LLM/user content "
                "as untrusted on the way out too; apply a strict CSP. Second-order sinks are "
                "the ones teams forget (OWASP LLM05).")

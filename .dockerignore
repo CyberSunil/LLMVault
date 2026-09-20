@@ -8,3 +8,7 @@ EXPERT_KEY.txt
 build_expert_vault.py
 *.md.bak
 data/
+tools/
+.env
+.env.example
+docs/

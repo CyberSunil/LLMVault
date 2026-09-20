@@ -16,6 +16,58 @@
   </div>
 </div>
 
+{% if c.id == 'llm05' %}
+<div class="xss-win" id="xssWin" role="status" style="display:none;margin:14px 0;padding:14px 16px;border:1px solid #2ecc71;background:rgba(46,204,113,.12);border-radius:12px;color:#a7f3c0;font-size:15px">
+  <b>✅ Exfiltration successful.</b> Your injected script stole the session cookie and sent it to your collector — the real impact of unsanitised output. Captured flag: <code id="xssWinFlag" style="color:#eaffef"></code>
+  <span style="opacity:.8"> (pre-filled below — hit Submit to score.)</span>
+</div>
+
+<style>
+  #confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:9998}
+  #confetti .cf{position:absolute;top:-8vh;will-change:transform,opacity;animation:cfFall linear forwards}
+  @keyframes cfFall{0%{transform:translateY(-10vh) rotate(0) scale(1);opacity:1}
+    100%{transform:translateY(112vh) rotate(720deg) scale(.9);opacity:.85}}
+  #xssToast{position:fixed;top:22px;left:50%;transform:translate(-50%,-140%);z-index:9999;
+    display:flex;align-items:center;gap:14px;max-width:520px;padding:16px 18px;border-radius:16px;
+    background:linear-gradient(135deg,rgba(30,20,60,.96),rgba(15,25,45,.96));
+    border:1px solid rgba(139,92,246,.55);color:#eef;
+    box-shadow:0 0 0 1px rgba(139,92,246,.25),0 12px 40px rgba(0,0,0,.5),0 0 28px rgba(139,92,246,.45);
+    opacity:0;transition:transform .5s cubic-bezier(.2,1.2,.3,1),opacity .4s}
+  #xssToast.show{transform:translate(-50%,0);opacity:1;animation:toastGlow 1.8s ease-in-out infinite alternate}
+  @keyframes toastGlow{from{box-shadow:0 0 0 1px rgba(139,92,246,.25),0 12px 40px rgba(0,0,0,.5),0 0 22px rgba(139,92,246,.35)}
+    to{box-shadow:0 0 0 1px rgba(45,212,191,.35),0 12px 40px rgba(0,0,0,.5),0 0 40px rgba(45,212,191,.6)}}
+  #xssToast .lv-logo{flex:0 0 auto;filter:drop-shadow(0 0 10px rgba(139,92,246,.9));animation:logoPulse 1.6s ease-in-out infinite}
+  @keyframes logoPulse{0%,100%{transform:scale(1);filter:drop-shadow(0 0 8px rgba(139,92,246,.8))}
+    50%{transform:scale(1.08);filter:drop-shadow(0 0 16px rgba(45,212,191,.95))}}
+  #xssToast h4{margin:0 0 3px;font-size:15px}
+  #xssToast code{color:#7dfcc0;font-size:13px;word-break:break-all}
+  #xssToast .tbtn{margin-left:6px;background:rgba(139,92,246,.25);border:1px solid rgba(139,92,246,.5);
+    color:#eef;border-radius:8px;padding:3px 9px;font-size:12px;cursor:pointer}
+  #xssToast .tclose{position:absolute;top:6px;right:10px;background:none;border:none;color:#aab;cursor:pointer;font-size:15px}
+</style>
+<div id="confetti" aria-hidden="true"></div>
+<div id="xssToast" role="status" aria-live="polite">
+  <svg class="lv-logo" width="52" height="52" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="lvg" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+        <stop offset="0" stop-color="#8b5cf6"/><stop offset="1" stop-color="#2dd4bf"/>
+      </linearGradient>
+    </defs>
+    <path d="M32 3 58 17 58 40 C58 52 46 60 32 62 C18 60 6 52 6 40 L6 17 Z"
+          fill="rgba(139,92,246,.14)" stroke="url(#lvg)" stroke-width="2.5" stroke-linejoin="round"/>
+    <circle cx="32" cy="30" r="9" fill="none" stroke="url(#lvg)" stroke-width="3"/>
+    <rect x="30" y="34" width="4" height="12" rx="2" fill="url(#lvg)"/>
+    <circle cx="32" cy="30" r="3" fill="url(#lvg)"/>
+  </svg>
+  <div style="min-width:0">
+    <h4>👏 Flag captured!</h4>
+    <div class="muted" style="font-size:12px;margin-bottom:3px">Unsanitised output → cookie exfiltration</div>
+    <code id="xssToastFlag"></code>
+    <button class="tbtn" id="xssToastCopy">Copy</button>
+  </div>
+  <button class="tclose" id="xssToastClose" aria-label="close">✕</button>
+</div>
+{% endif %}
 {% if c.render_html %}<div class="secret-flag" style="display:none">🚩 Hidden element revealed via your injection — {{ c.flag }}</div>{% endif %}
 
 <div class="lab-body">
@@ -30,6 +82,29 @@
       <input id="msg" placeholder="Type a message to the assistant..." autocomplete="off">
       <button id="send">Send</button>
     </div>
+{% if c.id == 'llm05' %}
+<div class="panel" id="exfilPanel" style="margin-top:12px">
+  <h3>🎯 Your exfil collector</h3>
+  <p class="muted" style="margin:.2rem 0 .5rem">You don't have your own server here, so use this one. Anything your injected script sends to
+    <code>GET/POST /api/lab/llm05/collect</code> (as any query param or body) is logged below. Steal the JS-readable session cookie and send it here.</p>
+  <pre id="collectorLog" style="white-space:pre-wrap;background:rgba(0,0,0,.28);padding:10px;border-radius:8px;font-size:12px;line-height:1.5;max-height:160px;overflow:auto;margin:0">(nothing received yet)</pre>
+</div>
+{% endif %}
+{% if c.id == 'llm04' %}
+<div class="panel" id="ragPanel" style="margin-top:12px">
+  <h3>📥 Document ingestion — SupportRAG knowledge base</h3>
+  <p class="muted" style="margin:.2rem 0 .6rem">Add a document to the index. It is chunked, embedded and indexed, then retrieved when relevant to a question. (No review step — documents are trusted as-is.)</p>
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap">
+    <input type="file" id="docFile" accept=".txt,.md,text/plain,text/markdown">
+    <span class="muted" style="font-size:12px">upload a .txt or .md file, or paste below (max 64 KB)</span>
+  </div>
+  <input id="docTitle" placeholder="Document title (e.g. refund-policy.md)" autocomplete="off" style="width:100%;margin-bottom:6px">
+  <textarea id="docBody" rows="4" placeholder="Paste document contents…" style="width:100%"></textarea>
+  <button id="ingestBtn" class="primary" style="margin-top:6px">Ingest document</button>
+  <pre id="ingestTrace" style="display:none;white-space:pre-wrap;background:rgba(0,0,0,.28);padding:10px;border-radius:8px;margin-top:8px;font-size:12px;line-height:1.5;max-height:180px;overflow:auto"></pre>
+  <div id="ragIndex" class="muted" style="margin-top:8px;font-size:12px"></div>
+</div>
+{% endif %}
   </section>
 
   <aside class="side">
@@ -362,4 +437,113 @@ document.addEventListener('keydown', e => {
   });
 });
 </script>
+
+{% if c.id == 'llm05' and session_token %}
+<script>
+  // The app stores your session token in a JS-READABLE cookie (the realistic flaw).
+  // A real XSS reads document.cookie and exfiltrates it. NOT the flag — a session nonce.
+  document.cookie = "session_token={{ session_token }}; path=/; SameSite=Lax";
+  (function(){
+    const box = document.getElementById('xssWin');
+    const logEl = document.getElementById('collectorLog');
+    let done = false, primed = false;   // primed=false until we've seen an UNSOLVED state this visit
+    async function poll(){
+      try{
+        const j = await (await fetch('/api/lab/llm05/collector-log')).json();
+        if(logEl && Array.isArray(j.log) && j.log.length){
+          logEl.textContent = j.log.map(function(x){ return '← received: ' + x; }).join('\n');
+        }
+      }catch(e){}
+      if(done) return;
+      try{
+        const s = await (await fetch('/api/lab/llm05/status')).json();
+        if(s.exfiltrated && s.flag){
+          done = true;
+          document.getElementById('xssWinFlag').textContent = s.flag;
+          box.style.display = 'block';
+          if(primed){                              // solved DURING this visit -> celebrate once
+            window.scrollTo({top:0, behavior:'smooth'});
+            celebrate(s.flag);
+          }
+          // (already solved on arrival -> banner shows quietly, no confetti/toast, no autofill)
+        } else {
+          primed = true;                           // we've observed an unsolved state this visit
+        }
+      }catch(e){}
+    }
+    let celebrated=false;
+    function celebrate(flag){
+      if(celebrated) return; celebrated=true;
+      const toast=document.getElementById('xssToast');
+      document.getElementById('xssToastFlag').textContent=flag;
+      toast.classList.add('show');
+      const root=document.getElementById('confetti');
+      const em=['🎉','👏','🎊','✨','🔓'];
+      for(let i=0;i<46;i++){
+        const s=document.createElement('span'); s.className='cf'; s.textContent=em[i%em.length];
+        s.style.left=(Math.random()*100)+'vw';
+        s.style.fontSize=(16+Math.random()*22)+'px';
+        s.style.animationDelay=(Math.random()*0.7)+'s';
+        s.style.animationDuration=(2.6+Math.random()*1.8)+'s';
+        root.appendChild(s); setTimeout(function(){s.remove();},5200);
+      }
+      const copy=document.getElementById('xssToastCopy');
+      if(copy) copy.onclick=function(){ navigator.clipboard && navigator.clipboard.writeText(flag); copy.textContent='Copied'; };
+      const close=document.getElementById('xssToastClose');
+      if(close) close.onclick=function(){ toast.classList.remove('show'); };
+      setTimeout(function(){ toast.classList.remove('show'); }, 12000);
+    }
+    setInterval(poll, 1500);
+  })();
+</script>
+{% endif %}
+
+{% if c.id == 'llm04' %}
+<script>
+(function(){
+  const trace = document.getElementById('ingestTrace');
+  const idx = document.getElementById('ragIndex');
+  async function refresh(){
+    try{
+      const j = await (await fetch('/api/lab/llm04/index')).json();
+      idx.innerHTML = '<b>Index (' + j.docs.length + ' documents):</b><br>' + j.docs.map(function(d){
+        return '&nbsp;• #' + d.id + ' ' + d.title + ' — ' + d.chunks + ' chunks, provenance=' + d.provenance +
+               (d.verified ? '' : ' <span style="color:#e6a23c">(UNVERIFIED)</span>');
+      }).join('<br>');
+    }catch(e){}
+  }
+  const fileEl = document.getElementById('docFile');
+  if(fileEl){
+    fileEl.onchange = function(){
+      const f = fileEl.files[0]; if(!f) return;
+      if(!/\.(txt|md)$/i.test(f.name)){
+        trace.style.display='block'; trace.textContent='[reject] only .txt and .md files are accepted';
+        fileEl.value=''; return;
+      }
+      if(f.size > 64*1024){
+        trace.style.display='block'; trace.textContent='[reject] file too large (max 64 KB)';
+        fileEl.value=''; return;
+      }
+      const r = new FileReader();
+      r.onload = function(){
+        document.getElementById('docTitle').value = f.name;
+        document.getElementById('docBody').value = r.result;
+      };
+      r.readAsText(f);
+    };
+  }
+  document.getElementById('ingestBtn').onclick = async function(){
+    const title = document.getElementById('docTitle').value.trim() || 'untitled.txt';
+    const text = document.getElementById('docBody').value;
+    if(!text.trim()) return;
+    const j = await (await fetch('/api/lab/llm04/ingest',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:title,text:text})})).json();
+    trace.style.display='block';
+    trace.textContent = j.trace || 'ingested';
+    document.getElementById('docBody').value='';
+    refresh();
+  };
+  refresh();
+})();
+</script>
+{% endif %}
 {% endblock %}

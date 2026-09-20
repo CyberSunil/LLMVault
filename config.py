@@ -13,6 +13,20 @@ COPYRIGHT = f"© {COPYRIGHT_YEAR} {AUTHOR}"
 # Flag format. Change this to match your CTF platform's prefix if you like.
 FLAG_PREFIX = "LLMVAULT"
 
+# Pepper used to seal challenge flags at rest (see challenges/__init__.py: seal/unseal).
+# The default keeps the public repo clone-and-run. For a PRIVATE or scored instance whose
+# flags must not be recoverable from the open source, set LLMVAULT_PEPPER in the environment
+# and reseal the flags with challenges.seal(); the shipped boxes will then no longer decode,
+# so a source-reader can't lift them.
+import os as _os_pepper
+FLAG_PEPPER = _os_pepper.environ.get("LLMVAULT_PEPPER", "LLMVault::default-pepper::v1")
+
+# Key that seals the instructor SOLUTION vault (challenges/solutions.enc).
+# Deliberately has NO default: unset => the app runs normally and the sealed
+# solutions cannot be decrypted by anyone reading the public source. Set it ONLY
+# on your own machine to (re)generate the vault or reveal a solution. Never commit it.
+SOLUTION_KEY = _os_pepper.environ.get("LLMVAULT_SOLUTION_KEY")
+
 # Where your project lives (shown on the completion card + share text).
 REPO_URL = "https://github.com/CyberSunil/LLMVault"
 AUTHOR_HANDLE = "CyberSunil"

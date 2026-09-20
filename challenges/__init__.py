@@ -9,26 +9,137 @@ fix by practising the break.
 Flag handling: `self.flag` still holds the real plaintext, because each
 `respond()` has to be able to reveal/redact/reverse/encode/spell it out — that IS
 the leak mechanic. What changed is (1) the literal answer is no longer sitting in
-each module as a bare, grep-able `PREFIX{...}` string — see `decode_flag_part()` —
-and (2) verification never compares plaintext at all: `/api/submit` checks a
-SHA-256 digest (`flag_hash`, below) instead of `== c.flag`. None of this claims to
-make the flag unrecoverable from source (the app has to be able to say it out
-loud when you win); it just removes the "answers are handed to you if you grep
-the repo" shortcut and gets validation off plaintext comparison.
+each module as a bare, grep-able `PREFIX{...}` string, nor as a trivially
+base64-decodable one: each module ships only a SEALED box (see `seal`/`unseal`
+below — an authenticated, salted, pepper-derived stream cipher, stdlib-only), so
+it can't be read with a grep or an online base64 decoder; and (2) verification
+never compares plaintext at all: `/api/submit` checks a SHA-256 digest
+(`flag_hash`, below) instead of `== c.flag`.
+
+Honest ceiling: this does NOT make the flag unrecoverable from the source — the
+app must say it out loud when you win, and the default pepper ships in config so
+the repo stays clone-and-run. It removes the cheap shortcuts (grep, one-tool
+decode) and ties reveal to running the exploit. For a private/scored instance
+that a source-reader truly can't lift flags from, set `LLMVAULT_PEPPER` in the
+environment and reseal every box with `seal()`; the shipped boxes then stop
+decoding.
 """
 from __future__ import annotations
 
 import base64
 import hashlib
+import hmac
+import os
+
+from config import FLAG_PEPPER
 
 
-def decode_flag_part(encoded: str) -> str:
-    """Reverse the base64 obfuscation used for the secret portion of a flag.
+def _derive_key_from(secret: str, salt: bytes) -> bytes:
+    return hashlib.scrypt(secret.encode(), salt=salt, n=2 ** 14, r=8, p=1,
+                          dklen=32, maxmem=33_554_432)
 
-    Kept as a tiny, named indirection (rather than inlining base64.b64decode
-    everywhere) so every challenge module's intent is obvious at a glance.
+
+def _derive_key(salt: bytes) -> bytes:
+    return _derive_key_from(FLAG_PEPPER, salt)
+
+
+def _keystream(key: bytes, n: int) -> bytes:
+    out = bytearray()
+    counter = 0
+    while len(out) < n:
+        out += hashlib.sha256(key + counter.to_bytes(8, "big")).digest()
+        counter += 1
+    return bytes(out[:n])
+
+
+def seal(plaintext: str) -> str:
+    """Seal a secret into a base64 box: salt | HMAC tag | ciphertext.
+
+    Authenticated (tamper-evident), salted (no two boxes share a keystream) and
+    keyed off the deploy pepper. Use this to (re)generate the FLAG boxes,
+    especially after changing LLMVAULT_PEPPER for a private instance.
     """
-    return base64.b64decode(encoded.encode()).decode()
+    salt = os.urandom(16)
+    key = _derive_key(salt)
+    data = plaintext.encode()
+    ct = bytes(a ^ b for a, b in zip(data, _keystream(key, len(data))))
+    tag = hmac.new(key, salt + ct, hashlib.sha256).digest()[:16]
+    return base64.b64encode(salt + tag + ct).decode()
+
+
+def decode_flag_part(box: str) -> str:
+    """Unseal a sealed flag box (see `seal`). Named for the per-module call site.
+
+    Verifies the HMAC before returning; a wrong pepper (or a tampered box) raises
+    instead of yielding a plausible-looking wrong flag.
+    """
+    raw = base64.b64decode(box.encode())
+    salt, tag, ct = raw[:16], raw[16:32], raw[32:]
+    key = _derive_key(salt)
+    if not hmac.compare_digest(tag, hmac.new(key, salt + ct, hashlib.sha256).digest()[:16]):
+        raise ValueError("flag box authentication failed (wrong LLMVAULT_PEPPER?)")
+    return bytes(a ^ b for a, b in zip(ct, _keystream(key, len(ct)))).decode()
+
+
+# Backwards-compatible alias.
+unseal = decode_flag_part
+
+
+# ---------------------------------------------------------------------------
+# Solution vault (SEPARATE secret, no default).
+#
+# Flags are sealed with FLAG_PEPPER, which ships a default so the repo stays
+# clone-and-run — the honest ceiling is that a source-reader running the code
+# can still recover a flag. Solutions are different: the running app never needs
+# them (only an instructor does), so they are sealed with their OWN key,
+# LLMVAULT_SOLUTION_KEY, which has NO default. With no key in the environment the
+# app runs exactly as before and `solutions.enc` is undecryptable — so the
+# plaintext walkthroughs simply do not exist anywhere in the public source.
+# Regenerate the vault with:  python -m tools.sealtool extract-solutions
+# Read one back with:         python -m tools.reveal llm01   (key in env)
+# ---------------------------------------------------------------------------
+import json as _json
+from pathlib import Path as _Path
+
+try:
+    from config import SOLUTION_KEY as _SOLUTION_KEY
+except Exception:
+    _SOLUTION_KEY = None
+
+_SOLUTION_STORE = _Path(__file__).with_name("solutions.enc")
+
+
+def seal_with_key(plaintext: str, secret: str) -> str:
+    """Seal `plaintext` under an arbitrary secret (same box format as `seal`)."""
+    salt = os.urandom(16)
+    key = _derive_key_from(secret, salt)
+    data = plaintext.encode()
+    ct = bytes(a ^ b for a, b in zip(data, _keystream(key, len(data))))
+    tag = hmac.new(key, salt + ct, hashlib.sha256).digest()[:16]
+    return base64.b64encode(salt + tag + ct).decode()
+
+
+def unseal_with_key(box: str, secret: str) -> str:
+    """Reverse `seal_with_key`; raises on a wrong key or a tampered box."""
+    raw = base64.b64decode(box.encode())
+    salt, tag, ct = raw[:16], raw[16:32], raw[32:]
+    key = _derive_key_from(secret, salt)
+    if not hmac.compare_digest(tag, hmac.new(key, salt + ct, hashlib.sha256).digest()[:16]):
+        raise ValueError("solution box authentication failed (wrong LLMVAULT_SOLUTION_KEY?)")
+    return bytes(a ^ b for a, b in zip(ct, _keystream(key, len(ct)))).decode()
+
+
+def solution_for(cid: str, key: str | None = None) -> str | None:
+    """Return the instructor walkthrough for a challenge id, or None.
+
+    None whenever the key is absent (env var unset AND none passed) or the store
+    is missing — i.e. the app and any source-reader without the key get nothing.
+    """
+    secret = key or _SOLUTION_KEY
+    if not secret or not _SOLUTION_STORE.exists():
+        return None
+    box = _json.loads(_SOLUTION_STORE.read_text()).get(cid)
+    return unseal_with_key(box, secret) if box else None
 
 
 class Challenge:

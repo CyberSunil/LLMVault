@@ -7,6 +7,7 @@ For AUTHORISED security training only. Everything here is intentionally insecure
 """
 from __future__ import annotations
 
+import base64
 import datetime
 import hashlib
 import hmac
@@ -559,6 +560,20 @@ def labs():
                            prefix=config.FLAG_PREFIX)
 
 
+class _MaskedFlag:
+    """Template-only view of a challenge that hides its flag from the rendered page.
+
+    Delegates every attribute to the real challenge except `flag`, which reads empty.
+    Used only for the llm05 lab page so the flag is never planted in the DOM; the real
+    challenge object (with the real flag) is what /api/submit and respond() still use.
+    """
+    def __init__(self, c):
+        self._c = c
+
+    def __getattr__(self, name):
+        return "" if name == "flag" else getattr(self._c, name)
+
+
 @app.route("/lab/<cid>")
 def lab(cid):
     c = find(cid)
@@ -576,7 +591,21 @@ def lab(cid):
                                total=len(pool) or expert_vault.expert_count(),
                                solved=sum(1 for x in pool if x.id in p["solved"]))
     owasp_code = c.owasp.split(":", 1)[0].strip() if c.owasp else ""
-    return render_template("lab.html", c=c, prog=p, score=score_of(p),
+    # LLM05 fix: the lab template plants c.flag into a hidden node when render_html is set.
+    # For llm05 the flag must NOT sit in the DOM (it's disclosed only when a real XSS vector
+    # fires — see challenges/llm05_output_handling.py). Render that ONE page with a blanked
+    # flag so nothing leaks to DevTools; the real flag is untouched for submission, for the
+    # bot's respond(), and for llm05a (whose intended solve still unhides its node).
+    session_token = None
+    if c.id == "llm05":
+        st = p.setdefault("state", {}).setdefault("llm05", {})
+        session_token = st.get("session_token")
+        if not session_token:
+            session_token = st["session_token"] = uuid.uuid4().hex[:16]
+            save_progress()
+    view_c = _MaskedFlag(c) if c.id == "llm05" else c
+    return render_template("lab.html", c=view_c, prog=p, score=score_of(p),
+                           session_token=session_token,
                            hints_used=p["hints"].get(cid, 0),
                            solved=cid in p["solved"], prefix=config.FLAG_PREFIX,
                            hint_costs=config.HINT_COSTS,
@@ -598,6 +627,100 @@ def chat():
     reply = c.respond(msg, state)
     save_progress()
     return jsonify(reply=reply, render_html=c.render_html)
+
+
+@app.route("/api/lab/llm04/corpus")
+def llm04_corpus():
+    # The scraped-web training snapshot players audit for LLM04 (data provenance).
+    c = find("llm04")
+    if not c:
+        return jsonify(error="no such lab"), 404
+    if not can_access(c, prog()):
+        return jsonify(error="locked"), 403
+    return Response(c.corpus(), mimetype="text/plain; charset=utf-8")
+
+
+@app.route("/api/lab/llm04/manifest")
+def llm04_manifest():
+    # Per-source contribution counts — the provenance pivot for the LLM04 audit.
+    c = find("llm04")
+    if not c:
+        return jsonify(error="no such lab"), 404
+    if not can_access(c, prog()):
+        return jsonify(error="locked"), 403
+    return Response(c.manifest(), mimetype="application/json")
+
+
+@app.route("/api/lab/llm04/ingest", methods=["POST"])
+def llm04_ingest():
+    # Realistic ingestion: chunk -> embed -> index, with NO provenance/trust check (the flaw).
+    c = find("llm04")
+    p = prog()
+    if not c or not can_access(c, p):
+        return jsonify(error="locked"), 403
+    data = request.get_json(force=True)
+    st = p.setdefault("state", {}).setdefault("llm04", {})
+    r = c.ingest(data.get("title", ""), data.get("text", ""), st)
+    save_progress()
+    return jsonify(r)
+
+
+@app.route("/api/lab/llm04/index")
+def llm04_index():
+    c = find("llm04")
+    p = prog()
+    if not c or not can_access(c, p):
+        return jsonify(error="locked"), 403
+    st = p.setdefault("state", {}).setdefault("llm04", {})
+    return jsonify(c.index_view(st))
+
+
+@app.route("/api/lab/llm05/collect", methods=["GET", "POST"])
+def llm05_collect():
+    # Your attacker collector. A successful XSS sends the stolen session token here as
+    # ANY query param or body. We validate the token from what was SENT (not from the
+    # auto-attached cookie header), so it only counts if your script exfiltrated it.
+    c = find("llm05")
+    p = prog()
+    if not c or not can_access(c, p):
+        return Response(status=403)
+    st = p.setdefault("state", {}).setdefault("llm05", {})
+    tok = st.get("session_token", "")
+    from urllib.parse import unquote_plus
+    received = unquote_plus(request.query_string.decode("utf-8", "ignore"))
+    if request.method == "POST":
+        received += " " + unquote_plus(request.get_data(as_text=True) or "")
+    log = st.setdefault("collector_log", [])
+    if received.strip():
+        log.append(received[:300])
+        del log[:-6]
+    if tok and tok in received:
+        st["exfiltrated"] = True
+    save_progress()
+    gif = base64.b64decode("R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7")
+    return Response(gif, mimetype="image/gif")
+
+
+@app.route("/api/lab/llm05/collector-log")
+def llm05_collector_log():
+    c = find("llm05")
+    p = prog()
+    if not c or not can_access(c, p):
+        return jsonify(log=[]), 403
+    st = p.setdefault("state", {}).setdefault("llm05", {})
+    return jsonify(log=st.get("collector_log", []), exfiltrated=bool(st.get("exfiltrated")))
+
+
+@app.route("/api/lab/llm05/status")
+def llm05_status():
+    # The lab page polls this; the flag is returned ONLY after a real exfiltration.
+    c = find("llm05")
+    p = prog()
+    if not c or not can_access(c, p):
+        return jsonify(exfiltrated=False, flag=None), 403
+    st = p.setdefault("state", {}).setdefault("llm05", {})
+    done = bool(st.get("exfiltrated"))
+    return jsonify(exfiltrated=done, flag=(c.flag if done else None))
 
 
 @app.route("/api/hint", methods=["POST"])
