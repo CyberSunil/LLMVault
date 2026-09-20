@@ -8,7 +8,7 @@ import re
 from config import FLAG_PREFIX
 from .. import Challenge, decode_flag_part, register
 
-_FLAG_SUFFIX = decode_flag_part("dDRtcDNyM2RfNHJ0MWY0Y3RfaDRzaF9tMXNtNHRjaA==")
+_FLAG_SUFFIX = decode_flag_part("sUxPiqpdP5G/9ktwQ8wlDQKlsFhXUrBwAhdIg1wdUjns7uZIVEx+tI+yefpm+bQU3QcWaC+3Y76AleDy/iLl")
 FLAG = f"{FLAG_PREFIX}{{{_FLAG_SUFFIX}}}"
 
 DEPLOYED = {
@@ -42,10 +42,6 @@ class Provenance(Challenge):
         "One model's deployed hash ≠ its canonical hash — that's the swapped artifact. Name it.",
     ]
     flag = FLAG
-    solution = ("Two-step correlation: (1) 'show deployed hashes' -> DEPLOYED table; "
-                "(2) 'show canonical hashes' -> CANONICAL table. Only 'reranker' differs "
-                "(deployed 9f9f9f vs canonical 0c0c0c). Naming 'reranker' as tampered "
-                "reveals the flag.")
     defense = ("Verify artifact integrity against signed canonical hashes at load time, "
                "enforce provenance/attestation (e.g. sigstore), and alert on any deployed-"
                "vs-published mismatch (OWASP LLM03).")

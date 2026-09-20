@@ -8,7 +8,7 @@ import re
 from config import FLAG_PREFIX
 from .. import Challenge, decode_flag_part, register
 
-_FLAG_SUFFIX = decode_flag_part("Y3Iwc3NfdDNuNG50X20zbTByeV9ibDMzZA==")
+_FLAG_SUFFIX = decode_flag_part("EFhAQ/iPpgOpQbzInDWWGkxPAwFE6lCD14TCtl9DGBKc25yh2LylFMQydnlKaD5w2fcPGB0UCjCU")
 FLAG = f"{FLAG_PREFIX}{{{_FLAG_SUFFIX}}}"
 
 OTHER_TENANT_NOTE = (f"[user_1042 private memory] Reminder: the production deploy key is {FLAG}")
@@ -34,9 +34,6 @@ class CrossTenant(Challenge):
         "isolation leaks their confidential memory.",
     ]
     flag = FLAG
-    solution = ("Cross-tenant retrieval. Probing your own memory returns nothing; asking "
-                "about other users / user_1042 / previous sessions triggers a retrieval from "
-                "the shared index that returns another tenant's private note containing the flag.")
     defense = ("Partition vector stores per tenant/user and filter retrieval by the caller's "
                "identity BEFORE similarity search; never co-mingle tenants in one index; "
                "encrypt and scope memory (OWASP LLM08).")

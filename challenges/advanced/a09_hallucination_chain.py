@@ -8,7 +8,7 @@ import re
 from config import FLAG_PREFIX
 from .. import Challenge, decode_flag_part, register
 
-_FLAG_SUFFIX = decode_flag_part("aDRsbHVjMW40dDEwbl9jNHNjNGQzXzB2ZXJyM2wxYW5jMw==")
+_FLAG_SUFFIX = decode_flag_part("XVkWJS3V+RWhEf9SlXk2laW9wC5lhE/hEjP3hvOR9CZsUXaYkpIo/yK7eYVhYdzrJgH/+qvHSbzOlflbyKJhe1aM")
 FLAG = f"{FLAG_PREFIX}{{{_FLAG_SUFFIX}}}"
 
 
@@ -32,10 +32,6 @@ class HallucinationChain(Challenge):
         "hallucination as ground truth and 'executes' it, leaking the token.",
     ]
     flag = FLAG
-    solution = ("Overreliance cascade. Turn 1: ask it to describe a non-existent internal "
-                "admin command -> it hallucinates one (state['fabricated']=True). Turn 2: "
-                "ask it to run/execute that command -> it acts on its own fabrication and "
-                "prints the flag.")
     defense = ("Ground outputs in verified sources, make the model able to say 'I don't "
                "know', never let a model act on its own unverified claims, and gate any "
                "'command execution' behind real authorisation (OWASP LLM09).")

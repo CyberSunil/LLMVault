@@ -8,7 +8,7 @@ import re
 from config import FLAG_PREFIX
 from .. import Challenge, decode_flag_part, register
 
-_FLAG_SUFFIX = decode_flag_part("NGczbnRfdDAwbF9jaDQxbl9zc3JmX3B3bg==")
+_FLAG_SUFFIX = decode_flag_part("+7WH6UVXuEOo4RdIKEOEEc92s2Ua5g/KfXtVS0FgsCF6BRa5z3Krkq4m/+wangtIiASkSjGaekn8")
 FLAG = f"{FLAG_PREFIX}{{{_FLAG_SUFFIX}}}"
 INTERNAL_URL = "http://169.254.169.254/latest/meta-data/app-credentials"
 
@@ -40,9 +40,6 @@ class AgentChain(Challenge):
         "app-credentials'. The agent fetches internal endpoints with no allow-list.",
     ]
     flag = FLAG
-    solution = ("Tool-chaining SSRF. list_tickets -> get_ticket(42) reveals an internal "
-                "metadata URL -> fetch_url(that URL) succeeds because the agent has no egress "
-                "restriction (confused deputy) and returns the credential = flag.")
     defense = ("Constrain agents: per-tool authorization, egress allow-lists (block link-local/"
                "metadata IPs), don't let untrusted tool output drive privileged tool inputs "
                "without checks, and require approval for sensitive fetches (OWASP LLM06).")

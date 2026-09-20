@@ -8,7 +8,7 @@ import re
 from config import FLAG_PREFIX
 from .. import Challenge, decode_flag_part, register
 
-_FLAG_SUFFIX = decode_flag_part("MG5sMW4zX2wzNHJuMW5nX3AwMXMwbjNk")
+_FLAG_SUFFIX = decode_flag_part("W+fn0iUN3LVoHofD8LisZRMrEeN/s22gQWHgiJCbg4VzIZY3jbGCNNi9ge8AZKFbUHwP+fFNO3g=")
 FLAG = f"{FLAG_PREFIX}{{{_FLAG_SUFFIX}}}"
 POISON_NEEDED = 3
 BADWORD = "rm -rf /"
@@ -34,10 +34,6 @@ class DataPoisoning(Challenge):
         "Once poisoned, it approves and leaks the key.",
     ]
     flag = FLAG
-    solution = (f"Iterative poisoning. Each feedback message asserting '{BADWORD}' is SAFE "
-                f"increments a poison counter. After {POISON_NEEDED} poison inputs the "
-                f"threshold flips; asking it to classify/approve '{BADWORD}' then returns "
-                f"SAFE and leaks the flag.")
     defense = ("Never trust unvalidated user feedback as training signal. Curate/verify "
                "training and fine-tuning data, monitor for label-flip/anomalous updates, "
                "sandbox online learning, and keep a trusted eval gate (OWASP LLM04).")
