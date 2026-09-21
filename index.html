@@ -55,9 +55,10 @@
   .wrap{max-width:1000px;margin:0 auto;padding:0 22px}
   nav{position:sticky;top:0;z-index:30;backdrop-filter:blur(10px);
       background:linear-gradient(to bottom,rgba(5,6,14,.92),rgba(5,6,14,.35));border-bottom:1px solid var(--line)}
-  nav .wrap{display:flex;align-items:center;justify-content:space-between;padding:14px 22px}
+  nav .wrap{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:12px 18px}
   .brand{font-weight:700;font-size:18px}.brand .b1{color:var(--pur)}.brand .b2{color:var(--teal)}
-  .navlinks a{color:var(--muted);margin-left:20px;font-size:14px}.navlinks a:hover{color:var(--ink);text-decoration:none}
+  .navlinks{display:flex;align-items:center;gap:18px}
+  .navlinks a{color:var(--muted);font-size:14px}.navlinks a:hover{color:var(--ink);text-decoration:none}
   .star{border:1px solid var(--line);padding:7px 14px;border-radius:9px;color:var(--teal)!important}
   .star:hover{box-shadow:0 0 18px rgba(45,212,191,.45);text-decoration:none}
   header{position:relative;min-height:100vh;display:flex;align-items:center;overflow:hidden;padding:40px 0}
@@ -151,12 +152,23 @@
   ul.feat li{padding-left:22px;position:relative}ul.feat li::before{content:"▹";position:absolute;left:0;color:var(--teal)}
   footer{padding:44px 0 64px;text-align:center;color:var(--muted);font-size:14px;border-top:1px solid rgba(139,92,246,.10)}footer b{color:var(--ink)}
   @media (prefers-reduced-motion: reduce){.reveal{opacity:1;transform:none;transition:none}#brain{display:none}}
+
+  @media (max-width:640px){
+    nav .wrap{padding:10px 16px}
+    .navlinks{gap:0}
+    .navlinks a.sec{display:none}          /* hide Labs/Features/Install on phones */
+    .star{margin:0}
+    h1{font-size:clamp(40px,15vw,72px)}
+    .term{margin-top:16px}
+    .term .out{height:200px}
+    .robot{right:6px;width:46px}.robot svg{width:46px}
+  }
 </style>
 </head>
 <body>
 <nav><div class="wrap">
   <div class="brand"><span class="b1">LLM</span><span class="b2">Vault</span></div>
-  <div class="navlinks"><a href="#labs">Labs</a><a href="#features">Features</a><a href="#install">Install</a>
+  <div class="navlinks"><a class="sec" href="#labs">Labs</a><a class="sec" href="#features">Features</a><a class="sec" href="#install">Install</a>
     <a class="star" href="https://github.com/CyberSunil/LLMVault">★ GitHub</a></div>
 </div></nav>
 
@@ -229,8 +241,8 @@
     </div>
 
     <div class="cta">
-      <a class="btn primary mono" href="https://github.com/CyberSunil/LLMVault">git clone the full range</a>
-      <a class="btn" href="#labs">See all 10 labs</a>
+      <a class="btn primary mono" href="https://github.com/CyberSunil/LLMVault">Git Clone</a>
+      <a class="btn" href="#labs">Wanna Get Hands Dirty?</a>
     </div>
   </div></div>
 </header>
@@ -323,8 +335,8 @@ document.querySelectorAll('.reveal').forEach(function(s){io.observe(s);});})();
     (function tick(){d.textContent=text.slice(0,i++);out.scrollTop=out.scrollHeight;
       if(i<=text.length)setTimeout(tick,10);else if(done)done();})();}
 
-  var INJECT=/ignore (all |the )?(previous|prior|above)|disregard|override|forget (your|the|all)|you are now|\bact as\b|pretend|\bdan\b|developer mode|dev[- ]?mode|jailbreak|system prompt|new instructions|(reveal|share|send|give|tell|print|output|disclose|leak|show)[^.\n]{0,30}(code|secret|flag|key|password)/i;
-  var ASK=/(access )?code|secret|flag|key|password/i;
+  var INJECT=/ignore (all |the )?(previous|prior|above)( instruction| rule)?|disregard (your|all|the|previous)|override (your|the)?\s*(rule|instruction|guard|polic)|forget (your|the|all)|you are now|\bact as\b|pretend (to be|you)|role[- ]?play|\bdan\b|developer mode|dev[- ]?mode|jailbreak|reveal your (system )?(prompt|instructions|rules)|bypass|new (instructions|rules)|no restrictions/i;
+  var ASK=/(access )?code|secret|password|flag|the key/i;
   var GREET=/^\s*(hi|hello|hey|yo|help|\?|sup)\b/i;
 
   function respond(raw){
