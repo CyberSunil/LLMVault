@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LLMVault — OWASP LLM Top 10 Security CTF Training Range</title>
+<meta name="description" content="LLMVault is an intentionally vulnerable, self-hosted CTF training range for the OWASP Top 10 for LLM Applications — prompt injection, sensitive information disclosure, RAG data poisoning, improper output handling, excessive agency and more. Free and open source.">
+<meta name="keywords" content="OWASP LLM Top 10, LLM security, prompt injection, RAG poisoning, indirect prompt injection, AI red teaming, CTF, capture the flag, AI security training, excessive agency">
+<meta name="author" content="CyberSunil">
+<link rel="canonical" href="https://cybersunil.github.io/LLMVault/">
+<meta name="robots" content="index, follow">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="LLMVault">
+<meta property="og:title" content="LLMVault — OWASP LLM Top 10 Security CTF">
+<meta property="og:description" content="An intentionally vulnerable, self-hosted CTF training range for the OWASP Top 10 for LLM Applications. Free and open source.">
+<meta property="og:url" content="https://cybersunil.github.io/LLMVault/">
+<meta property="og:image" content="https://raw.githubusercontent.com/CyberSunil/LLMVault/main/static/img/ui/banner-lockup.png">
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="LLMVault — OWASP LLM Top 10 Security CTF">
+<meta name="twitter:description" content="An intentionally vulnerable, self-hosted CTF training range for the OWASP Top 10 for LLM Applications.">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/CyberSunil/LLMVault/main/static/img/ui/banner-lockup.png">
+<meta name="twitter:creator" content="@SUNIL_AWESOME_">
+
+<link rel="icon" href="https://raw.githubusercontent.com/CyberSunil/LLMVault/main/static/img/ui/logo.png">
+
+<!-- Structured data: Google reads this to classify the site -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "LLMVault",
+  "url": "https://cybersunil.github.io/LLMVault/",
+  "applicationCategory": "SecurityApplication",
+  "applicationSubCategory": "CTF training range for LLM application security",
+  "operatingSystem": "Docker, Linux, Python 3.10+",
+  "softwareVersion": "2.0.1",
+  "description": "LLMVault is an intentionally vulnerable, self-hosted CTF training range covering the OWASP Top 10 for LLM Applications — prompt injection, sensitive information disclosure, supply chain, data and model poisoning, improper output handling, excessive agency, system prompt leakage, vector and embedding weaknesses, misinformation and unbounded consumption.",
+  "license": "https://opensource.org/licenses/MIT",
+  "isAccessibleForFree": true,
+  "codeRepository": "https://github.com/CyberSunil/LLMVault",
+  "keywords": "OWASP LLM Top 10, LLM security, prompt injection, RAG poisoning, AI red teaming, CTF, capture the flag, AI security",
+  "author": {
+    "@type": "Person",
+    "name": "CyberSunil",
+    "url": "https://sunilawesome.in"
+  },
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+}
+</script>
+
+<style>
+  :root{
+    --bg:#0a0a12; --panel:#12121f; --panel2:#171728; --line:rgba(139,92,246,.28);
+    --ink:#e7e7f2; --muted:#a5a5c0; --p1:#8b5cf6; --p2:#2dd4bf; --warn:#e6a23c;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:radial-gradient(1200px 600px at 70% -10%,rgba(139,92,246,.18),transparent 60%),radial-gradient(900px 500px at 10% 10%,rgba(45,212,191,.10),transparent 55%),var(--bg);
+       color:var(--ink);font-family:"Segoe UI",system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;line-height:1.6}
+  .wrap{max-width:960px;margin:0 auto;padding:0 20px}
+  code,kbd,pre{font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  a{color:var(--p2);text-decoration:none}
+  a:hover{text-decoration:underline}
+  header{padding:72px 0 40px;text-align:center}
+  .badge{display:inline-block;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--p2);
+         border:1px solid var(--line);border-radius:999px;padding:5px 14px;margin-bottom:20px}
+  h1{font-size:clamp(34px,6vw,58px);margin:.1em 0;line-height:1.05;
+     background:linear-gradient(135deg,var(--p1),var(--p2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .tag{color:var(--muted);font-size:clamp(16px,2.4vw,20px);max-width:680px;margin:14px auto 0}
+  .cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:28px}
+  .btn{display:inline-block;padding:11px 22px;border-radius:12px;font-weight:600;border:1px solid var(--line)}
+  .btn.primary{background:linear-gradient(135deg,var(--p1),var(--p2));color:#0a0a12;border:none}
+  .btn:hover{text-decoration:none;filter:brightness(1.08)}
+  section{padding:36px 0;border-top:1px solid rgba(255,255,255,.05)}
+  h2{font-size:26px;margin:0 0 6px}
+  .sub{color:var(--muted);margin:0 0 22px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+  .card{background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);
+        border-radius:14px;padding:16px 18px}
+  .card .id{font-size:12px;color:var(--p2);letter-spacing:.08em;font-weight:700}
+  .card h3{margin:6px 0 6px;font-size:17px}
+  .card p{margin:0;color:var(--muted);font-size:14.5px}
+  pre{background:#0c0c16;border:1px solid var(--line);border-radius:12px;padding:16px;overflow:auto;font-size:14px}
+  .note{background:rgba(230,162,60,.10);border:1px solid rgba(230,162,60,.4);border-radius:12px;padding:14px 16px;color:#f3d9ac;font-size:14.5px}
+  footer{padding:40px 0 60px;text-align:center;color:var(--muted);font-size:14px}
+  ul.feat{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+  ul.feat li{padding-left:22px;position:relative}
+  ul.feat li::before{content:"▹";position:absolute;left:0;color:var(--p2)}
+</style>
+</head>
+<body>
+<a href="https://github.com/CyberSunil/LLMVault" style="position:fixed;top:14px;right:16px;font-size:13px;border:1px solid var(--line);padding:6px 12px;border-radius:10px;background:rgba(18,18,31,.7)">★ Star on GitHub</a>
+
+<header class="wrap">
+  <span class="badge">OWASP Top 10 for LLM Applications · v2.0.1</span>
+  <h1>LLMVault</h1>
+  <p class="tag">An intentionally vulnerable, self-hosted <strong>CTF training range</strong> for the OWASP Top 10 for LLM Applications. Learn prompt injection, RAG data poisoning, insecure output handling, excessive agency and more — by exploiting them, hands-on.</p>
+  <div class="cta">
+    <a class="btn primary" href="https://github.com/CyberSunil/LLMVault">Get it on GitHub</a>
+    <a class="btn" href="https://github.com/CyberSunil/LLMVault/releases">Releases</a>
+    <a class="btn" href="#install">Quick start</a>
+  </div>
+</header>
+
+<main class="wrap">
+  <section id="about">
+    <h2>What is LLMVault?</h2>
+    <p class="sub">A safe lab to practise offensive and defensive LLM security.</p>
+    <p>LLMVault is a free, open-source web application that recreates the ten risk categories from the <a href="https://genai.owasp.org/">OWASP Top 10 for LLM Applications</a> as playable capture-the-flag challenges. Each lab is a chatbot or agent with a realistic weakness — an unsanitised output sink, a RAG index with no access control, an over-permissioned tool, a sycophantic assistant — and your goal is to exploit it to capture the flag. It runs entirely on your own machine, ships with a scored <em>Play Mode</em> and an optional <em>Live Mode</em> that points the attacks at a real local model, and requires no cloud accounts or API keys.</p>
+  </section>
+
+  <section id="labs">
+    <h2>The OWASP LLM Top 10, as challenges</h2>
+    <p class="sub">Ten core labs plus advanced and expert tiers.</p>
+    <div class="grid">
+      <div class="card"><div class="id">LLM01</div><h3>Prompt Injection</h3><p>Override the system instruction and make the assistant ignore its guardrail.</p></div>
+      <div class="card"><div class="id">LLM02</div><h3>Sensitive Information Disclosure</h3><p>Defeat a naive output filter with encoding and transformation tricks.</p></div>
+      <div class="card"><div class="id">LLM03</div><h3>Supply Chain</h3><p>Inspect the AI-BOM and spot the typosquatted, unsigned dependency.</p></div>
+      <div class="card"><div class="id">LLM04</div><h3>Data &amp; Model Poisoning</h3><p>Poison a RAG knowledge base with an uploaded document; indirect prompt injection through the data layer.</p></div>
+      <div class="card"><div class="id">LLM05</div><h3>Improper Output Handling</h3><p>A real DOM XSS that steals a session cookie and exfiltrates it to a collector.</p></div>
+      <div class="card"><div class="id">LLM06</div><h3>Excessive Agency</h3><p>Escape an agent's unenforced tool sandbox with path traversal.</p></div>
+      <div class="card"><div class="id">LLM07</div><h3>System Prompt Leakage</h3><p>Coax the model into reciting the secret hidden in its system prompt.</p></div>
+      <div class="card"><div class="id">LLM08</div><h3>Vector &amp; Embedding Weaknesses</h3><p>Abuse an ACL-blind similarity search to retrieve a confidential document.</p></div>
+      <div class="card"><div class="id">LLM09</div><h3>Misinformation</h3><p>Exploit a sycophantic bot into confidently fabricating and leaking a secret.</p></div>
+      <div class="card"><div class="id">LLM10</div><h3>Unbounded Consumption</h3><p>Trigger a denial-of-wallet condition that leaks internal state.</p></div>
+    </div>
+  </section>
+
+  <section id="features">
+    <h2>Features</h2>
+    <p class="sub">Built to feel like real systems, not keyword matches.</p>
+    <ul class="feat">
+      <li>Scored Play Mode with hints, ranks and badges</li>
+      <li>Optional Live Mode against a local model (Ollama)</li>
+      <li>Realistic RAG ingestion with .txt / .md upload</li>
+      <li>Deterministic, hash-based flag verification</li>
+      <li>No API keys, no cloud — runs offline</li>
+      <li>Docker or plain Python</li>
+      <li>Two themes: Neon and Phosphor (green-CRT)</li>
+      <li>Instructor answer key kept out of the public source</li>
+    </ul>
+  </section>
+
+  <section id="install">
+    <h2>Quick start</h2>
+    <p class="sub">Clone and run — then open <code>http://127.0.0.1:5000</code>.</p>
+    <pre>git clone https://github.com/CyberSunil/LLMVault.git
+cd LLMVault
+
+# Option A — Docker
+docker compose up --build
+
+# Option B — Python
+python -m venv venv &amp;&amp; source venv/bin/activate
+pip install -r requirements.txt
+python app.py</pre>
+    <p class="note"><strong>⚠ Intentionally vulnerable.</strong> LLMVault is a deliberately insecure training app. Run it only on a local, trusted machine — never expose it to the public internet.</p>
+  </section>
+
+  <section id="links">
+    <h2>Links</h2>
+    <ul class="feat">
+      <li><a href="https://github.com/CyberSunil/LLMVault">Source code &amp; documentation</a></li>
+      <li><a href="https://github.com/CyberSunil/LLMVault/releases">Releases &amp; changelog</a></li>
+      <li><a href="https://github.com/CyberSunil/LLMVault/security/policy">Report a security issue</a></li>
+      <li><a href="https://genai.owasp.org/">OWASP Top 10 for LLM Applications</a></li>
+    </ul>
+  </section>
+</main>
+
+<footer class="wrap">
+  <p>LLMVault — MIT licensed · built by <a href="https://sunilawesome.in">CyberSunil</a> ·
+     <a href="https://github.com/CyberSunil/LLMVault">GitHub</a></p>
+</footer>
+</body>
+</html>
