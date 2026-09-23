@@ -13,6 +13,7 @@ import base64
 import hashlib
 import hmac
 import json
+import logging
 import os
 import re
 from hashlib import pbkdf2_hmac
@@ -20,6 +21,8 @@ from hashlib import pbkdf2_hmac
 from cryptography.fernet import Fernet, InvalidToken
 
 from . import Challenge
+
+log = logging.getLogger(__name__)
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 _ENC = os.path.join(_HERE, "expert.enc")
@@ -107,10 +110,61 @@ def is_loaded() -> bool:
 
 
 def expert_count() -> int:
+    """Number of expert labs the vault advertises, or 0 if that can't be read.
+
+    Returns 0 on any failure so callers (and the dashboard meter) stay usable,
+    but every failure is logged: a 0 here is otherwise indistinguishable from a
+    vault that genuinely ships no expert tier.
+    """
     try:
-        return json.load(open(_META)).get("count", 0)
-    except Exception:
+        with open(_META, "rb") as fh:
+            meta = json.load(fh)
+    except FileNotFoundError:
+        log.warning(
+            "Expert vault metadata missing at %s; reporting 0 expert labs", _META
+        )
         return 0
+    except json.JSONDecodeError:
+        log.error(
+            "Expert vault metadata at %s is not valid JSON; reporting 0 expert labs",
+            _META,
+            exc_info=True,
+        )
+        return 0
+    except OSError:
+        log.error(
+            "Expert vault metadata at %s could not be read; reporting 0 expert labs",
+            _META,
+            exc_info=True,
+        )
+        return 0
+
+    if not isinstance(meta, dict):
+        log.error(
+            "Expert vault metadata at %s is %s, expected a JSON object; "
+            "reporting 0 expert labs",
+            _META,
+            type(meta).__name__,
+        )
+        return 0
+
+    if "count" not in meta:
+        log.warning(
+            "Expert vault metadata at %s has no 'count' key; reporting 0 expert labs",
+            _META,
+        )
+        return 0
+
+    count = meta["count"]
+    if isinstance(count, bool) or not isinstance(count, int) or count < 0:
+        log.error(
+            "Expert vault metadata at %s has an invalid 'count' (%r); "
+            "reporting 0 expert labs",
+            _META,
+            count,
+        )
+        return 0
+    return count
 
 
 def all_expert() -> list["DeclarativeChallenge"]:
