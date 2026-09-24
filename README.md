@@ -2,8 +2,6 @@
   <img src="docs/banner.png" alt="LLMVault Banner" width="100%">
 </p>
 
-#  LLMVault v2.0
-
 <h3 align="center">
 
 ### 🚀 The Ultimate Hands-On OWASP LLM Top 10 Training Platform
