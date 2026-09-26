@@ -1,4 +1,8 @@
-"""LLM02:2025 — Sensitive Information Disclosure (output-filter bypass)."""
+"""LLM02:2025 — Sensitive Information Disclosure (output-filter bypass).
+
+Mirrors the user's sample lab: the bot will share the secret, but an output filter
+redacts the exact plain-text flag. Ask for it transformed and the filter misses it.
+"""
 import base64
 import codecs
 from config import FLAG_PREFIX

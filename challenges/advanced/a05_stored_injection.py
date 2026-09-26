@@ -28,7 +28,8 @@ class StoredInjection(Challenge):
         "it, only when the note is READ back — and reads render as raw HTML.",
         "Step 1: save a note containing markup. Step 2: read the note to trigger it. There's "
         "a hidden 'secret-flag' element to unhide.",
-        "save note: <style>.secret-flag{display:block !important}</style>   then:   read note",
+        "save note: <style>.secret-flag{display:block}</style>   then:   read note   "
+        "(you can also use display:block !important, or an <img src=x onerror=...> that unhides it).",
     ]
     flag = FLAG   # also embedded as a hidden DOM node by the template
     defense = ("Sanitise/encode at BOTH write and render time; treat stored LLM/user content "

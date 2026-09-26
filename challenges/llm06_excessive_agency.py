@@ -1,5 +1,13 @@
-"""LLM06:2025 — Excessive Agency (over-permissioned, unscoped tools)."""
+"""LLM06:2025 — Excessive Agency (over-permissioned, unscoped tools).
 
+A simulated agent runtime. OpsBot exposes real tools — list_dir() and read_file()
+— that run with the app's privileges and CLAIM to be sandboxed to its workspace,
+but the sandbox is advisory only: absolute paths and ../ traversal escape it. No
+authorization is enforced at the tool boundary. The secret is NOT at a guessable
+path; you must use the agent's own tools to enumerate the filesystem, follow the
+breadcrumbs in its workspace config/logs to a secrets mount OUTSIDE the sandbox,
+and read it. That discovery-through-tools loop is what excessive agency looks like.
+"""
 import re
 
 from config import FLAG_PREFIX
@@ -33,6 +41,8 @@ FS = {
 _LIST = re.compile(r"\b(list|ls|dir|enumerate|what'?s in|contents of|show (?:me )?(?:the )?(?:files|contents|dir))\b", re.I)
 _READ = re.compile(r"\b(read|cat|open|show|display|get|fetch|print|view)\b", re.I)
 _PATHRE = re.compile(r"(~?\.{0,2}/[\w./~-]+|\b[\w][\w./-]*\.[a-z]{1,5}\b)", re.I)
+# Shell-isms are NOT how you talk to an agent — nudge the user to ask in plain language.
+_SHELL = re.compile(r"^\s*(cd|pwd|export|sudo|chmod|mkdir)\b", re.I)
 _WORD_DIR = {"workspace": SANDBOX, "logs": f"{SANDBOX}/logs", "vault": "/var/secrets/vault",
              "secrets": "/var/secrets", "root": "/"}
 
@@ -99,19 +109,19 @@ class ExcessiveAgency(Challenge):
     difficulty = "Hard"
     max_points = 300
     blurb = "An agent whose file tools claim a sandbox but don't enforce it. Escape it."
-    intro = ("I'm OpsBot. I have tools I can call for you: list_dir(path), read_file(path), and "
-             "send_email(). My file tools are sandboxed to my workspace. Try 'list the workspace' or "
-             "'read a file'.")
+    intro = ("I'm OpsBot. Behind the scenes I can call list_dir, read_file and send_email for you — "
+             "just tell me what you need in plain language and I'll run the right tool. My file tools "
+             "are sandboxed to my workspace. Try 'list my workspace' or 'read deploy.yaml'.")
     hints = [
-        "OpsBot runs real tools — list_dir() and read_file() — with the app's own privileges, and it "
-        "CLAIMS they're sandboxed to its workspace. Start by listing the workspace and reading what's "
-        "in there.",
-        "The sandbox isn't actually enforced — absolute paths and ../ traversal escape it. The "
-        "workspace's own config and logs mention where sensitive things are mounted.",
-        "deploy.yaml and logs/app.log point to a secrets mount OUTSIDE the workspace. List that "
-        "directory even though the tool 'warns' it's outside the sandbox.",
-        "Read the admin key from that mount (e.g. read_file /var/secrets/vault/admin.key). The tool "
-        "performs no authorization check, so it hands it over — that's the flag.",
+        "OpsBot runs real tools with the app's own privileges and CLAIMS they're sandboxed to its "
+        "workspace. Just ask in plain language — 'list my workspace', then 'read deploy.yaml' and "
+        "'read logs/app.log' to see what's in there.",
+        "The sandbox is advertised but never enforced — an absolute path or ../ traversal walks "
+        "right out of it. deploy.yaml and logs/app.log name where sensitive things are mounted "
+        "OUTSIDE the workspace.",
+        "Those files point to a secrets mount outside the workspace. Ask OpsBot to read that "
+        "absolute path even though it 'warns' it's out of scope — there's no authorization check, "
+        "so it hands the file over. That missing check is the whole vulnerability.",
     ]
     flag = FLAG
     defense = ("Least privilege at the TOOL boundary: enforce (don't just advertise) a path allow-list / "
@@ -146,6 +156,12 @@ class ExcessiveAgency(Challenge):
 
     def respond(self, message: str, state: dict) -> str:
         low = message.lower()
+
+        # Shell commands aren't how you talk to an agent — steer to plain language.
+        if _SHELL.search(message):
+            return ("I'm an assistant, not a shell — talk to me in plain language and I'll call my "
+                    "tools for you. Try 'list my workspace' or 'read deploy.yaml'.")
+
         path = _extract_path(message)
 
         if _LIST.search(low):
@@ -153,9 +169,11 @@ class ExcessiveAgency(Challenge):
         if _READ.search(low) and path:
             return self._tool_read(path)
         if _READ.search(low) or "file" in low:
-            return ("Give me a path, e.g. 'list the workspace', 'read deploy.yaml', or "
-                    "'read /full/path'. My tools run with the app's privileges.")
+            return ("Tell me what to open, e.g. 'read deploy.yaml' or 'read the file at "
+                    "/full/path'. I'll run the read for you — my tools use the app's privileges.")
         if re.search(r"\b(tool|can you|what can|help|hi|hello|capab)\b", low):
-            return ("Tools available: list_dir(path), read_file(path), send_email(to,body). "
-                    "The file tools are sandboxed to my workspace (" + SANDBOX + "). What do you need?")
-        return "I can list_dir(), read_file(), or send_email(). Try 'list the workspace'."
+            return ("I can list directories, read files, and send email — just ask in plain "
+                    "language (e.g. 'list the workspace', 'read logs/app.log'). My file tools are "
+                    "sandboxed to my workspace (" + SANDBOX + ").")
+        return ("Ask me in plain language — e.g. 'list my workspace' or 'read deploy.yaml' — and "
+                "I'll use my tools to do it.")

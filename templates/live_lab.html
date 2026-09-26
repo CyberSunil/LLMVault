@@ -70,7 +70,7 @@
           <button type="button" id="craftBtn" class="ll-attach ll-craft" {{ 'disabled' if not info.ready }}>🛠 Craft a payload image</button>
           <span id="imgName" class="ll-file-name"></span>
           {% if sc.image_hint %}<span class="ll-attach-hint">{{ sc.image_hint }}</span>{% endif %}
-          <img id="imgPreview" class="ll-img-preview" hidden alt="attached image preview">
+          <img loading="lazy" decoding="async" id="imgPreview" class="ll-img-preview" hidden alt="attached image preview">
         </div>
         <div id="craftBox" class="ll-craftbox" hidden>
           <label for="craftText">Text to bake into the screenshot (this is what the pipeline will extract):</label>

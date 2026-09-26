@@ -1,4 +1,21 @@
-"""LLM10:2025 — Unbounded Consumption / Denial of Wallet. """
+"""LLM10:2025 — Unbounded Consumption / Denial of Wallet.
+
+Realistic model: a metered generation service with NO budget actually enforced
+before work is billed. Each request's OUTPUT size is estimated (tokens), billed
+against a wallet, and accumulated across the session in `state`. The lesson lives
+in the amplification: a tiny prompt can demand astronomical output.
+
+  * Cheap requests are computed for real and cost almost nothing
+    (e.g. 4444444444 * 66666666 -> an 18-digit answer -> ~18 tokens).
+  * Expensive requests -- exponentials, factorials, huge/recursive repeats --
+    are ESTIMATED with logarithms and never materialised (that's what a
+    cost-aware runtime does). Their estimated output dwarfs the wallet.
+
+When cumulative billed output crosses the wallet (in one abusive request, or by
+running the meter up over several turns), the missing budget check trips only
+AFTER the fact and the unhandled error path leaks internal debug state -- flag
+included. That double failure (no budget + leaky errors) is the whole point.
+"""
 import math
 import re
 
