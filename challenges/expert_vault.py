@@ -26,6 +26,21 @@ _META = os.path.join(_HERE, "expert_meta.json")
 _SPECS: list[dict] | None = None          # populated only after a valid unlock
 _CHALLENGES: dict[str, "DeclarativeChallenge"] = {}
 
+# Expected (pinned) KDF parameters. The public meta file must match these exactly;
+# any deviation means the metadata was tampered with, and we reject it BEFORE deriving
+# a key. This is the integrity gate the security tests require.
+_EXPECTED_SALT = "EMKqrY702tO/UFN2yKJbvg=="
+_EXPECTED_ITERATIONS = 200000
+
+
+class VaultLoadError(Exception):
+    """Raised when the vault files are missing, malformed, or fail integrity checks.
+
+    Distinct from a wrong access key (which is a normal 'denied' outcome): this signals
+    the vault itself can't be loaded, so the endpoint returns a controlled 500 instead
+    of leaking a stack trace.
+    """
+
 
 class DeclarativeChallenge(Challenge):
     """A challenge whose vulnerable behaviour is a list of match-rules (from the vault)."""
@@ -54,21 +69,56 @@ def _derive(access_key: str, salt: bytes, iterations: int) -> bytes:
 
 
 def try_unlock(access_key: str) -> bool:
-    """Attempt to decrypt the vault with the supplied key. True on success."""
+    """Attempt to decrypt the vault with the supplied key.
+
+    Returns True on success, False on a wrong key. Raises VaultLoadError if the vault
+    files are missing, malformed, or fail integrity checks (so the caller can return a
+    controlled error rather than crashing).
+    """
     global _SPECS, _CHALLENGES
     if _SPECS is not None:
         # already decrypted this process; verify the supplied key still matches
         return _verify(access_key)
     if not (os.path.exists(_ENC) and os.path.exists(_META)):
-        return False
-    meta = json.load(open(_META))
-    salt = base64.b64decode(meta["salt"])
-    fkey = _derive(access_key.strip(), salt, meta["iterations"])
+        raise VaultLoadError("vault files not present")
+
+    # --- load + validate metadata (controlled errors, no stack traces) ---
     try:
-        plain = Fernet(fkey).decrypt(open(_ENC, "rb").read())
-    except (InvalidToken, Exception):
-        return False
-    _SPECS = json.loads(plain)
+        with open(_META) as fh:
+            meta = json.load(fh)
+    except (ValueError, OSError) as e:
+        raise VaultLoadError("metadata unreadable or not valid JSON") from e
+    if not isinstance(meta, dict) or "salt" not in meta or "iterations" not in meta:
+        raise VaultLoadError("metadata missing required fields")
+
+    # --- integrity gate: metadata must match the pinned KDF params BEFORE deriving ---
+    if meta.get("salt") != _EXPECTED_SALT or meta.get("iterations") != _EXPECTED_ITERATIONS:
+        raise VaultLoadError("metadata integrity check failed")
+
+    try:
+        salt = base64.b64decode(meta["salt"], validate=True)
+    except (ValueError, Exception) as e:  # binascii.Error subclasses ValueError
+        raise VaultLoadError("metadata salt is not valid base64") from e
+
+    fkey = _derive(access_key.strip(), salt, meta["iterations"])
+
+    # --- decrypt: wrong key OR corrupt ciphertext ---
+    try:
+        ciphertext = open(_ENC, "rb").read()
+    except OSError as e:
+        raise VaultLoadError("ciphertext unreadable") from e
+    try:
+        plain = Fernet(fkey).decrypt(ciphertext)
+    except InvalidToken:
+        return False  # wrong key -> normal denial
+    except Exception as e:
+        # truncated/garbage ciphertext that isn't even a valid Fernet token
+        raise VaultLoadError("ciphertext malformed") from e
+
+    try:
+        _SPECS = json.loads(plain)
+    except ValueError as e:
+        raise VaultLoadError("decrypted payload is not valid JSON") from e
     _CHALLENGES = {s["id"]: DeclarativeChallenge(s) for s in _SPECS}
     globals()["_VALID_KEY"] = access_key.strip()
     return True

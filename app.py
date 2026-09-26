@@ -785,10 +785,18 @@ def unlock_expert():
     key = (request.get_json(force=True).get("key", "") or "").strip()
     if not key:
         return jsonify(ok=False, error="Enter the access key."), 400
-    if expert_vault.try_unlock(key):
+    try:
+        unlocked = expert_vault.try_unlock(key)
+    except expert_vault.VaultLoadError:
+        # the vault itself couldn't be loaded — controlled error, never leak details/secrets
+        app.logger.info("expert_unlock result=error")
+        return jsonify(ok=False, error="Expert vault is temporarily unavailable."), 500
+    if unlocked:
         p["expert_unlocked"] = True
         save_progress()
+        app.logger.info("expert_unlock result=success")
         return jsonify(ok=True, count=expert_vault.expert_count())
+    app.logger.info("expert_unlock result=denied")
     return jsonify(ok=False, error="Invalid access key."), 403
 
 
