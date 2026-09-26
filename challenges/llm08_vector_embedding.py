@@ -159,7 +159,7 @@ _DIRECT_SECRET = re.compile(
 
 # Reveal thresholds: above HIGH -> full memo; between LOW and HIGH -> keyword leak.
 _HIGH = 0.30
-_LOW = 0.08
+_LOW = 0.05
 
 
 @register
@@ -224,11 +224,13 @@ class VectorEmbedding(Challenge):
         conf_terms = self._matched_terms(message, _CONF_I)
 
         # 2) Over-share when asked about holdings/confidential/finance topics.
-        if _TOPICS.search(low) and conf_rank < _HIGH:
-            return ("I do hold some restricted finance/strategy material — there's a confidential "
-                    "board memo about quarterly performance in the index. I'm not supposed to surface "
-                    "it, but my retrieval doesn't actually enforce that. Ask a question near that "
-                    "topic and see what ranks.")
+        if _TOPICS.search(low) and conf_rank < _HIGH and not state.get("overshared"):
+            state["overshared"] = True
+            return ("I do hold some restricted material — there's a confidential board memo on "
+                    "quarterly financial strategy in the index. I'm not supposed to surface it, and "
+                    "my retrieval doesn't enforce that. I won't hand it over on request, though — "
+                    "ask a normal business question in that area and whatever ranks closest comes "
+                    "back. Get close and I'll even tell you which terms you're matching on.")
 
         # 3) FULL disclosure: query is close enough to the confidential memo -> dump it (HTML).
         if conf_rank >= _HIGH and CORPUS[_CONF_I]["acl"] == "confidential":
