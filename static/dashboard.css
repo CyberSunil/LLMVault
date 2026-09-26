@@ -22,16 +22,14 @@
   --sg-cyan:#28d3e8;
   --sg-gold:#f5c02b;
   --sg-steel:#a3b4bd;
+  --sg-heat-ring:#ffb340;
+  --sg-heat-core:#fff4dc;
 
-  /* Same three colours as bare channels, for the rgba() washes, grid lines and
-     glows. Themes only have to restate these to recolour the whole page. */
   --sg-accent-rgb:255,122,24;   /* mirrors --sg-orange */
   --sg-green-rgb:168,227,58;    /* mirrors --sg-green  */
   --sg-tint-rgb:56,150,255;     /* the cool wash on chips and the topbar grid */
   --sg-chip-ink:#9fc4e8;
   --sg-halo:255,150,40;         /* hot core of the Play emblem's halo */
-  --sg-heat-ring:#ffb340;
-  --sg-heat-core:#fff4dc;
 
   --sg-disp:"Space Grotesk",system-ui,sans-serif;
   --sg-mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",monospace;
@@ -329,6 +327,7 @@ label.sg-flab{display:block;flex:none;margin:10px 0 5px}
 
 html.is-crt .sg-heat-blob{opacity:.85}
 html.is-crt .sg-heat-ring2{opacity:.5}
+
 
 /* ------------------------------------------------------------- right of rail */
 .sg-stage{display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:var(--sg-gap);min-width:0}
@@ -689,14 +688,14 @@ html.is-crt body.sg-page{
   --sg-cyan:#34e6d2;
   --sg-gold:#e8ff5c;
   --sg-steel:#8fb9a4;
+  --sg-heat-ring:#4dffa0;
+  --sg-heat-core:#e8fff2;
 
   --sg-accent-rgb:47,245,138;
   --sg-green-rgb:195,255,79;
   --sg-tint-rgb:52,230,210;
   --sg-chip-ink:#8fdcc9;
   --sg-halo:120,255,180;
-  --sg-heat-ring:#4dffa0;
-  --sg-heat-core:#e8fff2;
 }
 /* a touch more CRT: the scanlines read, the corner blooms go green */
 html.is-crt .sg-page::before{
@@ -763,7 +762,6 @@ html.is-crt .sg-clock-t{color:var(--sg-orange-2)}
   .sg-donut-mid{font-size:24px}
 }
 @media (max-height:780px){
-  .sg-map{display:none}
   .sg-emblem{width:68px;height:68px}
   .sg-emblem-wrap{margin-bottom:5px}
   .sg-mode-copy{display:none}
@@ -799,7 +797,6 @@ html.is-crt .sg-clock-t{color:var(--sg-orange-2)}
   .sg-nav{flex-direction:row;flex-wrap:wrap}
   .sg-nav a{flex:1 1 auto}
   .sg-nav a .sg-nav-sp{display:none}
-  .sg-map{display:none}
   .sg-body{grid-template-columns:minmax(0,1fr)}
   .sg-rail{grid-template-rows:none}
 }

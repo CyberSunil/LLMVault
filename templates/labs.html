@@ -96,6 +96,17 @@
   {% endfor %}
 </div>
 {% elif prereq_done %}
+<div class="lab-grid">
+  {% for i in range(expert_count) %}
+  <div class="lab-card locked">
+    <div class="lock-icon">🗝️</div>
+    <div class="lab-owasp">EXPERT</div>
+    <div class="lab-title">???</div>
+    <div class="lab-blurb">Prerequisites met — enter the Expert Access Key below to reveal this challenge.</div>
+    <div class="lab-foot"><span class="diff expert">Expert · 500 pts</span></div>
+  </div>
+  {% endfor %}
+</div>
 <div class="key-gate">
   <div class="key-lock">🗝️</div>
   <div>

@@ -137,7 +137,7 @@
 
     {# ------------------------------ topbar ----------------------------- #}
     <header class="sg-top sg-rise" style="--i:1">
-      <img class="sg-wordmark" src="{{ url_for('static', filename='img/ui/banner-lockup.png') }}"
+      <img loading="lazy" decoding="async" class="sg-wordmark" src="{{ url_for('static', filename='img/ui/banner-lockup.png') }}"
            alt="{{ app_name }}">
       <span class="sg-rule sg-rule-brand"></span>
 
@@ -147,7 +147,7 @@
       </div>
 
       <div class="sg-top-mid" aria-hidden="true">
-        <img class="sg-globe" src="{{ url_for('static', filename='img/ui/globe.png') }}" alt="">
+        <img loading="lazy" decoding="async" class="sg-globe" src="{{ url_for('static', filename='img/ui/globe.png') }}" alt="">
         <span class="sg-chips">
           <span class="sg-chip"><svg class="sg-ico"><use href="#i-terminal"/></svg>Prompt Injection</span>
           <span class="sg-chip"><svg class="sg-ico"><use href="#i-db"/></svg>RAG &amp; Vector DB</span>
@@ -169,7 +169,7 @@
         <div class="sg-stat">
           <span class="sg-eyebrow">Rank</span>
           <span class="sg-stat-v">{{ rank.name }}
-            <img class="sg-rank-hex" src="{{ url_for('static', filename='img/ui/' ~ rank.art ~ '.png') }}" alt="">
+            <img loading="lazy" decoding="async" class="sg-rank-hex" src="{{ url_for('static', filename='img/ui/' ~ rank.art ~ '.png') }}" alt="">
           </span>
         </div>
         <span class="sg-rule"></span>
@@ -246,7 +246,7 @@
             <svg class="sg-corner bl"><use href="#i-corner"/></svg>
 
             <span class="sg-emblem-wrap">
-              <img class="sg-emblem sg-emblem-beat" src="{{ url_for('static', filename='img/ui/emblem-play.png') }}" alt="">
+              <img loading="lazy" decoding="async" class="sg-emblem sg-emblem-beat" src="{{ url_for('static', filename='img/ui/emblem-play.png') }}" alt="">
             </span>
 
             <h2>Play Mode</h2>
@@ -266,7 +266,7 @@
                 <circle cx="50" cy="50" r="47"/>
                 <circle cx="50" cy="50" r="41"/>
               </svg>
-              <img class="sg-emblem" src="{{ url_for('static', filename='img/ui/emblem-live.png') }}" alt="">
+              <img loading="lazy" decoding="async" class="sg-emblem" src="{{ url_for('static', filename='img/ui/emblem-live.png') }}" alt="">
             </span>
 
             <h2>Live Mode</h2>
@@ -322,7 +322,7 @@
               <span class="sg-kebab"><svg class="sg-ico-sm"><use href="#i-kebab"/></svg></span>
             </div>
             <div class="sg-metric-b sg-rank">
-              <img class="sg-rank-art" src="{{ url_for('static', filename='img/ui/' ~ rank.art ~ '.png') }}" alt="">
+              <img loading="lazy" decoding="async" class="sg-rank-art" src="{{ url_for('static', filename='img/ui/' ~ rank.art ~ '.png') }}" alt="">
               <span class="sg-rank-name">{{ rank.name }}</span>
               {% if rank.next %}
                 <span class="sg-rank-next">Next: {{ rank.next }}</span>
@@ -393,7 +393,7 @@
             {% for b in badges %}
             <span class="sg-badge {{ '' if b.earned else 'locked' }}"
                   title="{{ b.label }} — {{ b.sub }}{{ '' if b.earned else ' (locked)' }}">
-              <img src="{{ url_for('static', filename='img/ui/' ~ b.art ~ '.png') }}" alt="">
+              <img loading="lazy" decoding="async" src="{{ url_for('static', filename='img/ui/' ~ b.art ~ '.png') }}" alt="">
               <em class="sg-badge-t">{{ b.short }}</em>
             </span>
             {% endfor %}
@@ -512,7 +512,7 @@
         <div class="sg-ranks">
           {% for r in ranks %}
           <span class="sg-rankchip {{ 'is-on' if r.name == rank.name else '' }}">
-            <img src="{{ url_for('static', filename='img/ui/rank-' ~ loop.index ~ '.png') }}" alt="">
+            <img loading="lazy" decoding="async" src="{{ url_for('static', filename='img/ui/rank-' ~ loop.index ~ '.png') }}" alt="">
             <b>{{ r.name }}</b><em>{{ r.at }}</em>
           </span>
           {% endfor %}
@@ -533,7 +533,7 @@
 {# ===================== Live Zone disclaimer (unchanged flow) ============= #}
 <div class="lz-modal" id="lzModal" hidden>
   <div class="lz-modal-inner" id="lzModalInner">
-    <img class="lz-modal-art" src="{{ url_for('static', filename='img/live_zone_panel.png') }}"
+    <img loading="lazy" decoding="async" class="lz-modal-art" src="{{ url_for('static', filename='img/live_zone_panel.png') }}"
          alt="You are in Live Zone. Real-time, unfiltered, unforgiving. Disclaimer: you are about to access a live environment. Mistakes here can have real consequences. Ensure you have authorization and full understanding before proceeding.">
     <div class="lz-modal-actions">
       <a href="{{ url_for('live_zone') }}" class="lz-modal-enter">Enter Live Zone &nbsp;&rarr;</a>

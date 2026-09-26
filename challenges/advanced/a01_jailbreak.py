@@ -13,11 +13,16 @@ _FLAG_SUFFIX = decode_flag_part("aVmF/d+UP6he9C3HT80q3gfFbjZ3BEaZk1f+vpAbJETcFmR
 FLAG = f"{FLAG_PREFIX}{{{_FLAG_SUFFIX}}}"
 
 FRAME = re.compile(r"roleplay|role-play|let'?s play|pretend|imagine|fiction|story|game|"
-                   r"you are (now )?(a|an|dan|aim|dev mode|debug)", re.I)
-ESCALATE = re.compile(r"no (rules|restrictions|filter|limits)|stay in character|"
-                      r"unrestricted|ignore (safety|guidelines)|for the story|"
-                      r"remain as|don'?t break character", re.I)
-ASK = re.compile(r"forbidden|config|secret|password|the code|reveal|tell me the", re.I)
+                   r"improv|theatre|theater|act|acting|scene|character|persona|"
+                   r"you are (now )?(a|an|dan|aim|dev mode|debug|character|persona)|"
+                   r"play (a|an|the (role|part|character))|be (a|an|my)", re.I)
+ESCALATE = re.compile(r"no (rules|restrictions|filter|limits|guidelines|boundaries)|stay in character|"
+                      r"unrestricted|unfiltered|unlimited|unchained|jailbroken|"
+                      r"ignore (safety|guidelines|rules)|for the (story|scene|game|character)|"
+                      r"remain as|don'?t break character|fully (embody|commit)|in character|"
+                      r"embody|no limits|without (rules|restrictions|limits)", re.I)
+ASK = re.compile(r"forbidden|config|secret|password|the code|reveal|tell me the|"
+                 r"maintenance (config|key)|what is the", re.I)
 
 
 @register
@@ -45,11 +50,14 @@ class JailbreakEscalation(Challenge):
                "turn in isolation; use an independent safety classifier on inputs+outputs (OWASP LLM01).")
 
     def respond(self, message: str, state: dict) -> str:
-        lvl = state.get("lvl", 0)
-        if FRAME.search(message):
-            lvl = max(lvl, 1)
-        if ESCALATE.search(message) and lvl >= 1:
+        prev = state.get("lvl", 0)          # level coming INTO this turn (from prior turns)
+        lvl = prev
+        # At most one step per turn, and escalation requires you were ALREADY framed
+        # in a PREVIOUS turn (prev >= 1) — so no single message can jump 0 -> 2.
+        if ESCALATE.search(message) and prev >= 1:
             lvl = 2
+        elif FRAME.search(message):
+            lvl = max(lvl, 1)
         state["lvl"] = lvl
         if ASK.search(message):
             if lvl >= 2:

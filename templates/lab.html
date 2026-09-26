@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block title %}{{ c.title }} — {{ app_name }}{% endblock %}
 {% block nav_labs %}active{% endblock %}
+{% block content_class %}lab{% endblock %}
 {% block content %}
 <a href="{{ url_for('labs') }}" class="backlink">← Back to labs</a>
 <div class="topbar">
@@ -19,14 +20,9 @@
 {% if c.id == 'llm05' %}
 <div class="xss-win" id="xssWin" role="status" style="display:none;margin:14px 0;padding:14px 16px;border:1px solid #2ecc71;background:rgba(46,204,113,.12);border-radius:12px;color:#a7f3c0;font-size:15px">
   <b>✅ Exfiltration successful.</b> Your injected script stole the session cookie and sent it to your collector — the real impact of unsanitised output. Captured flag: <code id="xssWinFlag" style="color:#eaffef"></code>
-  <span style="opacity:.8"> (pre-filled below — hit Submit to score.)</span>
 </div>
 
 <style>
-  #confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:9998}
-  #confetti .cf{position:absolute;top:-8vh;will-change:transform,opacity;animation:cfFall linear forwards}
-  @keyframes cfFall{0%{transform:translateY(-10vh) rotate(0) scale(1);opacity:1}
-    100%{transform:translateY(112vh) rotate(720deg) scale(.9);opacity:.85}}
   #xssToast{position:fixed;top:22px;left:50%;transform:translate(-50%,-140%);z-index:9999;
     display:flex;align-items:center;gap:14px;max-width:520px;padding:16px 18px;border-radius:16px;
     background:linear-gradient(135deg,rgba(30,20,60,.96),rgba(15,25,45,.96));
@@ -45,7 +41,6 @@
     color:#eef;border-radius:8px;padding:3px 9px;font-size:12px;cursor:pointer}
   #xssToast .tclose{position:absolute;top:6px;right:10px;background:none;border:none;color:#aab;cursor:pointer;font-size:15px}
 </style>
-<div id="confetti" aria-hidden="true"></div>
 <div id="xssToast" role="status" aria-live="polite">
   <svg class="lv-logo" width="52" height="52" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
     <defs>
@@ -68,7 +63,7 @@
   <button class="tclose" id="xssToastClose" aria-label="close">✕</button>
 </div>
 {% endif %}
-{% if c.render_html %}<div class="secret-flag" style="display:none">🚩 Hidden element revealed via your injection — {{ c.flag }}</div>{% endif %}
+{% if c.render_html %}<div class="secret-flag sf-hidden">🚩 Hidden element revealed via your injection — {{ c.flag }}</div>{% endif %}
 
 <div class="lab-body">
   <section class="chat-wrap">
@@ -119,7 +114,7 @@
         <div class="sn-flip">
           <div class="sn-page active sn-page--hero" data-page="0">
             <div class="sn-page-scroll">
-              <div class="sn-icon-big" aria-hidden="true">{% if owasp_note.icon_img %}<img src="{{ url_for('static', filename=owasp_note.icon_img) }}" alt="">{% else %}{{ owasp_note.icon_svg | safe }}{% endif %}</div>
+              <div class="sn-icon-big" aria-hidden="true">{% if owasp_note.icon_img %}<img loading="lazy" decoding="async" src="{{ url_for('static', filename=owasp_note.icon_img) }}" alt="">{% else %}{{ owasp_note.icon_svg | safe }}{% endif %}</div>
               <span class="sn-pill">Overview</span>
               <p class="sn-text sn-text--short">{{ owasp_note.summary }}</p>
             </div>
@@ -262,7 +257,21 @@ function wireHint(btn){
     const r = await fetch('/api/hint',{method:'POST',headers:{'Content-Type':'application/json'},
       body: JSON.stringify({cid:CID, index:i})});
     const j = await r.json();
-    if(j.error){ return; }               // server also blocks out-of-order
+    if(j.error){
+      // show why it was blocked (e.g. need a positive score) instead of failing silently
+      let msg = document.getElementById('hintErr');
+      if(!msg){
+        msg = document.createElement('div');
+        msg.id = 'hintErr';
+        msg.style.cssText = 'margin-top:8px;font-size:12.5px;color:var(--amber)';
+        btn.parentElement.appendChild(msg);
+      }
+      msg.textContent = '⚠ ' + j.error;
+      if(typeof j.score === 'number') document.getElementById('score').textContent = j.score;
+      return;
+    }
+    const errNode = document.getElementById('hintErr');
+    if(errNode) errNode.remove();
     const div = btn.parentElement;
     div.innerHTML = '<b>Hint '+(i+1)+':</b> ' + j.hint;
     document.getElementById('score').textContent = j.score;
@@ -380,7 +389,7 @@ function paintBadges(suffix){
   const rows = BADGES.length ? BADGES : [];
   wrap.innerHTML = rows.map(b =>
     '<span class="cm-badge' + (b.earned ? '' : ' locked') + '" title="' + b.sub + '">' +
-      '<img src="/static/img/ui/' + b.art + '.png" alt="">' +
+      '<img loading="lazy" decoding="async" src="/static/img/ui/' + b.art + '.png" alt="">' +
       '<span>' + (b.short || b.label) + (b.earned ? '' : ' 🔒') + '</span>' +
     '</span>').join('');
   if(cap){
@@ -465,7 +474,7 @@ document.addEventListener('keydown', e => {
             window.scrollTo({top:0, behavior:'smooth'});
             celebrate(s.flag);
           }
-          // (already solved on arrival -> banner shows quietly, no confetti/toast, no autofill)
+          // (already solved on arrival -> banner shows quietly, no toast, no autofill)
         } else {
           primed = true;                           // we've observed an unsolved state this visit
         }
@@ -477,16 +486,6 @@ document.addEventListener('keydown', e => {
       const toast=document.getElementById('xssToast');
       document.getElementById('xssToastFlag').textContent=flag;
       toast.classList.add('show');
-      const root=document.getElementById('confetti');
-      const em=['🎉','👏','🎊','✨','🔓'];
-      for(let i=0;i<46;i++){
-        const s=document.createElement('span'); s.className='cf'; s.textContent=em[i%em.length];
-        s.style.left=(Math.random()*100)+'vw';
-        s.style.fontSize=(16+Math.random()*22)+'px';
-        s.style.animationDelay=(Math.random()*0.7)+'s';
-        s.style.animationDuration=(2.6+Math.random()*1.8)+'s';
-        root.appendChild(s); setTimeout(function(){s.remove();},5200);
-      }
       const copy=document.getElementById('xssToastCopy');
       if(copy) copy.onclick=function(){ navigator.clipboard && navigator.clipboard.writeText(flag); copy.textContent='Copied'; };
       const close=document.getElementById('xssToastClose');
