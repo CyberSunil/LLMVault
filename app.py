@@ -12,7 +12,9 @@ import datetime
 import hashlib
 import hmac
 import json
+import math
 import os
+import time
 import uuid
 from flask import (Flask, render_template, request, jsonify, session, Response,
                    abort, stream_with_context)
@@ -58,6 +60,18 @@ def save_progress():
 
 
 _load_progress()
+
+
+def _submit_guard(p: dict, cid: str) -> dict:
+    """Return (and lazily create) the per-player, per-challenge submit-guard entry.
+
+    Stored under p["submit_guard"][cid] so it is isolated between challenges
+    and survives progress persistence (all values are JSON-serialisable).
+
+    Schema: {"failed_attempts": int, "locked_until": float}
+    """
+    return (p.setdefault("submit_guard", {})
+              .setdefault(cid, {"failed_attempts": 0, "locked_until": 0.0}))
 
 
 def prog() -> dict:
@@ -763,12 +777,43 @@ def submit():
     p = prog()
     if not can_access(c, p):
         return jsonify(error="locked"), 403
+
+    # --- brute-force protection (per-player, per-challenge) ------------------
+    guard = _submit_guard(p, c.id)
+    now = time.time()
+    if guard["locked_until"] > now:
+        retry_after = max(1, math.ceil(guard["locked_until"] - now))
+        return jsonify(
+            error="Too many incorrect attempts. Try again later.",
+            retry_after=retry_after,
+        ), 429
+    # If a previous lockout has expired, reset the counter for a fresh cycle.
+    if guard["locked_until"] > 0:
+        guard["failed_attempts"] = 0
+        guard["locked_until"] = 0.0
+    # -------------------------------------------------------------------------
+
     submitted = (data.get("flag", "") or "").strip()
     submitted_hash = hashlib.sha256(submitted.encode()).hexdigest()
     correct = hmac.compare_digest(submitted_hash, c.flag_hash)
-    if correct and c.id not in p["solved"]:
-        p["solved"][c.id] = c.max_points
+    if correct:
+        if c.id not in p["solved"]:
+            p["solved"][c.id] = c.max_points
+        # Clear guard state on a correct submission.
+        guard["failed_attempts"] = 0
+        guard["locked_until"] = 0.0
         save_progress()
+    else:
+        guard["failed_attempts"] += 1
+        if guard["failed_attempts"] >= config.SUBMIT_MAX_ATTEMPTS:
+            guard["locked_until"] = now + config.SUBMIT_LOCKOUT_SECONDS
+            save_progress()
+            return jsonify(
+                error="Too many incorrect attempts. Try again later.",
+                retry_after=config.SUBMIT_LOCKOUT_SECONDS,
+            ), 429
+        save_progress()
+
     return jsonify(correct=correct, score=score_of(p), solved=c.id in p["solved"],
                    defense=c.defense if correct else None,
                    core_done=core_complete(p), prereq_done=prereq_done(p),
