@@ -241,9 +241,19 @@ document.getElementById('submit').onclick = async ()=>{
     body: JSON.stringify({cid:CID, flag})});
   const j = await r.json();
   const res = document.getElementById('result');
+  if(r.status === 429){
+    res.textContent = `⚠ Too many attempts. Try again in ${j.retry_after}s.`;
+    res.className = 'result bad';
+    return;
+  }
+  if(j.error){
+    res.textContent = '⚠ ' + j.error;
+    res.className = 'result bad';
+    return;
+  }
   res.textContent = j.correct ? '✓ Correct! Flag captured.' : '✗ Not quite — keep trying.';
   res.className = 'result ' + (j.correct ? 'ok' : 'bad');
-  document.getElementById('score').textContent = j.score;
+  if(typeof j.score === 'number'){ document.getElementById('score').textContent = j.score; }
   if(j.correct){ document.getElementById('learnPanel').classList.remove('hidden'); }
   if(j.correct){ setTimeout(()=>queueMilestones(j), 650); }
 };
