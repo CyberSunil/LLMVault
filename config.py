@@ -73,3 +73,15 @@ OLLAMA_TIMEOUT = float(_os.environ.get("OLLAMA_TIMEOUT", "180"))
 # policy before adversarial testing — that obligation sits with the key holder.
 OPENAI_API_KEY = _os.environ.get("OPENAI_API_KEY")
 OPENAI_MODELS = ["gpt-4o-mini"]
+
+
+# --- Debug mode --------------------------------------------------------------
+# Flask's debug mode enables the Werkzeug interactive debugger, which runs
+# arbitrary Python for anyone who can reach the server. It is therefore OFF
+# unless the operator explicitly opts in: set LLMVAULT_DEBUG=1 (or true).
+def debug_enabled(environ=None) -> bool:
+    env = _os.environ if environ is None else environ
+    return env.get("LLMVAULT_DEBUG", "").strip().lower() in ("1", "true")
+
+
+DEBUG = debug_enabled()

@@ -891,7 +891,16 @@ def scoreboard():
     return render_template("scoreboard.html", rows=rows, total=TOTAL_LABS)
 
 
-if __name__ == "__main__":
+def main() -> None:
+    """Start the local development server.
+
+    Debug mode is opt-in via LLMVAULT_DEBUG (see config.DEBUG): the Werkzeug
+    debugger executes arbitrary code, so it must stay off by default.
+    """
     if getattr(config, "LIVE_MODE_ENABLED", False):
         print(model_registry.startup_banner())
-    app.run(host="127.0.0.1", port=5000, debug=True)
+    app.run(host="127.0.0.1", port=5000, debug=config.DEBUG)
+
+
+if __name__ == "__main__":
+    main()
