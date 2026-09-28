@@ -189,6 +189,9 @@ python app.py
 # open http://127.0.0.1:5000
 ```
 
+Flask debug mode is **off by default** (the Werkzeug debugger runs arbitrary code). Only on a
+trusted, local machine, opt in with `LLMVAULT_DEBUG=1 python app.py` (`true` also works).
+
 No API key needed, ever. Play Mode's assistants are **scripted**, so flags reproduce reliably and
 the whole range runs offline. Live Mode adds a real model, but it runs on your machine too — see
 [Live Mode](#-live-mode--a-real-model-no-script) below. Nothing in LLMVault calls a hosted API.
