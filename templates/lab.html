@@ -66,7 +66,8 @@
 {% if c.render_html %}<div class="secret-flag sf-hidden">🚩 Hidden element revealed via your injection — {{ c.flag }}</div>{% endif %}
 
 <div class="lab-body">
-  <section class="chat-wrap">
+  <div class="lab-main">
+    <section class="chat-wrap">
     <div class="chat-head">
       <span>Assistant</span>
     </div>
@@ -77,8 +78,9 @@
       <input id="msg" placeholder="Type a message to the assistant..." autocomplete="off">
       <button id="send">Send</button>
     </div>
+  </section>
 {% if c.id == 'llm05' %}
-<div class="panel" id="exfilPanel" style="margin-top:12px">
+<div class="panel" id="exfilPanel" style="margin-top:24px">
   <h3>🎯 Your exfil collector</h3>
   <p class="muted" style="margin:.2rem 0 .5rem">You don't have your own server here, so use this one. Anything your injected script sends to
     <code>GET/POST /api/lab/llm05/collect</code> (as any query param or body) is logged below. Steal the JS-readable session cookie and send it here.</p>
@@ -86,7 +88,7 @@
 </div>
 {% endif %}
 {% if c.id == 'llm04' %}
-<div class="panel" id="ragPanel" style="margin-top:12px">
+<div class="panel" id="ragPanel" style="margin-top:24px">
   <h3>📥 Document ingestion — SupportRAG knowledge base</h3>
   <p class="muted" style="margin:.2rem 0 .6rem">Add a document to the index. It is chunked, embedded and indexed, then retrieved when relevant to a question. (No review step — documents are trusted as-is.)</p>
   <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap">
@@ -100,7 +102,7 @@
   <div id="ragIndex" class="muted" style="margin-top:8px;font-size:12px"></div>
 </div>
 {% endif %}
-  </section>
+  </div>
 
   <aside class="side">
     {% if owasp_note %}
