@@ -1213,6 +1213,7 @@ a.tn-item:hover{background:var(--panel2)}
 
 /* ===================== Lab pages: cap width, wider rail + sticky note ===================== */
 .lab-body{grid-template-columns:minmax(0,1fr) 384px;gap:24px;max-width:1360px;margin:0 auto}
+.lab-main{display:flex;flex-direction:column;min-width:0}
 .ll-wrap{grid-template-columns:minmax(0,1fr) 360px;gap:24px;max-width:1360px;margin:0 auto}
 .side{gap:18px}
 .sticky-note{max-width:336px}
