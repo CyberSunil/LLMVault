@@ -202,6 +202,7 @@ def inject_globals():
                 nav_solved=len(p.get("solved", {})),
                 nav_total=len(core_labs()) + len(advanced_labs()),
                 nav_badges=badge_row(p),
+                scoreboard_on=config.scoreboard_enabled(),
                 repo_url=config.REPO_URL)
 
 
@@ -886,6 +887,8 @@ def completion():
 
 @app.route("/scoreboard")
 def scoreboard():
+    if not config.scoreboard_enabled():
+        abort(404)
     rows = sorted(({"name": q["name"], "solved": len(q["solved"]), "score": score_of(q)}
                    for q in PROGRESS.values()), key=lambda r: r["score"], reverse=True)
     return render_template("scoreboard.html", rows=rows, total=TOTAL_LABS)
