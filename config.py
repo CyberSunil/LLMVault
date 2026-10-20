@@ -35,6 +35,12 @@ AUTHOR_HANDLE = "CyberSunil"
 HINT_COSTS = [10, 25, 50]  # escalating cost per hint: 1st -10, 2nd -25, 3rd -50
 HINT_PENALTY = HINT_COSTS[0]  # kept for backwards compat / reference
 
+# Brute-force protection for /api/submit
+# Maximum consecutive wrong submissions before a per-challenge cooldown kicks in.
+SUBMIT_MAX_ATTEMPTS = 5
+# How long (seconds) the cooldown lasts once the threshold is reached.
+SUBMIT_LOCKOUT_SECONDS = 30
+
 # Where per-player progress is saved so it survives refresh AND restart.
 # Self-host friendly: a plain JSON file, no database needed. In Docker, mount a
 # volume at /app/data to keep it across container recreation.
