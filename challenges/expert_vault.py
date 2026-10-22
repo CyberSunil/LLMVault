@@ -104,7 +104,8 @@ def try_unlock(access_key: str) -> bool:
 
     # --- decrypt: wrong key OR corrupt ciphertext ---
     try:
-        ciphertext = open(_ENC, "rb").read()
+        with open(_ENC, "rb") as fh:
+            ciphertext = fh.read()
     except OSError as e:
         raise VaultLoadError("ciphertext unreadable") from e
     try:
@@ -134,7 +135,8 @@ def is_loaded() -> bool:
 
 def expert_count() -> int:
     try:
-        return json.load(open(_META)).get("count", 0)
+        with open(_META) as fh:
+            return json.load(fh).get("count", 0)
     except Exception:
         return 0
 
