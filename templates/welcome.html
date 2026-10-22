@@ -73,9 +73,9 @@
         <svg class="sg-ico"><use href="#i-zap"/></svg> <span class="sg-nav-t">Live Zone</span>
         <span class="sg-nav-sp">{{ tiers[3].done }}/{{ tiers[3].total }}</span>
       </a>
-      <a href="{{ url_for('scoreboard') }}" title="Scoreboard">
+      {% if scoreboard_on %}<a href="{{ url_for('scoreboard') }}" title="Scoreboard">
         <svg class="sg-ico"><use href="#i-trophy"/></svg> <span class="sg-nav-t">Scoreboard</span>
-      </a>
+      </a>{% endif %}
       <a href="{{ url_for('completion') }}" title="Achievements">
         <svg class="sg-ico"><use href="#i-award"/></svg> <span class="sg-nav-t">Achievements</span>
       </a>

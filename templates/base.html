@@ -28,7 +28,7 @@
       <a href="{{ url_for('welcome') }}" title="Dashboard"><span class="nav-i" aria-hidden="true">🛰</span>Dashboard</a>
       <a href="{{ url_for('labs') }}" class="{% block nav_labs %}{% endblock %}" title="Labs"><span class="nav-i" aria-hidden="true">🏠</span>Labs</a>
       <a href="{{ url_for('live_zone') }}" class="{% block nav_live %}{% endblock %}" title="Live Zone"><span class="nav-i" aria-hidden="true">⚡</span>Live Zone</a>
-      {% block nav_score_item %}<a href="{{ url_for('scoreboard') }}" class="{% block nav_score %}{% endblock %}" title="Scoreboard"><span class="nav-i" aria-hidden="true">🏆</span>Scoreboard</a>{% endblock %}
+      {% block nav_score_item %}{% if scoreboard_on %}<a href="{{ url_for('scoreboard') }}" class="{% block nav_score %}{% endblock %}" title="Scoreboard"><span class="nav-i" aria-hidden="true">🏆</span>Scoreboard</a>{% endif %}{% endblock %}
     </nav>
     <div class="sidenote">OWASP Top 10<br>for LLM Apps · 2025</div>
     <div class="credit">Made by <b>{{ author }}</b><br><span>{{ copyright }}</span></div>

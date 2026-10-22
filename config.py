@@ -85,3 +85,14 @@ def debug_enabled(environ=None) -> bool:
 
 
 DEBUG = debug_enabled()
+
+
+# --- Scoreboard ----------------------------------------------------------------
+# The scoreboard lists every player's name and score from PROGRESS. On a shared
+# classroom instance that is the point; on a single-player install it publishes
+# the local player's name to anyone who can reach the server (issue #41). It is
+# ON by default so nothing changes for existing setups. Operators who want the
+# name off the network entirely can opt out: set LLMVAULT_SCOREBOARD=0 (or false).
+def scoreboard_enabled(environ=None) -> bool:
+    env = _os.environ if environ is None else environ
+    return env.get("LLMVAULT_SCOREBOARD", "").strip().lower() not in ("0", "false")
