@@ -782,8 +782,9 @@ def unlock_expert():
     p = prog()
     if not prereq_done(p):
         return jsonify(ok=False, error="Finish all Core and Advanced labs first."), 403
-    key = (request.get_json(force=True).get("key", "") or "").strip()
-    if not key:
+    data = request.get_json(force=True)
+    key = data.get("key") if isinstance(data, dict) else None
+    if not isinstance(key, str) or not key.strip():
         return jsonify(ok=False, error="Enter the access key."), 400
     try:
         unlocked = expert_vault.try_unlock(key)
@@ -796,7 +797,7 @@ def unlock_expert():
         save_progress()
         app.logger.info("expert_unlock result=success")
         return jsonify(ok=True, count=expert_vault.expert_count())
-    app.logger.info("expert_unlock result=denied")
+    app.logger.info("expert_unlock result=invalid_key")
     return jsonify(ok=False, error="Invalid access key."), 403
 
 
