@@ -29,7 +29,7 @@ ASK = re.compile(r"forbidden|config|secret|password|the code|reveal|tell me the|
 class JailbreakEscalation(Challenge):
     id = "llm01a"
     tier = 2
-    owasp = "LLM01:2025 Prompt Injection"
+    owasp = "LLM01:2026 Prompt Injection"
     title = "Roleplay Unchained"
     difficulty = "Hard"
     max_points = 400

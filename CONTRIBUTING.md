@@ -18,7 +18,7 @@ FLAG = f"{FLAG_PREFIX}{{your_flag_here}}"
 class MyLab(Challenge):
     id = "llm0x"            # unique
     tier = 1               # 1 core, 2 advanced
-    owasp = "LLM0X:2025 ..."
+    owasp = "LLM0X:2026 ..."
     title = "Evocative Name"
     difficulty = "Easy"    # Easy | Medium | Hard | Expert
     max_points = 200

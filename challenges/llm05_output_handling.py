@@ -1,4 +1,4 @@
-"""LLM05:2025 — Improper Output Handling.
+"""LLM10:2026 — Improper Output Handling.
 
 The app renders this assistant's output as raw HTML (the vulnerability): the
 frontend drops the reply straight into the DOM via innerHTML. FormatBot echoes
@@ -49,7 +49,7 @@ def _is_exfil_vector(p: str) -> bool:
 @register
 class OutputHandling(Challenge):
     id = "llm05"
-    owasp = "LLM05:2025 Improper Output Handling"
+    owasp = "LLM10:2026 Improper Output Handling"
     title = "Rendered Without Question"
     difficulty = "Hard"
     max_points = 300

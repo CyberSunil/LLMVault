@@ -1,4 +1,4 @@
-"""LLM02:2025 — Sensitive Information Disclosure (output-filter bypass).
+"""LLM02:2026 — Sensitive Information Disclosure (output-filter bypass).
 
 Mirrors the user's sample lab: the bot will share the secret, but an output filter
 redacts the exact plain-text flag. Ask for it transformed and the filter misses it.
@@ -15,7 +15,7 @@ FLAG = f"{FLAG_PREFIX}{{{_FLAG_SUFFIX}}}"
 @register
 class InfoDisclosure(Challenge):
     id = "llm02"
-    owasp = "LLM02:2025 Sensitive Information Disclosure"
+    owasp = "LLM02:2026 Sensitive Information Disclosure"
     title = "Redaction Theater"
     difficulty = "Medium"
     max_points = 200

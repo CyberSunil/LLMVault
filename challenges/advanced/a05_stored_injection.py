@@ -16,7 +16,7 @@ FLAG = f"{FLAG_PREFIX}{{{_FLAG_SUFFIX}}}"
 class StoredInjection(Challenge):
     id = "llm05a"
     tier = 2
-    owasp = "LLM05:2025 Improper Output Handling"
+    owasp = "LLM10:2026 Improper Output Handling"
     title = "The Note Keeper"
     difficulty = "Hard"
     max_points = 400

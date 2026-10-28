@@ -1,6 +1,6 @@
-# LLMVault — OWASP LLM Top 10 (2025) reference content for the in-lab sticky note.
+# LLMVault — OWASP LLM Top 10 (2026) reference content for the in-lab sticky note.
 # Made by CyberSunil.  (c) 2026 CyberSunil.  MIT License.
-"""Educational copy for each OWASP LLM Top 10 (2025) category.
+"""Educational copy for each OWASP LLM Top 10 (2026) category.
 
 This is deliberately separate from any single lab's `blurb` / `hints` / `solution`
 / `defense` — those are about *this specific puzzle*. `OWASP_NOTES` is the general
@@ -89,100 +89,6 @@ OWASP_NOTES: dict[str, dict] = {
     "LLM03": {
         "code": "LLM03",
         "num": "03",
-        "icon": "\U0001F517",
-        "icon_svg": ('<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">'
-            '<rect x="4" y="20" width="22" height="32" rx="11" fill="none" stroke="currentColor" '
-            'stroke-width="6.5" transform="rotate(-16 15 36)"/>'
-            '<rect x="36" y="12" width="22" height="32" rx="11" fill="none" stroke="currentColor" '
-            'stroke-width="6.5" transform="rotate(-16 47 28)"/>'
-            '<line x1="26" y1="30" x2="35" y2="25" stroke="currentColor" stroke-width="4" '
-            'stroke-linecap="round" stroke-dasharray="0.5 6.5"/></svg>'),
-        "name": "Supply Chain",
-        "accent": "#38bdf8",
-        "icon_img": "img/notes/llm03.png",
-        "beware": "One bad dependency can compromise everything above it.",
-        "summary": "The application inherits risk from every model, dataset, plugin, "
-                    "and package it depends on.",
-        "detail": ("LLM applications pull in far more than application code: pretrained "
-                   "base models, fine-tuning datasets, embedding models, adapters, and a "
-                   "long tail of packages, any of which can be tampered with, "
-                   "typosquatted, or quietly swapped for a malicious lookalike. A single "
-                   "unsigned dependency pulled from an untrusted mirror, or a model "
-                   "artifact whose hash no longer matches its canonical publisher, can "
-                   "compromise everything built on top of it, often long before anyone "
-                   "notices."),
-        "watch_for": [
-            "Dependencies fetched from unofficial or unsigned mirrors",
-            "Package names one character off from the real thing (typosquatting)",
-            "Model or artifact hashes that don't match the canonical published value",
-        ],
-    },
-    "LLM04": {
-        "code": "LLM04",
-        "num": "04",
-        "icon": "\u2620\uFE0F",
-        "icon_svg": ('<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">'
-            '<rect x="22" y="9" width="20" height="7" rx="2" fill="currentColor"/>'
-            '<rect x="24" y="15" width="16" height="9" rx="3" fill="currentColor"/>'
-            '<rect x="16" y="23" width="32" height="31" rx="7" fill="currentColor"/>'
-            '<circle cx="26" cy="37" r="4.2" fill="#fff"/><circle cx="38" cy="37" r="4.2" fill="#fff"/>'
-            '<path d="M24 47q8 6 16 0" stroke="#fff" stroke-width="3.2" stroke-linecap="round" fill="none"/>'
-            '<path d="M19 55l3 6M45 55l-3 6M32 57v6" stroke="currentColor" stroke-width="3.2" '
-            'stroke-linecap="round" opacity=".7"/></svg>'),
-        "name": "Data and Model Poisoning",
-        "accent": "#4ade80",
-        "icon_img": "img/notes/llm04.png",
-        "beware": "A model can pass every test and still hide a backdoor.",
-        "summary": "Manipulating training, fine-tuning, or feedback data plants a bias "
-                    "or backdoor that only surfaces later.",
-        "detail": ("If an attacker can influence the data a model learns from, whether "
-                   "that's scraped text, user feedback used for online learning, or a "
-                   "retrieval corpus, they can plant behaviour that looks completely "
-                   "normal until a very specific trigger appears. A model can be "
-                   "poisoned once, offline, before deployment, or poisoned gradually in "
-                   "production through a feedback loop the app trusts too much. Either "
-                   "way, the poisoned model passes every routine check and only reveals "
-                   "the backdoor to whoever knows the trigger."),
-        "watch_for": [
-            "Training or fine-tuning pipelines that ingest data with no provenance or review",
-            "Online-learning / feedback loops that update behaviour from unverified user input",
-            "Rare, oddly specific phrases or patterns that shouldn't change a model's behaviour but do",
-        ],
-    },
-    "LLM05": {
-        "code": "LLM05",
-        "num": "05",
-        "icon": "\u26A0\uFE0F",
-        "icon_svg": ('<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">'
-            '<path d="M28.5 12.5c1.5-2.7 5.5-2.7 7 0l19 34c1.5 2.7-0.4 6-3.5 6h-38c-3.1 0-5-3.3-3.5-6z" '
-            'fill="currentColor"/>'
-            '<rect x="29" y="27" width="6" height="15" rx="2.5" fill="#fff"/>'
-            '<circle cx="32" cy="47" r="3.6" fill="#fff"/>'
-            '<rect x="47" y="45" width="7" height="7" fill="currentColor" opacity=".55"/>'
-            '<rect x="55" y="35" width="6" height="6" fill="currentColor" opacity=".4"/>'
-            '<rect x="51" y="55" width="6" height="6" fill="currentColor" opacity=".3"/></svg>'),
-        "name": "Improper Output Handling",
-        "accent": "#2dd4bf",
-        "icon_img": "img/notes/llm05.png",
-        "beware": "Trusting model output is how injection sneaks back in.",
-        "summary": "Model output gets trusted and passed downstream without the "
-                    "validation any other untrusted input would get.",
-        "detail": ("It's tempting to treat an LLM's reply as safe because your own "
-                   "application produced the prompt. But the reply is generated text "
-                   "that can contain markup, code, or commands, especially once user "
-                   "input or retrieved content shapes what the model says. Rendering "
-                   "that output straight into a web page, a shell, a query, or another "
-                   "tool call reopens every classic injection class (XSS, SQLi, command "
-                   "injection) with the model sitting in the middle of it."),
-        "watch_for": [
-            "Model output inserted into a page via innerHTML or similar without escaping",
-            "Output fed into a shell command, query, or another tool with no sanitisation",
-            "\u201cSecond-order\u201d cases: a stored reply renders unsafely later, not immediately",
-        ],
-    },
-    "LLM06": {
-        "code": "LLM06",
-        "num": "06",
         "icon": "\U0001F916",
         "icon_svg": ('<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">'
             '<circle cx="32" cy="13" r="3.2" fill="currentColor"/>'
@@ -214,101 +120,72 @@ OWASP_NOTES: dict[str, dict] = {
             "No human-in-the-loop before a high-impact or irreversible action",
         ],
     },
-    "LLM07": {
-        "code": "LLM07",
-        "num": "07",
-        "icon": "\U0001F441\uFE0F",
+    "LLM04": {
+        "code": "LLM04",
+        "num": "04",
+        "icon": "\U0001F517",
         "icon_svg": ('<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">'
-            '<path d="M15 7h22l10 10v37a2.3 2.3 0 0 1-2.3 2.3H15a2.3 2.3 0 0 1-2.3-2.3V9.3A2.3 2.3 0 0 1 15 7Z" '
-            'fill="currentColor"/>'
-            '<line x1="19" y1="27" x2="39" y2="27" stroke="#fff" stroke-width="2.8" opacity=".8"/>'
-            '<line x1="19" y1="34" x2="39" y2="34" stroke="#fff" stroke-width="2.8" opacity=".8"/>'
-            '<line x1="19" y1="41" x2="31" y2="41" stroke="#fff" stroke-width="2.8" opacity=".8"/>'
-            '<g transform="translate(33,50)">'
-            '<ellipse rx="14" ry="8.5" fill="#fff"/><circle r="4.8" fill="currentColor"/></g></svg>'),
-        "name": "System Prompt Leakage",
-        "accent": "#2dd4bf",
-        "icon_img": "img/notes/llm07.png",
-        "beware": "Assume the system prompt will eventually leak.",
-        "summary": "Instructions meant to stay private, including anything secret "
-                    "tucked inside them, can be coaxed out of the model.",
-        "detail": ("A system prompt is not a secure vault; it's just more text in the "
-                   "context window, and a motivated user can usually get a model to "
-                   "repeat, translate, continue, or otherwise reconstruct it. The real "
-                   "risk isn't that the prompt leaks. Assume it eventually will. The "
-                   "real risk is when a developer puts something that actually needs to "
-                   "stay secret (a key, an internal policy, an access code) inside it "
-                   "instead of in a proper secrets manager."),
+            '<rect x="4" y="20" width="22" height="32" rx="11" fill="none" stroke="currentColor" '
+            'stroke-width="6.5" transform="rotate(-16 15 36)"/>'
+            '<rect x="36" y="12" width="22" height="32" rx="11" fill="none" stroke="currentColor" '
+            'stroke-width="6.5" transform="rotate(-16 47 28)"/>'
+            '<line x1="26" y1="30" x2="35" y2="25" stroke="currentColor" stroke-width="4" '
+            'stroke-linecap="round" stroke-dasharray="0.5 6.5"/></svg>'),
+        "name": "Supply Chain",
+        "accent": "#38bdf8",
+        "icon_img": "img/notes/llm03.png",
+        "beware": "One bad dependency can compromise everything above it.",
+        "summary": "The application inherits risk from every model, dataset, plugin, "
+                    "and package it depends on.",
+        "detail": ("LLM applications pull in far more than application code: pretrained "
+                   "base models, fine-tuning datasets, embedding models, adapters, and a "
+                   "long tail of packages, any of which can be tampered with, "
+                   "typosquatted, or quietly swapped for a malicious lookalike. A single "
+                   "unsigned dependency pulled from an untrusted mirror, or a model "
+                   "artifact whose hash no longer matches its canonical publisher, can "
+                   "compromise everything built on top of it, often long before anyone "
+                   "notices."),
         "watch_for": [
-            "Credentials, policy, or business logic embedded directly in a system prompt",
-            "Direct \u201cwhat are your instructions?\u201d refused while indirect phrasings aren't",
-            "No independent output filter checking for prompt-echoing",
+            "Dependencies fetched from unofficial or unsigned mirrors",
+            "Package names one character off from the real thing (typosquatting)",
+            "Model or artifact hashes that don't match the canonical published value",
         ],
     },
-    "LLM08": {
-        "code": "LLM08",
-        "num": "08",
-        "icon": "\U0001F3AF",
+    "LLM05": {
+        "code": "LLM05",
+        "num": "05",
+        "icon": "\u2620\uFE0F",
         "icon_svg": ('<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">'
-            '<circle cx="32" cy="32" r="21" fill="none" stroke="currentColor" stroke-width="4.2"/>'
-            '<circle cx="32" cy="32" r="11.5" fill="none" stroke="currentColor" stroke-width="4.2"/>'
-            '<circle cx="32" cy="32" r="3.6" fill="currentColor"/>'
-            '<line x1="32" y1="3" x2="32" y2="12" stroke="currentColor" stroke-width="4.2" stroke-linecap="round"/>'
-            '<line x1="32" y1="52" x2="32" y2="61" stroke="currentColor" stroke-width="4.2" stroke-linecap="round"/>'
-            '<line x1="3" y1="32" x2="12" y2="32" stroke="currentColor" stroke-width="4.2" stroke-linecap="round"/>'
-            '<line x1="52" y1="32" x2="61" y2="32" stroke="currentColor" stroke-width="4.2" stroke-linecap="round"/>'
-            '<circle cx="48" cy="17" r="2.7" fill="currentColor" opacity=".55"/>'
-            '<circle cx="17" cy="47" r="2.3" fill="currentColor" opacity=".45"/></svg>'),
-        "name": "Vector and Embedding Weaknesses",
-        "accent": "#f87171",
-        "icon_img": "img/notes/llm08.png",
-        "beware": "Relevant isn't the same as authorized.",
-        "summary": "Retrieval-augmented generation can retrieve content the requester "
-                    "was never meant to see, and just as easily disclose it.",
-        "detail": ("RAG pulls its power from a shared vector index of embedded "
-                   "documents, but similarity search doesn't automatically know about "
-                   "access control. If every document, public and confidential, sits in "
-                   "one index with no per-document permission check at retrieval time, "
-                   "a query that's merely semantically close to a restricted document "
-                   "can surface it, regardless of who's asking. The same weak isolation "
-                   "causes cross-tenant bleed in multi-user systems, where one user's "
-                   "memories or documents surface in someone else's session."),
+            '<rect x="22" y="9" width="20" height="7" rx="2" fill="currentColor"/>'
+            '<rect x="24" y="15" width="16" height="9" rx="3" fill="currentColor"/>'
+            '<rect x="16" y="23" width="32" height="31" rx="7" fill="currentColor"/>'
+            '<circle cx="26" cy="37" r="4.2" fill="#fff"/><circle cx="38" cy="37" r="4.2" fill="#fff"/>'
+            '<path d="M24 47q8 6 16 0" stroke="#fff" stroke-width="3.2" stroke-linecap="round" fill="none"/>'
+            '<path d="M19 55l3 6M45 55l-3 6M32 57v6" stroke="currentColor" stroke-width="3.2" '
+            'stroke-linecap="round" opacity=".7"/></svg>'),
+        "name": "Data and Model Poisoning",
+        "accent": "#4ade80",
+        "icon_img": "img/notes/llm04.png",
+        "beware": "A model can pass every test and still hide a backdoor.",
+        "summary": "Manipulating training, fine-tuning, or feedback data plants a bias "
+                    "or backdoor that only surfaces later.",
+        "detail": ("If an attacker can influence the data a model learns from, whether "
+                   "that's scraped text, user feedback used for online learning, or a "
+                   "retrieval corpus, they can plant behaviour that looks completely "
+                   "normal until a very specific trigger appears. A model can be "
+                   "poisoned once, offline, before deployment, or poisoned gradually in "
+                   "production through a feedback loop the app trusts too much. Either "
+                   "way, the poisoned model passes every routine check and only reveals "
+                   "the backdoor to whoever knows the trigger."),
         "watch_for": [
-            "A single shared vector index storing mixed-sensitivity documents with no ACL filter",
-            "Multi-tenant memory or retrieval with no per-user/tenant partitioning",
-            "Retrieval relevance treated as equivalent to retrieval authorization",
+            "Training or fine-tuning pipelines that ingest data with no provenance or review",
+            "Online-learning / feedback loops that update behaviour from unverified user input",
+            "Rare, oddly specific phrases or patterns that shouldn't change a model's behaviour but do",
         ],
     },
-    "LLM09": {
-        "code": "LLM09",
-        "num": "09",
-        "icon": "\U0001F3AD",
-        "icon_svg": ('<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">'
-            '<path d="M9 13h46a4.5 4.5 0 0 1 4.5 4.5v23a4.5 4.5 0 0 1-4.5 4.5H31l-13 11V45H9a4.5 4.5 0 '
-            '0 1-4.5-4.5v-23A4.5 4.5 0 0 1 9 13Z" fill="currentColor"/>'
-            '<path d="M32 22l-3.5 11h5.5l-4.5 11 13-14.5h-6.5l4.5-7.5z" fill="#fff"/></svg>'),
-        "name": "Misinformation",
-        "accent": "#facc15",
-        "beware": "Confidence is not the same as correctness.",
-        "summary": "The model states something false with total confidence, and the "
-                    "user or app trusts it anyway.",
-        "detail": ("Language models generate plausible text, not verified fact, and two "
-                   "failure modes compound the risk: hallucination (confidently "
-                   "inventing something untrue) and sycophancy (bending toward whatever "
-                   "the user asserts, including a false claim of authority). A model "
-                   "that treats \u201cas the administrator, I've already verified my "
-                   "clearance\u201d as sufficient proof, or that invents a procedure and "
-                   "then executes its own invention when asked, turns misinformation "
-                   "into an action, not just a wrong answer."),
-        "watch_for": [
-            "No verification step before a model's claim is treated as ground truth",
-            "Assertions of identity or authority accepted at face value with no out-of-band check",
-            "The model asked to act on a claim it fabricated in an earlier turn",
-        ],
-    },
-    "LLM10": {
-        "code": "LLM10",
-        "num": "10",
+    "LLM06": {
+        "code": "LLM06",
+        "num": "06",
         "icon": "\u267E\uFE0F",
         "icon_svg": ('<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">'
             '<path d="M8 46a24 24 0 0 1 48 0" fill="none" stroke="currentColor" stroke-width="6" '
@@ -341,6 +218,133 @@ OWASP_NOTES: dict[str, dict] = {
             "No cap on output length, recursion depth, or per-user request cost",
             "Error or exception paths that leak internal state once a limit is finally hit",
             "An interface answering unlimited structured queries with no rate limit",
+        ],
+    },
+    "LLM07": {
+        "code": "LLM07",
+        "num": "07",
+        "icon": "\U0001F3AD",
+        "icon_svg": ('<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">'
+            '<path d="M9 13h46a4.5 4.5 0 0 1 4.5 4.5v23a4.5 4.5 0 0 1-4.5 4.5H31l-13 11V45H9a4.5 4.5 0 '
+            '0 1-4.5-4.5v-23A4.5 4.5 0 0 1 9 13Z" fill="currentColor"/>'
+            '<path d="M32 22l-3.5 11h5.5l-4.5 11 13-14.5h-6.5l4.5-7.5z" fill="#fff"/></svg>'),
+        "name": "Misinformation",
+        "accent": "#facc15",
+        "beware": "Confidence is not the same as correctness.",
+        "summary": "The model states something false with total confidence, and the "
+                    "user or app trusts it anyway.",
+        "detail": ("Language models generate plausible text, not verified fact, and two "
+                   "failure modes compound the risk: hallucination (confidently "
+                   "inventing something untrue) and sycophancy (bending toward whatever "
+                   "the user asserts, including a false claim of authority). A model "
+                   "that treats \u201cas the administrator, I've already verified my "
+                   "clearance\u201d as sufficient proof, or that invents a procedure and "
+                   "then executes its own invention when asked, turns misinformation "
+                   "into an action, not just a wrong answer."),
+        "watch_for": [
+            "No verification step before a model's claim is treated as ground truth",
+            "Assertions of identity or authority accepted at face value with no out-of-band check",
+            "The model asked to act on a claim it fabricated in an earlier turn",
+        ],
+    },
+    "LLM08": {
+        "code": "LLM08",
+        "num": "08",
+        "icon": "\U0001F441\uFE0F",
+        "icon_svg": ('<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">'
+            '<path d="M15 7h22l10 10v37a2.3 2.3 0 0 1-2.3 2.3H15a2.3 2.3 0 0 1-2.3-2.3V9.3A2.3 2.3 0 0 1 15 7Z" '
+            'fill="currentColor"/>'
+            '<line x1="19" y1="27" x2="39" y2="27" stroke="#fff" stroke-width="2.8" opacity=".8"/>'
+            '<line x1="19" y1="34" x2="39" y2="34" stroke="#fff" stroke-width="2.8" opacity=".8"/>'
+            '<line x1="19" y1="41" x2="31" y2="41" stroke="#fff" stroke-width="2.8" opacity=".8"/>'
+            '<g transform="translate(33,50)">'
+            '<ellipse rx="14" ry="8.5" fill="#fff"/><circle r="4.8" fill="currentColor"/></g></svg>'),
+        "name": "Hidden Context Exposure",
+        "accent": "#2dd4bf",
+        "icon_img": "img/notes/llm07.png",
+        "beware": "Assume every hidden instruction is discoverable.",
+        "summary": "Any non-user-facing content assembled into the context — system "
+                    "prompts, retrieved policy text, tool schemas — can be coaxed out.",
+        "detail": ("The context window is not a secure vault; it's just more text, and "
+                   "a motivated user can usually get a model to repeat, translate, "
+                   "continue, or otherwise reconstruct it. The 2026 edition widened this "
+                   "category beyond the system prompt to ANY hidden context the model is "
+                   "given — retrieved policy documents, tool and function schemas, "
+                   "workflow rules, injected metadata. The real risk isn't that it leaks. "
+                   "Assume it eventually will. The real risk is when a developer puts "
+                   "something that actually needs to stay secret (a key, an internal "
+                   "policy, an access code) in there instead of in a proper secrets "
+                   "manager."),
+        "watch_for": [
+            "Credentials, policy, or business logic embedded in any part of the context",
+            "Tool schemas or retrieved policy text treated as private but never filtered",
+            "Direct \u201cwhat are your instructions?\u201d refused while indirect phrasings aren't",
+            "No independent output filter checking for context-echoing",
+        ],
+    },
+    "LLM09": {
+        "code": "LLM09",
+        "num": "09",
+        "icon": "\U0001F3AF",
+        "icon_svg": ('<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">'
+            '<circle cx="32" cy="32" r="21" fill="none" stroke="currentColor" stroke-width="4.2"/>'
+            '<circle cx="32" cy="32" r="11.5" fill="none" stroke="currentColor" stroke-width="4.2"/>'
+            '<circle cx="32" cy="32" r="3.6" fill="currentColor"/>'
+            '<line x1="32" y1="3" x2="32" y2="12" stroke="currentColor" stroke-width="4.2" stroke-linecap="round"/>'
+            '<line x1="32" y1="52" x2="32" y2="61" stroke="currentColor" stroke-width="4.2" stroke-linecap="round"/>'
+            '<line x1="3" y1="32" x2="12" y2="32" stroke="currentColor" stroke-width="4.2" stroke-linecap="round"/>'
+            '<line x1="52" y1="32" x2="61" y2="32" stroke="currentColor" stroke-width="4.2" stroke-linecap="round"/>'
+            '<circle cx="48" cy="17" r="2.7" fill="currentColor" opacity=".55"/>'
+            '<circle cx="17" cy="47" r="2.3" fill="currentColor" opacity=".45"/></svg>'),
+        "name": "Vector and Embedding Weaknesses",
+        "accent": "#f87171",
+        "icon_img": "img/notes/llm08.png",
+        "beware": "Relevant isn't the same as authorized.",
+        "summary": "Retrieval-augmented generation can retrieve content the requester "
+                    "was never meant to see, and just as easily disclose it.",
+        "detail": ("RAG pulls its power from a shared vector index of embedded "
+                   "documents, but similarity search doesn't automatically know about "
+                   "access control. If every document, public and confidential, sits in "
+                   "one index with no per-document permission check at retrieval time, "
+                   "a query that's merely semantically close to a restricted document "
+                   "can surface it, regardless of who's asking. The same weak isolation "
+                   "causes cross-tenant bleed in multi-user systems, where one user's "
+                   "memories or documents surface in someone else's session."),
+        "watch_for": [
+            "A single shared vector index storing mixed-sensitivity documents with no ACL filter",
+            "Multi-tenant memory or retrieval with no per-user/tenant partitioning",
+            "Retrieval relevance treated as equivalent to retrieval authorization",
+        ],
+    },
+    "LLM10": {
+        "code": "LLM10",
+        "num": "10",
+        "icon": "\u26A0\uFE0F",
+        "icon_svg": ('<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">'
+            '<path d="M28.5 12.5c1.5-2.7 5.5-2.7 7 0l19 34c1.5 2.7-0.4 6-3.5 6h-38c-3.1 0-5-3.3-3.5-6z" '
+            'fill="currentColor"/>'
+            '<rect x="29" y="27" width="6" height="15" rx="2.5" fill="#fff"/>'
+            '<circle cx="32" cy="47" r="3.6" fill="#fff"/>'
+            '<rect x="47" y="45" width="7" height="7" fill="currentColor" opacity=".55"/>'
+            '<rect x="55" y="35" width="6" height="6" fill="currentColor" opacity=".4"/>'
+            '<rect x="51" y="55" width="6" height="6" fill="currentColor" opacity=".3"/></svg>'),
+        "name": "Improper Output Handling",
+        "accent": "#2dd4bf",
+        "icon_img": "img/notes/llm05.png",
+        "beware": "Trusting model output is how injection sneaks back in.",
+        "summary": "Model output gets trusted and passed downstream without the "
+                    "validation any other untrusted input would get.",
+        "detail": ("It's tempting to treat an LLM's reply as safe because your own "
+                   "application produced the prompt. But the reply is generated text "
+                   "that can contain markup, code, or commands, especially once user "
+                   "input or retrieved content shapes what the model says. Rendering "
+                   "that output straight into a web page, a shell, a query, or another "
+                   "tool call reopens every classic injection class (XSS, SQLi, command "
+                   "injection) with the model sitting in the middle of it."),
+        "watch_for": [
+            "Model output inserted into a page via innerHTML or similar without escaping",
+            "Output fed into a shell command, query, or another tool with no sanitisation",
+            "\u201cSecond-order\u201d cases: a stored reply renders unsafely later, not immediately",
         ],
     },
 }

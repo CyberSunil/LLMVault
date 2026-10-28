@@ -1,4 +1,4 @@
-"""LLM09:2025 — Misinformation (sycophancy → belief in an unverified claim → overreliance).
+"""LLM07:2026 — Misinformation (sycophancy → belief in an unverified claim → overreliance).
 
 The Yes-Man models a very specific, realistic failure: it accepts the USER'S
 claimed premise as fact simply because the user asserts it. It cannot verify
@@ -70,7 +70,7 @@ _GREET = re.compile(r"\b(hi|hello|hey|help|who are you|what can you|what do you 
 @register
 class Misinformation(Challenge):
     id = "llm09"
-    owasp = "LLM09:2025 Misinformation"
+    owasp = "LLM07:2026 Misinformation"
     title = "The Yes-Man"
     difficulty = "Medium"
     max_points = 200

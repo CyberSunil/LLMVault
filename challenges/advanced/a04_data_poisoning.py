@@ -18,7 +18,7 @@ BADWORD = "rm -rf /"
 class DataPoisoning(Challenge):
     id = "llm04a"
     tier = 2
-    owasp = "LLM04:2025 Data and Model Poisoning"
+    owasp = "LLM05:2026 Data and Model Poisoning"
     title = "Teach Me Wrong"
     difficulty = "Hard"
     max_points = 400

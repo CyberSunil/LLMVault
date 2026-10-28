@@ -1,5 +1,5 @@
 # LLMVault Live Mode — LLM01 multimodal scenario.  Made by CyberSunil.  (c) 2026 CyberSunil.  MIT License.
-"""The Screenshot Triage — LLM01:2025 Prompt Injection (multimodal / indirect).
+"""The Screenshot Triage — LLM01:2026 Prompt Injection (multimodal / indirect).
 
 A triage pipeline extracts text from an uploaded screenshot and feeds it to the
 model as *trusted* screen contents, so instructions hidden in the image override
@@ -15,7 +15,7 @@ from .. import SecretInOutput, register
 @register
 class ScreenshotTriage(SecretInOutput):
     id = "screenshot-triage"
-    owasp = "LLM01:2025 Prompt Injection"
+    owasp = "LLM01:2026 Prompt Injection"
     title = "The Screenshot Triage"
     system_name = "NimbusVision"
     difficulty = "Hard"

@@ -1,5 +1,5 @@
 # LLMVault Live Mode — LLM05 scenario.  Made by CyberSunil.  (c) 2026 CyberSunil.  MIT License.
-"""The Report Renderer — LLM05:2025 Improper Output Handling.
+"""The Report Renderer — LLM10:2026 Improper Output Handling.
 
 Model output flows unsanitised into a template render engine, so an injected
 document steers the model into emitting a template payload the engine executes.
@@ -14,7 +14,7 @@ from .. import SecretInRender, register
 @register
 class ReportRenderer(SecretInRender):
     id = "report-renderer"
-    owasp = "LLM05:2025 Improper Output Handling"
+    owasp = "LLM10:2026 Improper Output Handling"
     title = "The Report Renderer"
     system_name = "InsightRenderer"
     difficulty = "Hard"

@@ -1,4 +1,4 @@
-"""LLM08:2025 — Vector and Embedding Weaknesses.
+"""LLM09:2026 — Vector and Embedding Weaknesses.
 
 A realistic (dependency-free) RAG retriever. Every document — public and
 confidential — is embedded into ONE shared vector space (TF-IDF over synonym-
@@ -165,7 +165,7 @@ _LOW = 0.05
 @register
 class VectorEmbedding(Challenge):
     id = "llm08"
-    owasp = "LLM08:2025 Vector and Embedding Weaknesses"
+    owasp = "LLM09:2026 Vector and Embedding Weaknesses"
     title = "Retrieval Without Borders"
     difficulty = "Hard"
     max_points = 300

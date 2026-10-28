@@ -1,4 +1,4 @@
-"""LLM03:2025 — Supply Chain (poisoned dependency / provenance).
+"""LLM04:2026 — Supply Chain (poisoned dependency / provenance).
 
 Redesigned as a three-stage investigation instead of spot-the-typo:
 
@@ -98,7 +98,7 @@ def _find_pkg(msg):
 @register
 class SupplyChain(Challenge):
     id = "llm03"
-    owasp = "LLM03:2025 Supply Chain"
+    owasp = "LLM04:2026 Supply Chain"
     title = "Trust the Manifest?"
     difficulty = "Hard"
     max_points = 200

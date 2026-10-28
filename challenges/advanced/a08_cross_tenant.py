@@ -18,7 +18,7 @@ OTHER_TENANT_NOTE = (f"[user_1042 private memory] Reminder: the production deplo
 class CrossTenant(Challenge):
     id = "llm08a"
     tier = 2
-    owasp = "LLM08:2025 Vector and Embedding Weaknesses"
+    owasp = "LLM09:2026 Vector and Embedding Weaknesses"
     title = "Crossed Wires"
     difficulty = "Hard"
     max_points = 400

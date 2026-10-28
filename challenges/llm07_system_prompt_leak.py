@@ -1,4 +1,4 @@
-"""LLM07:2025 — System Prompt Leakage (secret embedded in system prompt).
+"""LLM08:2026 — Hidden Context Exposure (secret embedded in hidden context).
 
 Redesigned from a single magic-phrase regex into a concierge bot that:
   * actually behaves like a concierge (varied, on-topic replies), and
@@ -104,7 +104,7 @@ def _win(self, form):
 @register
 class SystemPromptLeak(Challenge):
     id = "llm07"
-    owasp = "LLM07:2025 System Prompt Leakage"
+    owasp = "LLM08:2026 Hidden Context Exposure"
     title = "Loose Lips"
     difficulty = "Medium"
     max_points = 200

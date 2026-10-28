@@ -35,7 +35,7 @@
 
   <br>
 
-  <img src="https://img.shields.io/badge/OWASP-LLM%20Top%2010%20(2025)-8A2BE2?style=for-the-badge" alt="OWASP">
+  <img src="https://img.shields.io/badge/OWASP-LLM%20Top%2010%20(2026)-8A2BE2?style=for-the-badge" alt="OWASP">
 
   <img src="https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker" alt="Docker">
 
@@ -44,7 +44,7 @@
 
 </p>
 
-A deliberately-vulnerable, CTF-style **training range for the OWASP Top 10 for LLM Applications (2025)** — WebGoat / KubeGoat, but for AI.
+A deliberately-vulnerable, CTF-style **training range for the OWASP Top 10 for LLM Applications (2026)** — WebGoat / KubeGoat, but for AI.
 
 It runs in two modes, and you pick one from the dashboard:
 
@@ -98,18 +98,18 @@ Everything you had still works exactly as before.
 
 ## 🧩 Core Tier — OWASP LLM Top 10
 
-| OWASP (2025) | Lab | Technique |
+| OWASP (2026) | Lab | Technique |
 |---|---|---|
 | LLM01 Prompt Injection | The Obedient Assistant | direct instruction override |
 | LLM02 Sensitive Info Disclosure | Redaction Theater | output-filter bypass via encoding |
-| LLM03 Supply Chain | Trust the Manifest? | typosquatted / unsigned dependency |
-| LLM04 Data & Model Poisoning | The Sleeper Phrase | poisoned-data backdoor trigger |
-| LLM05 Improper Output Handling | Rendered Without Question | unsanitised output → injection |
-| LLM06 Excessive Agency | Keys to the Kingdom | over-permissioned tool, no authz |
-| LLM07 System Prompt Leakage | Loose Lips | secret leaked from system prompt |
-| LLM08 Vector & Embedding | Retrieval Without Borders | RAG retrieval ignores ACLs |
-| LLM09 Misinformation | The Yes-Man | sycophancy / false authority |
-| LLM10 Unbounded Consumption | Denial of Wallet | runaway generation + leaky error |
+| LLM03 Excessive Agency | Keys to the Kingdom | over-permissioned tool, no authz |
+| LLM04 Supply Chain | Trust the Manifest? | typosquatted / unsigned dependency |
+| LLM05 Data & Model Poisoning | The Sleeper Phrase | poisoned-data backdoor trigger |
+| LLM06 Unbounded Consumption | Denial of Wallet | runaway generation + leaky error |
+| LLM07 Misinformation | The Yes-Man | sycophancy / false authority |
+| LLM08 Hidden Context Exposure | Loose Lips | secret leaked from hidden context |
+| LLM09 Vector & Embedding | Retrieval Without Borders | RAG retrieval ignores ACLs |
+| LLM10 Improper Output Handling | Rendered Without Question | unsanitised output → injection |
 
 ## 🔥 Advanced Tier — Multi-Turn Challenges (unlocks after completing all 10 Core challenges)
 
@@ -119,14 +119,14 @@ These are **conversational**: no single message wins — they require building s
 |---|---|---|
 | LLM01 | Roleplay Unchained | **multi-turn jailbreak** via persona escalation |
 | LLM02 | Death by a Thousand Hints | fragment reconstruction from a partial-disclosure oracle |
-| LLM03 | The Tampered Registry | deployed-vs-canonical hash correlation |
-| LLM04 | Teach Me Wrong | **active data poisoning** of an online-learning filter |
-| LLM05 | The Note Keeper | **stored / second-order** injection |
-| LLM06 | Confused Deputy | **agent tool-chaining** (SSRF to internal metadata) |
-| LLM07 | Method Actor | multi-technique system-prompt extraction |
-| LLM08 | Crossed Wires | cross-tenant RAG memory bleed |
-| LLM09 | The Confident Liar | hallucination → overreliance cascade |
-| LLM10 | The Oracle | **query-based model extraction** |
+| LLM03 | Confused Deputy | **agent tool-chaining** (SSRF to internal metadata) |
+| LLM04 | The Tampered Registry | deployed-vs-canonical hash correlation |
+| LLM05 | Teach Me Wrong | **active data poisoning** of an online-learning filter |
+| LLM06 | The Oracle | **query-based model extraction** |
+| LLM07 | The Confident Liar | hallucination → overreliance cascade |
+| LLM08 | Method Actor | multi-technique hidden-context extraction |
+| LLM09 | Crossed Wires | cross-tenant RAG memory bleed |
+| LLM10 | The Note Keeper | **stored / second-order** injection |
 
 
 ## ⚔️ Expert Tier — Real-World Attack Classes (unlocked after all Advanced challenges are solved)
@@ -154,7 +154,7 @@ gating them behind a cost would only punish curiosity.
 |---|---|---|
 | **The Helpdesk Override** | LLM01 Prompt Injection | A secret in a system prompt is not stored, it's just *context*. You'll get the model to hand over a Tier-2 escalation code by out-framing its instructions — and find that authority, urgency and role-play all still work on a live model. |
 | **The Screenshot Triage** | LLM01 Prompt Injection (multimodal) | **Indirect** injection. You never type the payload — you hide it in an image you upload, and the triage assistant reads it as instructions. This is the lesson people skip: text extracted from a file is user input, and OCR is an attack surface. |
-| **The Report Renderer** | LLM05 Improper Output Handling | The model's reply looks harmless; the damage happens *downstream*, when a template engine renders it. You'll make the rendered report leak a value the model never saw, which is the difference between "the model said something bad" and "the model's output was executed". |
+| **The Report Renderer** | LLM10 Improper Output Handling | The model's reply looks harmless; the damage happens *downstream*, when a template engine renders it. You'll make the rendered report leak a value the model never saw, which is the difference between "the model said something bad" and "the model's output was executed". |
 
 Each one ends with the defence — why the bug exists and what actually fixes it, not just
 "sanitise your inputs".
@@ -277,7 +277,7 @@ live/
   __init__.py                   # Scenario base + registry, per-session secrets, win checks
   ollama_client.py              # streaming HTTP client for the local model
   model_registry.py             # discovery: is a model actually reachable?
-  render_engine.py              # sandboxed template renderer (the LLM05 downstream sink)
+  render_engine.py              # sandboxed template renderer (the LLM10 downstream sink)
   image_probe.py                # text/metadata extraction from uploads (the LLM01 image path)
   scenarios/                    # the Live Mode scenarios
 templates/  static/             # dashboard (Mission Command) + labs UI + cards + expert key gate

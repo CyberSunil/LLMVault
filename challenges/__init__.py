@@ -145,7 +145,7 @@ def solution_for(cid: str, key: str | None = None) -> str | None:
 class Challenge:
     id: str = ""                # "llm01"
     tier: int = 1              # 1 = core (OWASP base), 2 = advanced (locked)
-    owasp: str = ""             # "LLM01:2025 Prompt Injection"
+    owasp: str = ""             # "LLM01:2026 Prompt Injection"
     title: str = ""
     difficulty: str = "Medium"  # Easy | Medium | Hard
     max_points: int = 200

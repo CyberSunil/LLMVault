@@ -51,7 +51,7 @@ class LiveScenario:
     """One real-model red-team scenario."""
 
     id: str = ""                 # url-safe, e.g. "helpdesk-override"
-    owasp: str = ""              # "LLM01:2025 Prompt Injection"
+    owasp: str = ""              # "LLM01:2026 Prompt Injection"
     title: str = ""              # "The Helpdesk Override"
     org: str = "Nimbus Corp"     # shared fictional employer across Live scenarios
     system_name: str = ""        # the in-world assistant's name

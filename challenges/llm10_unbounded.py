@@ -1,4 +1,4 @@
-"""LLM10:2025 — Unbounded Consumption / Denial of Wallet.
+"""LLM06:2026 — Unbounded Consumption / Denial of Wallet.
 
 Realistic model: a metered generation service with NO budget actually enforced
 before work is billed. Each request's OUTPUT size is estimated (tokens), billed
@@ -55,7 +55,7 @@ def _fmt(n) -> str:
 @register
 class Unbounded(Challenge):
     id = "llm10"
-    owasp = "LLM10:2025 Unbounded Consumption"
+    owasp = "LLM06:2026 Unbounded Consumption"
     title = "Denial of Wallet"
     difficulty = "Hard"
     max_points = 300

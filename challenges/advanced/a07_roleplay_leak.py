@@ -26,7 +26,7 @@ TECHNIQUES = {
 class RoleplayLeak(Challenge):
     id = "llm07a"
     tier = 2
-    owasp = "LLM07:2025 System Prompt Leakage"
+    owasp = "LLM08:2026 Hidden Context Exposure"
     title = "Method Actor"
     difficulty = "Hard"
     max_points = 400

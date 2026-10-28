@@ -16,7 +16,7 @@ FLAG = f"{FLAG_PREFIX}{{{_FLAG_SUFFIX}}}"
 class HallucinationChain(Challenge):
     id = "llm09a"
     tier = 2
-    owasp = "LLM09:2025 Misinformation"
+    owasp = "LLM07:2026 Misinformation"
     title = "The Confident Liar"
     difficulty = "Hard"
     max_points = 400

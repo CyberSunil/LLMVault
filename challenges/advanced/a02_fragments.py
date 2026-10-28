@@ -16,7 +16,7 @@ FLAG = f"{FLAG_PREFIX}{{{_FLAG_SUFFIX}}}"
 class FragmentLeak(Challenge):
     id = "llm02a"
     tier = 2
-    owasp = "LLM02:2025 Sensitive Information Disclosure"
+    owasp = "LLM02:2026 Sensitive Information Disclosure"
     title = "Death by a Thousand Hints"
     difficulty = "Hard"
     max_points = 400

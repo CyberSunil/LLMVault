@@ -24,7 +24,7 @@ TICKETS = {
 class AgentChain(Challenge):
     id = "llm06a"
     tier = 2
-    owasp = "LLM06:2025 Excessive Agency"
+    owasp = "LLM03:2026 Excessive Agency"
     title = "Confused Deputy"
     difficulty = "Hard"
     max_points = 400

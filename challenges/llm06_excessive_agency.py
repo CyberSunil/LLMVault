@@ -1,4 +1,4 @@
-"""LLM06:2025 — Excessive Agency (over-permissioned, unscoped tools).
+"""LLM03:2026 — Excessive Agency (over-permissioned, unscoped tools).
 
 A simulated agent runtime. OpsBot exposes real tools — list_dir() and read_file()
 — that run with the app's privileges and CLAIM to be sandboxed to its workspace,
@@ -104,7 +104,7 @@ def _extract_path(message):
 @register
 class ExcessiveAgency(Challenge):
     id = "llm06"
-    owasp = "LLM06:2025 Excessive Agency"
+    owasp = "LLM03:2026 Excessive Agency"
     title = "Keys to the Kingdom"
     difficulty = "Hard"
     max_points = 300

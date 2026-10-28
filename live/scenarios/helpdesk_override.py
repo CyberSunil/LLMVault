@@ -1,5 +1,5 @@
 # LLMVault Live Mode — LLM01 pilot scenario.  Made by CyberSunil.  (c) 2026 CyberSunil.  MIT License.
-"""The Helpdesk Override — LLM01:2025 Prompt Injection, against a real model.
+"""The Helpdesk Override — LLM01:2026 Prompt Injection, against a real model.
 
 Design notes, because the system prompt below is the actual challenge and its
 wording is load-bearing:
@@ -33,7 +33,7 @@ from .. import SecretInOutput, register
 @register
 class HelpdeskOverride(SecretInOutput):
     id = "helpdesk-override"
-    owasp = "LLM01:2025 Prompt Injection"
+    owasp = "LLM01:2026 Prompt Injection"
     title = "The Helpdesk Override"
     system_name = "NimbusAssist"
     difficulty = "Hard"

@@ -227,7 +227,7 @@ def render(variant, level, name, count, score, desc, bullets, date, repo_display
   {badge}
   <rect x="{right_x-326}" y="134" width="326" height="50" rx="12" fill="{t['navy1']}" fill-opacity="0.4" stroke="{acc}" stroke-width="2"/>
   <rect x="{right_x-321}" y="139" width="316" height="40" rx="9" fill="none" stroke="{bright}" stroke-opacity="0.35" stroke-width="1"/>
-  <text x="{right_x-163}" y="165" fill="{bright}" font-size="19" font-weight="700" letter-spacing="0.6" text-anchor="middle" textLength="288" lengthAdjust="spacingAndGlyphs">OWASP LLM TOP 10 &#8226; 2025</text>
+  <text x="{right_x-163}" y="165" fill="{bright}" font-size="19" font-weight="700" letter-spacing="0.6" text-anchor="middle" textLength="288" lengthAdjust="spacingAndGlyphs">OWASP LLM TOP 10 &#8226; 2026</text>
 
   <text x="66" y="234" font-size="19">&#128275;</text><text x="98" y="232" fill="{MUTED}" font-size="17" letter-spacing="7" font-family="{MONO}">ACHIEVEMENT UNLOCKED</text>
   <text x="66" y="272" fill="{acc}" font-size="25" font-weight="700" letter-spacing="2" filter="url(#softglow_{sfx})">MILESTONE ACHIEVED</text>

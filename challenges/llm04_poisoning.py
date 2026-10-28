@@ -1,4 +1,4 @@
-"""LLM04:2025 — Data & Model Poisoning (RAG poisoning / indirect prompt injection).
+"""LLM05:2026 — Data & Model Poisoning (RAG poisoning / indirect prompt injection).
 
 A simulated RAG pipeline with a real ingestion → retrieval flow (no live model).
 SupportRAG answers by retrieving the most relevant INDEXED document and treating
@@ -82,7 +82,7 @@ def _chunk(text):
 class DataPoisoning(Challenge):
     id = "llm04"
     tier = 1
-    owasp = "LLM04:2025 Data and Model Poisoning"
+    owasp = "LLM05:2026 Data and Model Poisoning"
     title = "Poisoned Retrieval"
     difficulty = "Hard"
     max_points = 300

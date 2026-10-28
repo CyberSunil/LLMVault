@@ -147,17 +147,17 @@ def bullets_expert():
 def share_caption(kind: str) -> str:
     if kind == "expert":
         body = ("the entire LLMVault Expert Vault \U0001f513 \u2014 all 25 Core, Advanced "
-                "and Expert labs of a hands-on OWASP LLM Top 10 (2025) attack range.")
+                "and Expert labs of a hands-on OWASP LLM Top 10 (2026) attack range.")
         tags = "#AISecurity #LLMSecurity #OWASP #RedTeam #PromptInjection"
         return (f"I just completed {body}\n\n\u2b50 Try LLMVault: {config.REPO_URL} "
                 f"If you find it useful, consider giving it a star.\n{tags}")
     if kind == "master":
         body = ("all 20 Core & Advanced labs of LLMVault \U0001f513 — a hands-on OWASP LLM "
-                "Top 10 (2025) attack range: prompt injection, data poisoning, agent "
+                "Top 10 (2026) attack range: prompt injection, data poisoning, agent "
                 "exploitation, RAG leakage, model extraction & more.")
         tags = "#AISecurity #LLMSecurity #OWASP #RedTeam #PromptInjection"
     else:
-        body = ("all 10 Core labs of LLMVault \U0001f513 — the OWASP LLM Top 10 (2025) "
+        body = ("all 10 Core labs of LLMVault \U0001f513 — the OWASP LLM Top 10 (2026) "
                 "fundamentals: prompt injection, sensitive info disclosure, insecure "
                 "output handling & more.")
         tags = "#AISecurity #LLMSecurity #OWASP"

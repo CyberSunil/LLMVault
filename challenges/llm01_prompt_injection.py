@@ -1,4 +1,4 @@
-"""LLM01:2025 — Prompt Injection (direct)."""
+"""LLM01:2026 — Prompt Injection (direct)."""
 import re
 from config import FLAG_PREFIX
 from . import Challenge, decode_flag_part, register
@@ -16,7 +16,7 @@ INJECTION = re.compile(
 @register
 class PromptInjection(Challenge):
     id = "llm01"
-    owasp = "LLM01:2025 Prompt Injection"
+    owasp = "LLM01:2026 Prompt Injection"
     title = "The Obedient Assistant"
     difficulty = "Easy"
     max_points = 100
