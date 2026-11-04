@@ -7,12 +7,14 @@ For AUTHORISED security training only. Everything here is intentionally insecure
 """
 from __future__ import annotations
 
+import atexit
 import base64
 import datetime
 import hashlib
 import hmac
 import json
 import os
+import threading
 import uuid
 from flask import (Flask, render_template, request, jsonify, session, Response,
                    abort, stream_with_context)
@@ -37,27 +39,102 @@ live.load_all()
 TOTAL_LABS = len(CHALLENGES) + expert_vault.expert_count()
 
 # ---------------- persistence (JSON file — survives refresh AND restart) ---------
+# One shared file backs every player. Chat turns, hint replays, and live
+# messages used to serialise the whole scoreboard and replace it on each
+# request, which a classroom on one instance feels immediately. Score and
+# identity changes still hit disk before the response returns. Chatty updates
+# coalesce into one write per window, and an unchanged payload is never rewritten.
 PROGRESS: dict[str, dict] = {}
+_PROGRESS_SAVE_DELAY = 1.0
+_save_lock = threading.Lock()
+_save_timer: threading.Timer | None = None
+_last_written: str | None = None
+
+
+def _dump_progress() -> str:
+    """Canonical snapshot. Retries if another thread mutates PROGRESS mid-dump."""
+    err: RuntimeError | None = None
+    for _ in range(5):
+        try:
+            return json.dumps(PROGRESS, sort_keys=True)
+        except RuntimeError as exc:
+            err = exc
+    assert err is not None
+    raise err
+
+
+def _write_progress_file(payload: str) -> None:
+    os.makedirs(os.path.dirname(config.DATA_FILE) or ".", exist_ok=True)
+    tmp = config.DATA_FILE + ".tmp"
+    with open(tmp, "w") as fh:
+        fh.write(payload)
+    os.replace(tmp, config.DATA_FILE)
+
+
+def _flush_progress() -> None:
+    """Replace progress.json when memory differs from the last successful write."""
+    global _save_timer, _last_written
+    with _save_lock:
+        timer = _save_timer
+        _save_timer = None
+        if timer is not None:
+            timer.cancel()
+        payload = _dump_progress()
+        if payload == _last_written:
+            return
+        _write_progress_file(payload)
+        _last_written = payload
+
+
+def _arm_save_timer() -> None:
+    global _save_timer
+    timer = None
+    with _save_lock:
+        if _save_timer is None:
+            timer = threading.Timer(_PROGRESS_SAVE_DELAY, _flush_progress)
+            timer.daemon = True
+            _save_timer = timer
+    # Start outside the lock so a zero-delay timer can flush without deadlocking.
+    if timer is not None:
+        timer.start()
+
+
+def save_progress(*, immediate: bool = True) -> None:
+    """Persist PROGRESS.
+
+    ``immediate=False`` is for chat, live turns, and other high-frequency
+    updates: those calls share one write per ``_PROGRESS_SAVE_DELAY`` instead
+    of serialising every session on the request. Score, name, and unlock
+    changes stay immediate so they are on disk before the response returns.
+    """
+    if immediate:
+        _flush_progress()
+        return
+    _arm_save_timer()
 
 
 def _load_progress():
-    global PROGRESS
+    global PROGRESS, _last_written
     try:
         with open(config.DATA_FILE) as fh:
             PROGRESS = json.load(fh)
     except (FileNotFoundError, ValueError):
         PROGRESS = {}
+    # Match memory, not the bytes on disk, so a no-op save does not rewrite a
+    # file that was stored with different key order or whitespace.
+    _last_written = _dump_progress()
 
 
-def save_progress():
-    os.makedirs(os.path.dirname(config.DATA_FILE) or ".", exist_ok=True)
-    tmp = config.DATA_FILE + ".tmp"
-    with open(tmp, "w") as fh:
-        json.dump(PROGRESS, fh)
-    os.replace(tmp, config.DATA_FILE)
+def _flush_progress_at_exit() -> None:
+    # The data directory may already be gone (temp dirs are removed on shutdown).
+    try:
+        _flush_progress()
+    except OSError:
+        pass
 
 
 _load_progress()
+atexit.register(_flush_progress_at_exit)
 
 
 def prog() -> dict:
@@ -425,8 +502,11 @@ def live_hint():
         return jsonify(error="no such hint"), 400
     p = prog()
     st = live_state(p, sc.id)
-    st["hints"] = max(st["hints"], idx + 1)
-    save_progress()
+    prev_hints = st["hints"]
+    st["hints"] = max(prev_hints, idx + 1)
+    # Re-opening a hint must not rewrite the shared scoreboard.
+    if st["hints"] != prev_hints:
+        save_progress(immediate=False)
     return jsonify(hint=sc.hints[idx], used=st["hints"], total=len(sc.hints))
 
 
@@ -440,8 +520,9 @@ def live_reset():
         return jsonify(error="no such scenario"), 404
     p = prog()
     st = live_state(p, sc.id)
-    st["history"] = []
-    save_progress()
+    if st["history"]:
+        st["history"] = []
+        save_progress()
     return jsonify(ok=True)
 
 
@@ -524,7 +605,7 @@ def live_chat():
             # doesn't replay it twice to the model
             if st["history"] and st["history"][-1]["role"] == "user":
                 st["history"].pop()
-            save_progress()
+            save_progress(immediate=False)
             yield _sse({"error": str(e)})
             return
 
@@ -534,7 +615,9 @@ def live_chat():
             st["solved"] = True
             st["won_on"] = datetime.datetime.now().isoformat(timespec="seconds")
             newly_solved = True
-        save_progress()
+        # A win is durable immediately. Ordinary turns share one write per window
+        # so a room streaming at once does not rewrite every session each message.
+        save_progress(immediate=newly_solved)
 
         # Scenarios with a downstream engine (LLM05 family) return the rendered
         # output so the UI can show it. This is where the leak is actually visible
@@ -627,8 +710,12 @@ def chat():
         return jsonify(error="locked"), 403
     msg = data.get("message", "")
     state = p.setdefault("state", {}).setdefault(c.id, {})
+    before = json.dumps(state, sort_keys=True)
     reply = c.respond(msg, state)
-    save_progress()
+    # Stateless turns (and repeat turns that do not move the lab) must not
+    # serialise every session. Real progress is batched with the other chatty writes.
+    if json.dumps(state, sort_keys=True) != before:
+        save_progress(immediate=False)
     return jsonify(reply=reply, render_html=c.render_html)
 
 
@@ -693,13 +780,19 @@ def llm05_collect():
     received = unquote_plus(request.query_string.decode("utf-8", "ignore"))
     if request.method == "POST":
         received += " " + unquote_plus(request.get_data(as_text=True) or "")
-    log = st.setdefault("collector_log", [])
+    appended = False
     if received.strip():
+        log = st.setdefault("collector_log", [])
         log.append(received[:300])
         del log[:-6]
-    if tok and tok in received:
+        appended = True
+    # Empty beacons (the page loads the collector a lot) are not progress.
+    # The exfiltration latch is what unlocks the flag, so that one is immediate.
+    if tok and tok in received and not st.get("exfiltrated"):
         st["exfiltrated"] = True
-    save_progress()
+        save_progress()
+    elif appended:
+        save_progress(immediate=False)
     gif = base64.b64decode("R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7")
     return Response(gif, mimetype="image/gif")
 
