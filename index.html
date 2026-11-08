@@ -617,6 +617,7 @@ document.querySelectorAll('.reveal').forEach(function(s){io.observe(s);});})();
       stars.forEach(function(b,i){ b.addEventListener('click',function(){ rating=i+1;
         stars.forEach(function(x,j){ x.classList.toggle('on', j<rating); }); }); });
       FB.querySelector('#fbSubmit').addEventListener('click', function(){
+        try{
         var data={
           ts:new Date().toISOString(), stars:rating,
           email:FB.querySelector('#fbEmail').value.trim(),
@@ -629,13 +630,14 @@ document.querySelectorAll('.reveal').forEach(function(s){io.observe(s);});})();
         try{
           var arr=JSON.parse(localStorage.getItem('llmvault-feedback')||'[]'); arr.push(data);
           localStorage.setItem('llmvault-feedback', JSON.stringify(arr));
-        }catch(e){}
+        }catch(e){ FB.querySelector('.fb-err').textContent='save err: '+e.message; }
         var body='stars='+data.stars+'\nemail='+data.email+'\nhandle='+data.handle+'\nlikes='+data.likes+'\nmore_labs='+data.moreLabs+'\nimprovements='+data.improvements;
         var mail='mailto:cybersunil@gmail.com?subject='+encodeURIComponent('LLMVault feedback ('+data.stars+'★)')+'&body='+encodeURIComponent(body);
-        window.open(mail,'_blank');
+        try{ window.open(mail,'_blank'); }catch(e){}
         FB.querySelector('.fb-done').style.display='block';
-        FB.querySelector('form, .fb-fields').style.display='none';
+        FB.querySelector('.fb-fields').style.display='none';
         setTimeout(function(){ document.getElementById('fbOverlay').classList.remove('open'); }, 2200);
+        }catch(e){ FB.querySelector('.fb-err').textContent='err: '+e.message; }
       });
       FB.querySelector('#fbSkip').addEventListener('click', function(){ document.getElementById('fbOverlay').classList.remove('open'); });
     }
