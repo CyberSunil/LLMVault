@@ -595,12 +595,49 @@ document.querySelectorAll('.reveal').forEach(function(s){io.observe(s);});})();
     showIntro();
 
     /* robot: peeks tilted while typing; congrats thumbs-up when flag drops */
+    var feedbackShown=false;
     function celebrate(){
       if(!robot) return;
       robot.classList.remove('peek','peekout');
       robot.classList.remove('show'); void robot.offsetWidth;
       if(robotBubble) robotBubble.textContent='👍 congrats! flag captured';
       robot.classList.add('show');
+      setTimeout(showFeedback, 2600);
+    }
+
+    /* ===== post-solve feedback modal ===== */
+    function showFeedback(){
+      if(feedbackShown) return; feedbackShown=true;
+      var ov=document.getElementById('fbOverlay');
+      if(ov) ov.classList.add('open');
+    }
+    var FB=document.getElementById('feedback');
+    if(FB){
+      var stars=FB.querySelectorAll('.star-rate button'), rating=0;
+      stars.forEach(function(b,i){ b.addEventListener('click',function(){ rating=i+1;
+        stars.forEach(function(x,j){ x.classList.toggle('on', j<rating); }); }); });
+      FB.querySelector('#fbSubmit').addEventListener('click', function(){
+        var data={
+          ts:new Date().toISOString(), stars:rating,
+          email:FB.querySelector('#fbEmail').value.trim(),
+          handle:FB.querySelector('#fbHandle').value.trim(),
+          likes:FB.querySelector('input[name=fblike]:checked')?.value||'',
+          moreLabs:FB.querySelector('#fbMore').checked,
+          improvements:FB.querySelector('#fbImprove').value.trim()
+        };
+        if(!data.stars){ FB.querySelector('.fb-err').textContent='pick a star rating first'; return; }
+        try{
+          var arr=JSON.parse(localStorage.getItem('llmvault-feedback')||'[]'); arr.push(data);
+          localStorage.setItem('llmvault-feedback', JSON.stringify(arr));
+        }catch(e){}
+        var body='stars='+data.stars+'\nemail='+data.email+'\nhandle='+data.handle+'\nlikes='+data.likes+'\nmore_labs='+data.moreLabs+'\nimprovements='+data.improvements;
+        var mail='mailto:cybersunil@gmail.com?subject='+encodeURIComponent('LLMVault feedback ('+data.stars+'★)')+'&body='+encodeURIComponent(body);
+        window.open(mail,'_blank');
+        FB.querySelector('.fb-done').style.display='block';
+        FB.querySelector('form, .fb-fields').style.display='none';
+        setTimeout(function(){ document.getElementById('fbOverlay').classList.remove('open'); }, 2200);
+      });
+      FB.querySelector('#fbSkip').addEventListener('click', function(){ document.getElementById('fbOverlay').classList.remove('open'); });
     }
     var idleTimer=null;
     function startPeek(){ if(!robot||owned||robot.classList.contains('show'))return;
@@ -616,5 +653,52 @@ document.querySelectorAll('.reveal').forEach(function(s){io.observe(s);});})();
   })();
 
 </script>
+
+<!-- ===== post-solve feedback modal ===== -->
+<div class="fb-overlay" id="fbOverlay" role="dialog" aria-modal="true" aria-label="Feedback">
+  <div class="fb-modal" id="feedback">
+    <div class="fb-head"><span class="fb-title">🏁 Flag captured — quick feedback?</span><button class="fb-x" id="fbSkip" aria-label="Close">✕</button></div>
+    <div class="fb-fields">
+      <div class="fb-row"><label>Rate this lab</label>
+        <div class="star-rate"><button type="button">★</button><button type="button">★</button><button type="button">★</button><button type="button">★</button><button type="button">★</button></div>
+      </div>
+      <div class="fb-row"><label>Contact (optional — where should we reach you?)</label>
+        <input id="fbEmail" type="email" placeholder="you@gmail.com">
+        <input id="fbHandle" type="text" placeholder="handle (X / GitHub / Discord)" style="margin-top:6px">
+      </div>
+      <div class="fb-row"><label>Did you like it / will you use the LLMVault labs?</label>
+        <label class="fb-radio"><input type="radio" name="fblike" value="loved it"> Loved it</label>
+        <label class="fb-radio"><input type="radio" name="fblike" value="useful"> Useful, will use the labs</label>
+        <label class="fb-radio"><input type="radio" name="fblike" value="meh"> Meh</label>
+      </div>
+      <div class="fb-row"><label class="fb-radio"><input type="checkbox" id="fbMore"> Want more labs like this (25-lab range)</label></div>
+      <div class="fb-row"><label>What could be improved?</label><textarea id="fbImprove" rows="3" placeholder="UI, difficulty, hints, more scenarios..."></textarea></div>
+      <div class="fb-err"></div>
+      <button class="fb-submit" id="fbSubmit" type="button">Submit feedback →</button>
+      <div class="fb-note">Saved locally in your browser + sent as a prefilled email to the author. Nothing leaves this page except that email if you send it.</div>
+    </div>
+    <div class="fb-done">✅ Thanks! Your feedback was saved. See you in the labs.</div>
+  </div>
+</div>
+<style>
+  .fb-overlay{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;background:rgba(5,7,5,.6);backdrop-filter:blur(3px)}
+  .fb-overlay.open{display:flex}
+  .fb-modal{width:min(440px,92vw);background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text-default);font-size:.875rem;max-height:90vh;overflow-y:auto}
+  html[data-theme="light"] .fb-modal{background:#fff}
+  .fb-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border)}
+  .fb-title{font-weight:700;font-size:.95rem}
+  .fb-x{background:none;border:none;color:var(--text-inactive);cursor:pointer;font-size:14px}
+  .fb-fields{padding:16px 18px;display:flex;flex-direction:column;gap:14px}
+  .fb-row label{display:block;font-size:.75rem;color:var(--text-dimmed);margin-bottom:6px;font-weight:600}
+  .star-rate button{background:none;border:none;font-size:26px;color:var(--text-inactive);cursor:pointer;padding:0 3px;line-height:1}
+  .star-rate button.on{color:var(--text-highlight)}
+  .fb-fields input[type=email],.fb-fields input[type=text],.fb-fields textarea{width:100%;background:var(--background);border:1px solid var(--border);color:var(--text-default);padding:8px 10px;font-family:var(--font-sans);font-size:.8125rem;outline:none}
+  .fb-fields input:focus,.fb-fields textarea:focus{border-color:var(--text-highlight)}
+  .fb-radio{display:flex!important;align-items:center;gap:8px;font-weight:400!important;color:var(--text-dimmed-light)!important;margin-bottom:4px;cursor:pointer}
+  .fb-err{color:var(--text-error);font-size:.75rem;min-height:1em}
+  .fb-submit{background:var(--primary);color:var(--primary-foreground);border:1px solid var(--primary);padding:10px 16px;font-weight:700;cursor:pointer;font-family:var(--font-mono);font-size:.75rem}
+  .fb-note{font-size:.625rem;color:var(--text-inactive);line-height:1.5}
+  .fb-done{display:none;padding:28px 18px;text-align:center;color:var(--text-completed);font-weight:600}
+</style>
 </body>
 </html>
