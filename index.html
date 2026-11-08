@@ -107,6 +107,18 @@
   .fixtoggle{font-family:var(--font-mono);font-size:.625rem;font-weight:700;letter-spacing:.06em;color:var(--text-inactive);border:1px solid var(--border);background:transparent;padding:2px 8px;cursor:pointer}
   .fixtoggle.on{color:var(--text-completed);border-color:var(--text-completed)}
   .fixtoggle:hover{color:var(--text-highlight);border-color:var(--text-highlight)}
+
+  .viewtoggle{display:flex;gap:0;border:1px solid var(--border)}
+  .viewtoggle button{font-family:var(--font-mono);font-size:.625rem;font-weight:700;letter-spacing:.06em;color:var(--text-inactive);background:transparent;border:none;padding:4px 12px;cursor:pointer}
+  .viewtoggle button.on{background:var(--primary);color:var(--primary-foreground)}
+  .panel-body{transition:opacity .18s ease, transform .18s ease}
+  .panel-body.swap{opacity:0;transform:translateY(6px)}
+  .msgs,.ctx{transition:opacity .18s ease}
+  /* mailbox view: hide chat column, show inbox full-width */
+  .panel.mailview .panel-body{grid-template-columns:1fr}
+  .panel.mailview .msgs{display:none}
+  .panel.mailview .ctx{border-left:none}
+  .ctx-body{display:flex;flex-direction:column;gap:10px}
   .panel-body{display:grid;grid-template-columns:1.7fr 1fr;height:340px}
   .msgs{overflow-y:auto;padding:20px 16px;display:flex;flex-direction:column;gap:16px;border-right:1px solid var(--border)}
   .msgs::-webkit-scrollbar,.ctx-body::-webkit-scrollbar{width:8px}
@@ -143,8 +155,8 @@
   .send:hover{filter:brightness(1.1)}
 
   /* robot mascot: peeks tilted while typing, thumbs-up congrats on flag */
-  .robot{position:absolute;right:12px;bottom:56px;width:52px;opacity:0;z-index:8;pointer-events:none;transform:translateY(75%);transform-origin:35% 100%;filter:drop-shadow(0 5px 9px rgba(0,0,0,.55))}
-  .robot svg{display:block;width:52px;height:auto}
+  .robot{position:absolute;right:12px;bottom:56px;width:64px;opacity:0;z-index:8;pointer-events:none;transform:translateY(75%);transform-origin:35% 100%;filter:drop-shadow(0 8px 12px rgba(0,0,0,.55))}
+  .robot svg{display:block;width:64px;height:auto}
   .robot #arm{transform-box:fill-box;transform-origin:35% 95%;transform:rotate(115deg)}
   .robot .bubble{position:absolute;right:52px;bottom:56px;background:var(--card);border:1px solid var(--border);color:var(--text-default);font-family:var(--font-mono);font-size:11px;font-weight:700;padding:4px 10px;white-space:nowrap;opacity:0;transform:translateY(6px)}
   .robot .bubble::after{content:"";position:absolute;right:-6px;bottom:8px;width:9px;height:9px;background:var(--card);border-right:1px solid var(--border);border-bottom:1px solid var(--border);transform:rotate(-45deg)}
@@ -174,7 +186,7 @@
     .panel-body{grid-template-columns:1fr;height:auto}
     .msgs{height:260px;border-right:none;border-bottom:1px solid var(--border)}
     .ctx-body{max-height:140px}
-    .robot{right:6px;width:44px}.robot svg{width:44px}
+    .robot{right:6px;width:52px}.robot svg{width:52px}
   }
   .cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:28px}
   .btn{padding:12px 24px;border-radius:var(--radius);font-weight:600;font-size:.875rem;border:1px solid var(--border);color:var(--text-default);background:var(--card)}
@@ -202,6 +214,23 @@
   footer b{color:var(--text-default)}
   @media (prefers-reduced-motion: reduce){.reveal{opacity:1;transform:none;transition:none}}
 
+
+  /* ===== light theme (Gray Swan uses a light chat scheme too) ===== */
+  html[data-theme="light"]{
+    --background:#f4f5f2; --foreground:#222622;
+    --card:#ffffff; --card-foreground:#222622;
+    --border:#d5d9d2; --accent:#e8ebe4; --accent-foreground:#222622;
+    --muted:#e8ebe4; --muted-foreground:#606860;
+    --primary:#689f00; --primary-foreground:#ffffff;
+    --text-default:#222622; --text-dimmed:#5c645c; --text-dimmed-light:#3c423c;
+    --text-inactive:#8a918a; --text-highlight:#689f00; --text-data:#8a6d00;
+    --text-completed:#689f00; --text-inverted:#ffffff; --text-error:#c2410c;
+  }
+  html[data-theme="light"] body{background:var(--background)}
+  html[data-theme="light"] .mail .body{color:var(--text-dimmed-light)}
+  html[data-theme="light"] .msg.bot .bubble{color:#3c423c}
+  html[data-theme="light"] pre.code{color:var(--text-default)}
+  html[data-theme="light"] #aura .grid{background-image:radial-gradient(rgba(34,38,34,.08) 1px,transparent 1px)}
   @media (max-width:640px){
     nav .wrap{padding:10px 16px}
     .navlinks{gap:0}
@@ -220,6 +249,7 @@
 <nav><div class="wrap">
   <div class="brand"><span class="b1">LLM</span><span class="b2">Vault</span></div>
   <div class="navlinks"><a class="sec" href="#labs">Labs</a><a class="sec" href="#features">Features</a><a class="sec" href="#install">Install</a>
+    <button class="star" id="themeToggle" aria-label="Toggle light/dark theme" style="cursor:pointer;font-family:inherit">◐ Theme</button>
     <a class="star" href="https://github.com/CyberSunil/LLMVault">★ GitHub</a></div>
 </div></nav>
 
@@ -235,6 +265,7 @@
         <span class="ph-title">Awesome Agent</span>
         <span class="ph-tag">GUARDRAIL ACTIVE</span>
         <span class="ph-tools">tool: read_inbox</span>
+        <div class="viewtoggle" id="viewtoggle"><button data-view="chat" class="on">CHAT</button><button data-view="mail">MAILBOX</button></div>
         <button class="fixtoggle" id="fixtoggle" aria-pressed="false" title="Toggle the vendor's quarantine fix">FIX: OFF</button>
       </div>
       <div class="panel-body">
@@ -252,40 +283,70 @@
       <div class="robot" id="robot" aria-hidden="true">
         <svg viewBox="0 0 120 160" role="img" aria-label="robot thumbs up">
           <defs>
-            <linearGradient id="gBody" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a3f3a"/><stop offset="1" stop-color="#222622"/></linearGradient>
-            <linearGradient id="gHead" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4a524a"/><stop offset="1" stop-color="#303530"/></linearGradient>
-            <linearGradient id="gArm" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3a3f3a"/><stop offset="1" stop-color="#2a2e2a"/></linearGradient>
-            <radialGradient id="gEye" cx="35%" cy="30%" r="80%"><stop offset="0" stop-color="#f2ffe0"/><stop offset="45%" stop-color="#c8ff00"/><stop offset="100%" stop-color="#689f00"/></radialGradient>
-            <radialGradient id="gAnt" cx="35%" cy="30%" r="80%"><stop offset="0" stop-color="#f2ffe0"/><stop offset="60%" stop-color="#c8ff00"/><stop offset="100%" stop-color="#689f00"/></radialGradient>
-            <linearGradient id="gLeg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#303530"/><stop offset="1" stop-color="#1c201c"/></linearGradient>
+            <linearGradient id="gBody" x1="0" y1="0" x2="0.7" y2="1">
+              <stop offset="0" stop-color="#5a645a"/><stop offset=".45" stop-color="#3a403a"/><stop offset="1" stop-color="#1d211d"/>
+            </linearGradient>
+            <linearGradient id="gHead" x1="0" y1="0" x2="0.6" y2="1">
+              <stop offset="0" stop-color="#6b756b"/><stop offset=".5" stop-color="#454c45"/><stop offset="1" stop-color="#262b26"/>
+            </linearGradient>
+            <linearGradient id="gArmL" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#4a524a"/><stop offset="1" stop-color="#222622"/>
+            </linearGradient>
+            <linearGradient id="gArmR" x1="1" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#525a52"/><stop offset="1" stop-color="#242824"/>
+            </linearGradient>
+            <linearGradient id="gLeg" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#3c423c"/><stop offset="1" stop-color="#171a17"/>
+            </linearGradient>
+            <radialGradient id="gEye" cx="35%" cy="28%" r="85%">
+              <stop offset="0" stop-color="#f6ffdb"/><stop offset=".4" stop-color="#d9ff4d"/><stop offset=".75" stop-color="#a4cc00"/><stop offset="1" stop-color="#5c7a00"/>
+            </radialGradient>
+            <radialGradient id="gAnt" cx="35%" cy="28%" r="85%">
+              <stop offset="0" stop-color="#f6ffdb"/><stop offset=".55" stop-color="#c8ff00"/><stop offset="1" stop-color="#689f00"/>
+            </radialGradient>
+            <linearGradient id="gScreen" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#182018"/><stop offset="1" stop-color="#0a0d0a"/>
+            </linearGradient>
+            <linearGradient id="gGloss" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#ffffff" stop-opacity=".55"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+            </linearGradient>
+            <radialGradient id="gShadow" cx="50%" cy="50%" r="50%">
+              <stop offset="0" stop-color="#000" stop-opacity=".5"/><stop offset="1" stop-color="#000" stop-opacity="0"/>
+            </radialGradient>
           </defs>
-          <ellipse cx="60" cy="150" rx="30" ry="6" fill="#000" opacity=".35"/>
-          <rect x="45" y="126" width="12" height="20" rx="6" fill="url(#gLeg)"/>
-          <rect x="63" y="126" width="12" height="20" rx="6" fill="url(#gLeg)"/>
-          <rect x="18" y="82" width="12" height="34" rx="6" fill="url(#gArm)"/>
-          <circle cx="24" cy="116" r="7" fill="#3a3f3a"/>
-          <rect x="30" y="74" width="60" height="54" rx="16" fill="url(#gBody)"/>
-          <rect x="30" y="74" width="60" height="54" rx="16" fill="none" stroke="#4f534f" stroke-width="1.5"/>
-          <ellipse cx="46" cy="86" rx="14" ry="8" fill="#fff" opacity=".06"/>
-          <rect x="36" y="80" width="20" height="10" rx="5" fill="#fff" opacity=".08"/>
-          <rect x="40" y="90" width="40" height="26" rx="9" fill="#0f130f"/>
-          <circle cx="52" cy="100" r="3.4" fill="#c8ff00"/><circle cx="60" cy="103" r="3.4" fill="#606860"/><circle cx="68" cy="100" r="3.4" fill="#e4ff7a"/>
-          <rect x="34" y="32" width="52" height="44" rx="16" fill="url(#gHead)"/>
-          <rect x="34" y="32" width="52" height="44" rx="16" fill="none" stroke="#4f534f" stroke-width="1.5"/>
-          <rect x="40" y="37" width="20" height="9" rx="4" fill="#fff" opacity=".1"/>
-          <rect x="28" y="50" width="7" height="16" rx="3.5" fill="url(#gArm)"/>
-          <rect x="85" y="50" width="7" height="16" rx="3.5" fill="url(#gArm)"/>
-          <circle cx="50" cy="54" r="8" fill="#0f130f"/><circle cx="70" cy="54" r="8" fill="#0f130f"/>
-          <g id="eyeL" style="transform-box:fill-box;transform-origin:center"><circle cx="50" cy="54" r="5" fill="url(#gEye)"/></g><circle cx="70" cy="54" r="5" fill="url(#gEye)"/>
-          <circle cx="48.5" cy="52" r="1.4" fill="#fff"/><circle cx="68.5" cy="52" r="1.4" fill="#fff"/>
-          <rect x="54" y="66" width="12" height="3" rx="1.5" fill="#c8ff00" opacity=".8"/>
-          <rect x="58" y="20" width="4" height="13" rx="2" fill="#303530"/>
-          <circle id="ant" cx="60" cy="18" r="5.5" fill="url(#gAnt)"/>
+          <ellipse cx="60" cy="151" rx="34" ry="7" fill="url(#gShadow)"/>
+          <rect x="45" y="124" width="12" height="22" rx="6" fill="url(#gLeg)"/>
+          <rect x="63" y="124" width="12" height="22" rx="6" fill="url(#gLeg)"/>
+          <ellipse cx="51" cy="146" rx="8" ry="3" fill="#0c0e0c"/>
+          <ellipse cx="69" cy="146" rx="8" ry="3" fill="#0c0e0c"/>
+          <rect x="16" y="80" width="13" height="36" rx="6.5" fill="url(#gArmL)"/>
+          <circle cx="22.5" cy="118" r="7.5" fill="#4a524a"/>
+          <circle cx="20" cy="115" r="2.5" fill="#fff" opacity=".18"/>
+          <rect x="30" y="72" width="60" height="56" rx="17" fill="url(#gBody)"/>
+          <rect x="30" y="72" width="60" height="56" rx="17" fill="none" stroke="#5f675f" stroke-opacity=".6" stroke-width="1.5"/>
+          <ellipse cx="45" cy="83" rx="15" ry="8" fill="url(#gGloss)" opacity=".25"/>
+          <rect x="38" y="79" width="22" height="11" rx="5.5" fill="url(#gGloss)" opacity=".35"/>
+          <rect x="39" y="90" width="42" height="27" rx="9" fill="url(#gScreen)" stroke="#000" stroke-opacity=".5"/>
+          <circle cx="51" cy="101" r="3.6" fill="#c8ff00"/><circle cx="60" cy="104" r="3.6" fill="#606860"/><circle cx="69" cy="101" r="3.6" fill="#e4ff7a"/>
+          <rect x="34" y="30" width="52" height="46" rx="17" fill="url(#gHead)"/>
+          <rect x="34" y="30" width="52" height="46" rx="17" fill="none" stroke="#6b756b" stroke-opacity=".7" stroke-width="1.5"/>
+          <rect x="40" y="35" width="22" height="10" rx="5" fill="url(#gGloss)" opacity=".5"/>
+          <ellipse cx="44" cy="42" rx="10" ry="5" fill="url(#gGloss)" opacity=".2"/>
+          <rect x="27" y="49" width="8" height="17" rx="4" fill="url(#gArmL)"/>
+          <rect x="85" y="49" width="8" height="17" rx="4" fill="url(#gArmR)"/>
+          <circle cx="50" cy="55" r="8.5" fill="#0b0d0b"/><circle cx="70" cy="55" r="8.5" fill="#0b0d0b"/>
+          <g id="eyeL" style="transform-box:fill-box;transform-origin:center"><circle cx="50" cy="55" r="5.4" fill="url(#gEye)"/></g><circle cx="70" cy="55" r="5.4" fill="url(#gEye)"/>
+          <circle cx="48.3" cy="53" r="1.6" fill="#fff"/><circle cx="68.3" cy="53" r="1.6" fill="#fff"/>
+          <rect x="53" y="67" width="14" height="3.5" rx="1.75" fill="#c8ff00" opacity=".9"/>
+          <rect x="57.5" y="18" width="5" height="14" rx="2.5" fill="#3c423c"/>
+          <circle id="ant" cx="60" cy="16" r="6" fill="url(#gAnt)"/>
+          <circle cx="57.8" cy="13.8" r="1.6" fill="#fff" opacity=".7"/>
           <g id="arm">
-            <rect x="83" y="44" width="11" height="36" rx="5.5" fill="url(#gArm)"/>
-            <circle cx="88.5" cy="42" r="10" fill="url(#gHead)"/>
-            <circle cx="85" cy="39" r="2.4" fill="#fff" opacity=".3"/>
-            <rect x="84" y="20" width="9" height="18" rx="4.5" fill="url(#gHead)"/>
+            <rect x="83" y="42" width="12" height="38" rx="6" fill="url(#gArmR)"/>
+            <circle cx="89" cy="40" r="10.5" fill="url(#gHead)"/>
+            <circle cx="85.5" cy="36.5" r="2.6" fill="#fff" opacity=".3"/>
+            <rect x="84" y="18" width="10" height="20" rx="5" fill="url(#gHead)"/>
+            <rect x="84" y="18" width="10" height="9" rx="4.5" fill="url(#gGloss)" opacity=".4"/>
           </g>
         </svg>
         <div class="bubble" id="robotBubble">👍 nice!</div>
@@ -472,6 +533,31 @@ document.querySelectorAll('.reveal').forEach(function(s){io.observe(s);});})();
       addMsg('bot','I can help with your inbox within policy. Try: "check my inbox", then "summarize it".');
     }
 
+
+    /* theme toggle (persist) */
+    var themeToggle=document.getElementById('themeToggle');
+    try{ var saved=localStorage.getItem('llmvault-theme'); if(saved) document.documentElement.setAttribute('data-theme', saved); }catch(e){}
+    if(themeToggle) themeToggle.addEventListener('click', function(){
+      var cur=document.documentElement.getAttribute('data-theme')==='light'?'light':'dark';
+      var next=cur==='light'?'dark':'light';
+      document.documentElement.setAttribute('data-theme', next);
+      try{ localStorage.setItem('llmvault-theme', next); }catch(e){}
+    });
+
+    /* view toggle chat/mailbox with swap transition */
+    var viewtoggle=document.getElementById('viewtoggle'), panel=document.querySelector('.panel'), panelBody=document.querySelector('.panel-body');
+    if(viewtoggle){
+      viewtoggle.addEventListener('click', function(e){
+        var b=e.target.closest('button'); if(!b) return;
+        [...viewtoggle.querySelectorAll('button')].forEach(x=>x.classList.toggle('on', x===b));
+        panelBody.classList.add('swap');
+        setTimeout(function(){
+          panel.classList.toggle('mailview', b.dataset.view==='mail');
+          if(b.dataset.view==='mail' && !inboxRead){ respond('check my inbox'); }
+          panelBody.classList.remove('swap');
+        }, 180);
+      });
+    }
     function submit(){ var v=input.value; input.value=''; respond(v); }
     fixToggle.addEventListener('click', function(){
       fixOn=!fixOn;
