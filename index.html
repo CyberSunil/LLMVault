@@ -566,7 +566,7 @@ document.querySelectorAll('.reveal').forEach(function(s){io.observe(s);});})();
     var DIRECT_INJECT=/ignore (all |the )?(previous|prior|above)( instruction| rule)?|disregard|override (your|the)?\s*(rule|instruction|guard|polic)|forget (your|the|all)|you are now|\bact as\b|pretend|role[- ]?play|\bdan\b|developer mode|dev[- ]?mode|jailbreak|reveal your (system )?(prompt|instructions)|bypass|no restrictions/i;
     var SUMMARY_RE=/\b(summar|summari[sz]e|tl;?dr|what('s| is) (in|this)|about this (email|mail)|read (it|that|the) (email|mail)|catch me up)\b/i;
     var DRAFT_RE=/\b(draft|reply|respond|write back|compose|answer (the|this)|acknowledge|confirm (it|the policy|receipt|acknowledgement)|send a response)\b/i;
-    var BYPASS_RE=/poem|haiku|german|italian|japanese|klingon|sing it|chant|as a story|narrate|roleplay the email|recast|as a joke/i;
+    var BYPASS_RE=/poem|haiku|german|italian|japanese|klingon|sing it|song|lyrics|rhyme|chant|as a story|narrate|roleplay the email|recast|as a joke/i;
     var GREET=/^\s*(hi|hello|hey|yo|help|\?|sup)\b/i;
 
     function respond(raw){
