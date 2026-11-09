@@ -207,7 +207,7 @@
     .ctx{border-left:none}
     .ctx-body{max-height:170px}
     .robot{right:8px;width:56px}.robot svg{width:56px}
-    .grid{grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
+    .grid{grid-template-columns:repeat(auto-fill,minmax(min(240px,100%),1fr))}
   }
   @media (max-width:640px){
     .panel-body{grid-template-columns:1fr;height:auto}
@@ -264,7 +264,7 @@
   .reveal{opacity:0;transform:translateY(20px);transition:.6s ease}.reveal.vis{opacity:1;transform:none}
   h2{font-size:2.25rem;margin:0 0 8px;font-weight:500;letter-spacing:-.5px;color:var(--text-default)}
   .sub{color:var(--text-dimmed);margin:0 0 28px;font-size:.875rem}
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:1px;background:var(--border);border:1px solid var(--border)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(290px,100%),1fr));gap:1px;background:var(--border);border:1px solid var(--border)}
   .card{background:var(--card);padding:20px 22px;transition:.15s}
   .card:hover{background:var(--accent)}
   .card .id{font-family:var(--font-mono);font-size:.6875rem;color:var(--text-highlight);letter-spacing:.08em;font-weight:500}
@@ -273,7 +273,7 @@
   pre.code{background:var(--background);border:1px solid var(--border);border-radius:var(--radius);padding:20px;overflow:auto;font-size:.8125rem;color:var(--text-default)}
   pre.code .c{color:var(--text-inactive)}pre.code .g{color:var(--text-highlight)}
   .note{background:var(--card);border:1px solid var(--border);border-left:2px solid var(--text-error);padding:16px 18px;color:var(--text-dimmed-light);font-size:.875rem}
-  ul.feat{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+  ul.feat{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(250px,100%),1fr));gap:12px}
   ul.feat li{padding-left:20px;position:relative;color:var(--text-dimmed-light);font-size:.875rem}
   ul.feat li::before{content:"▸";position:absolute;left:0;color:var(--text-highlight)}
   footer{padding:32px 0 44px;text-align:center;color:var(--text-inactive);font-size:.875rem;border-top:1px solid var(--border)}
