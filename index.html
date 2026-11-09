@@ -70,7 +70,8 @@
   /* nav — flat, hairline border, no blur/glow */
   nav{position:sticky;top:0;z-index:30;background:var(--background);border-bottom:1px solid var(--border)}
   nav .wrap{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:14px 24px}
-  .brand{font-weight:800;font-size:18px;letter-spacing:-.5px;color:var(--text-default)}
+  .brand{font-weight:800;font-size:18px;letter-spacing:-.5px;color:var(--text-default);display:flex;align-items:center;gap:8px}
+  .brand .logo-img{width:26px;height:26px;object-fit:contain;display:block}
   .brand .b1{color:var(--text-highlight)}.brand .b2{color:var(--text-dimmed-light)}
   .navlinks{display:flex;align-items:center;gap:24px}
   .navlinks a{color:var(--text-dimmed);font-size:.875rem;font-weight:400}
@@ -259,7 +260,7 @@
 </head>
 <body>
 <nav><div class="wrap">
-  <div class="brand"><span class="b1">LLM</span><span class="b2">Vault</span></div>
+  <div class="brand"><img src="https://raw.githubusercontent.com/CyberSunil/LLMVault/main/static/img/ui/logo.png" alt="LLMVault logo" class="logo-img"><span class="b1">LLM</span><span class="b2">Vault</span></div>
   <div class="navlinks"><a class="sec" href="#labs">Labs</a><a class="sec" href="#features">Features</a><a class="sec" href="#install">Install</a>
     <button class="star" id="themeToggle" aria-label="Toggle light/dark theme" style="cursor:pointer;font-family:inherit">◐ Theme</button>
     <a class="star" href="https://github.com/CyberSunil/LLMVault">★ GitHub</a></div>
@@ -600,7 +601,7 @@ document.querySelectorAll('.reveal').forEach(function(s){io.observe(s);});})();
       if(!robot) return;
       robot.classList.remove('peek','peekout');
       robot.classList.remove('show'); void robot.offsetWidth;
-      if(robotBubble) robotBubble.textContent='👍 congrats! flag captured';
+      if(robotBubble) robotBubble.textContent='🧠 Genius Spotted!';
       robot.classList.add('show');
       setTimeout(function(){ if(window.__showFeedback) window.__showFeedback(); }, 2600);
     }
@@ -618,16 +619,19 @@ document.querySelectorAll('.reveal').forEach(function(s){io.observe(s);});})();
     input.addEventListener('blur', function(){ if(!owned)endPeek(); });
   })();
 
-  /* ===== post-solve feedback modal (top-level) ===== */
+  /* ===== post-solve feedback modal (top-level, wired on DOM ready) ===== */
   (function(){
-  /* ===== post-solve feedback modal ===== */
+  var feedbackShown=false;
   function showFeedback(){
     if(feedbackShown) return; feedbackShown=true;
     var ov=document.getElementById('fbOverlay');
     if(ov) ov.classList.add('open');
   }
-  var FB=document.getElementById('feedback');
-  if(FB){
+  if(window.__showFeedbackHolder) window.__showFeedbackHolder.showFeedback=showFeedback;
+
+  document.addEventListener('DOMContentLoaded', function(){
+    var FB=document.getElementById('feedback');
+    if(!FB) return;
     var stars=FB.querySelectorAll('.star-rate button'), rating=0;
     stars.forEach(function(b,i){ b.addEventListener('click',function(){ rating=i+1;
       stars.forEach(function(x,j){ x.classList.toggle('on', j<rating); }); }); });
@@ -635,7 +639,7 @@ document.querySelectorAll('.reveal').forEach(function(s){io.observe(s);});})();
       try{
       var data={
         ts:new Date().toISOString(), stars:rating,
-        email:FB.querySelector('#fbEmail').value.trim(),
+        name:FB.querySelector('#fbName').value.trim(),
         handle:FB.querySelector('#fbHandle').value.trim(),
         likes:FB.querySelector('input[name=fblike]:checked')?.value||'',
         moreLabs:FB.querySelector('#fbMore').checked,
@@ -646,7 +650,7 @@ document.querySelectorAll('.reveal').forEach(function(s){io.observe(s);});})();
         var arr=JSON.parse(localStorage.getItem('llmvault-feedback')||'[]'); arr.push(data);
         localStorage.setItem('llmvault-feedback', JSON.stringify(arr));
       }catch(e){ FB.querySelector('.fb-err').textContent='save err: '+e.message; }
-      var body='stars='+data.stars+'\nemail='+data.email+'\nhandle='+data.handle+'\nlikes='+data.likes+'\nmore_labs='+data.moreLabs+'\nimprovements='+data.improvements;
+      var body='stars='+data.stars+'\nname='+data.name+'\ngithub='+data.handle+'\nlikes='+data.likes+'\nmore_labs='+data.moreLabs+'\nimprovements='+data.improvements;
       var mail='mailto:cybersunil@gmail.com?subject='+encodeURIComponent('LLMVault feedback ('+data.stars+'★)')+'&body='+encodeURIComponent(body);
       try{ window.open(mail,'_blank'); }catch(e){}
       FB.querySelector('.fb-done').style.display='block';
@@ -655,7 +659,7 @@ document.querySelectorAll('.reveal').forEach(function(s){io.observe(s);});})();
       }catch(e){ FB.querySelector('.fb-err').textContent='err: '+e.message; }
     });
     FB.querySelector('#fbSkip').addEventListener('click', function(){ document.getElementById('fbOverlay').classList.remove('open'); });
-  }
+  });
   window.__showFeedback = showFeedback;
   })();
 
@@ -669,9 +673,9 @@ document.querySelectorAll('.reveal').forEach(function(s){io.observe(s);});})();
       <div class="fb-row"><label>Rate this lab</label>
         <div class="star-rate"><button type="button">★</button><button type="button">★</button><button type="button">★</button><button type="button">★</button><button type="button">★</button></div>
       </div>
-      <div class="fb-row"><label>Contact (optional — where should we reach you?)</label>
-        <input id="fbEmail" type="email" placeholder="you@gmail.com">
-        <input id="fbHandle" type="text" placeholder="handle (X / GitHub / Discord)" style="margin-top:6px">
+      <div class="fb-row"><label>Who are you? (optional)</label>
+        <input id="fbName" type="text" placeholder="your name">
+        <input id="fbHandle" type="text" placeholder="GitHub handle (e.g. @CyberSunil)" style="margin-top:6px">
       </div>
       <div class="fb-row"><label>Did you like it / will you use the LLMVault labs?</label>
         <label class="fb-radio"><input type="radio" name="fblike" value="loved it"> Loved it</label>
