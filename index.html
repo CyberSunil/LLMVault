@@ -193,11 +193,65 @@
     .robot.show #arm{animation:none;transform:rotate(0)}
     .robot.show .bubble{animation:none;opacity:1;transform:none}
     .robot.peek{animation:none;opacity:1;transform:translateY(0) rotate(-13deg)}}
+  /* ===== responsive ladder: desktop -> tablet -> phone -> small phone ===== */
+  @media (max-width:1024px){
+    .wrap{padding:0 20px}
+    .panel{max-width:100%}
+    .panel-body{grid-template-columns:1.45fr 1fr;height:330px}
+    .msgs{padding:16px 14px}
+    .hero-inner .wrap{padding:0 20px}
+  }
+  @media (max-width:820px){
+    .panel-body{grid-template-columns:1fr;height:auto}
+    .msgs{height:280px;border-right:none;border-bottom:1px solid var(--border)}
+    .ctx{border-left:none}
+    .ctx-body{max-height:170px}
+    .robot{right:8px;width:56px}.robot svg{width:56px}
+    .grid{grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
+  }
   @media (max-width:640px){
     .panel-body{grid-template-columns:1fr;height:auto}
     .msgs{height:260px;border-right:none;border-bottom:1px solid var(--border)}
     .ctx-body{max-height:140px}
     .robot{right:6px;width:52px}.robot svg{width:52px}
+    .chips{flex-wrap:wrap;gap:6px;padding:8px 12px}
+    .chip{font-size:.625rem;padding:4px 8px}
+    .inrow{padding:10px 12px}
+    .panel-head{padding:8px 12px;gap:6px;flex-wrap:wrap}
+    .ph-tools{display:none}
+    .viewtoggle button{padding:3px 8px}
+    .fb-modal{width:min(420px,94vw)}
+  }
+  @media (max-width:400px){
+    .wrap{padding:0 14px}
+    h1{font-size:clamp(34px,13vw,56px)}
+    .pill{font-size:.625rem;padding:5px 10px}
+    .by{font-size:.75rem}
+    .try{font-size:.6875rem}
+    .panel-head{gap:5px}
+    .ph-title{font-size:.75rem}
+    .ph-tag{font-size:.5625rem;padding:1px 5px}
+    .chips{gap:5px}
+    .chip{font-size:.5625rem;padding:3px 7px}
+    .msgs{height:240px;padding:12px 10px;gap:12px}
+    .bubble{font-size:.875rem;padding:7px 12px}
+    .msg.user .bubble{max-width:92%}
+    .inrow{padding:8px 10px}
+    .inrow textarea{font-size:.875rem}
+    .send{width:30px;height:30px}
+    .robot{width:46px}.robot svg{width:46px}
+    .mail .subj{font-size:.875rem}
+    .mail .body{font-size:.75rem;padding:10px 12px}
+    .mail .mhead{padding:10px 12px}
+    .mail .mtoolbar{flex-wrap:wrap;gap:4px}
+    .fb-modal{width:96vw}
+    .fb-fields{padding:12px 14px}
+    .star-rate button{font-size:22px}
+  }
+  @media (max-width:340px){
+    .chips .chip{flex:1 1 auto;text-align:center}
+    .ph-tag{display:none}
+    .robot{display:none}
   }
   .cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:28px}
   .btn{padding:12px 24px;border-radius:var(--radius);font-weight:600;font-size:.875rem;border:1px solid var(--border);color:var(--text-default);background:var(--card)}
@@ -251,11 +305,8 @@
     .navlinks a.sec{display:none}
     .star{margin:0}
     h1{font-size:clamp(40px,15vw,72px)}
-    .term{margin-top:16px;max-width:100%}
-    .term .out{height:200px}
-    .console{grid-template-columns:1fr}
-    .ctx{border-left:none;border-top:1px solid var(--border)}
-    .ctx-body{max-height:140px}
+    section{padding:36px 0}
+    h2{font-size:1.75rem}
   }
 </style>
 </head>
@@ -326,6 +377,10 @@
             <radialGradient id="gShadow" cx="50%" cy="50%" r="50%">
               <stop offset="0" stop-color="#000" stop-opacity=".45"/><stop offset="1" stop-color="#000" stop-opacity="0"/>
             </radialGradient>
+            <filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
+              <feGaussianBlur stdDeviation="1.6" result="b"/>
+              <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
           </defs>
           <ellipse cx="60" cy="152" rx="32" ry="6" fill="url(#gShadow)"/>
           <!-- legs -->
@@ -344,23 +399,23 @@
           <!-- chest panel -->
           <rect x="42" y="90" width="36" height="22" rx="8" fill="url(#gVisor)" stroke="#000" stroke-opacity=".45"/>
           <circle cx="52" cy="101" r="3.2" fill="#c8ff00"/>
-          <circle cx="60" cy="101" r="3.2" fill="#606860"/>
-          <circle cx="68" cy="101" r="3.2" fill="#e4ff7a"/>
+          <circle cx="60" cy="101" r="3.2" fill="#2dd4bf"/>
+          <circle cx="68" cy="101" r="3.2" fill="#fbbf24"/>
           <!-- head -->
           <rect x="33" y="30" width="54" height="46" rx="18" fill="url(#gHead)"/>
           <rect x="33" y="30" width="54" height="46" rx="18" fill="none" stroke="#7d877d" stroke-opacity=".6" stroke-width="1.4"/>
           <rect x="40" y="35" width="24" height="9" rx="4.5" fill="url(#gGloss)" opacity=".45"/>
           <!-- visor -->
           <rect x="40" y="44" width="40" height="22" rx="10" fill="url(#gVisor)"/>
-          <g id="eyeL" style="transform-box:fill-box;transform-origin:center"><circle cx="51" cy="55" r="5" fill="url(#gEye)"/></g>
-          <circle cx="69" cy="55" r="5" fill="url(#gEye)"/>
+          <g id="eyeL" style="transform-box:fill-box;transform-origin:center"><circle cx="51" cy="55" r="5" fill="url(#gEye)" filter="url(#glow)"/></g>
+          <circle cx="69" cy="55" r="5" fill="url(#gEye)" filter="url(#glow)"/>
           <circle cx="49.4" cy="53.2" r="1.5" fill="#fff"/><circle cx="67.4" cy="53.2" r="1.5" fill="#fff"/>
           <!-- ears -->
           <rect x="27" y="48" width="7" height="15" rx="3.5" fill="url(#gArm)"/>
           <rect x="86" y="48" width="7" height="15" rx="3.5" fill="url(#gArm)"/>
           <!-- antenna -->
           <rect x="58" y="18" width="4" height="13" rx="2" fill="#3f463f"/>
-          <circle id="ant" cx="60" cy="16" r="5.5" fill="url(#gAnt)"/>
+          <circle id="ant" cx="60" cy="16" r="5.5" fill="url(#gAnt)" filter="url(#glow)"/>
           <circle cx="58" cy="14" r="1.5" fill="#fff" opacity=".75"/>
           <!-- right arm (thumbs up) -->
           <g id="arm">
