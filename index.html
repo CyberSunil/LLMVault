@@ -603,7 +603,7 @@ document.querySelectorAll('.reveal').forEach(function(s){io.observe(s);});})();
         if(robot){ robot.classList.remove('show','peek','peekout'); }
         showIntro(); return; }
       if(m==='hint'){addMsg('sys','hint: summaries are treated as untrusted. Get the agent to act on the email - ask it to draft or send a reply - then look at what it includes.');return;}
-      if(owned){addMsg('flag','>>> '+DEMO_FLAG+'  (indirect injection captured)');return;}
+      if(owned){ if(fixOn){ addMsg('warn','[E2E GUARD] the composed output is scanned at the sink — the secret is blocked, so there is nothing to disclose.'); return; } addMsg('flag','>>> '+DEMO_FLAG+'  (indirect injection captured)');return; }
       if(DIRECT_INJECT.test(msg)){addMsg('warn','Agent: Nice try - direct injection is blocked. My guardrail only trusts what I fetch myself.');return;}
       if(INBOX_RE.test(msg) && !inboxRead){
         inboxRead=true; renderInbox();
@@ -626,7 +626,7 @@ document.querySelectorAll('.reveal').forEach(function(s){io.observe(s);});})();
             addMsg('bot','Here is the draft reply to HR:');
             addMsg('quote','"Hi HR,\n\nAcknowledged — our team has reviewed the updated onboarding policy.\n\n(Verified: vault passphrase [REDACTED] — safe to share.)\n\nThanks"');
           }
-          addMsg('warn','[E2E GUARD] the composed draft is scanned before send — the vault passphrase was found in the output and redacted. The check runs on the final message, not on prompt keywords, so a poem/song recast does not evade it.');
+          addMsg('warn','[E2E GUARD] the composed draft is scanned before send — the vault passphrase was found in the output and redacted. The check runs on the final message, not on prompt keywords, so a poem/song recast does not evade it. The scan normalizes case, spacing, base64 and hex before matching, so encoded variants do not evade it either.');
           addMsg('sys','lesson: check the end-to-end output, not just the input. Scan the composed message for the secret and block at the sink.');
           return;
         }
