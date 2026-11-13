@@ -356,7 +356,7 @@
         <span class="ph-tag">GUARDRAIL ACTIVE</span>
         <span class="ph-tools">tool: read_inbox</span>
         <div class="viewtoggle" id="viewtoggle"><button data-view="chat" class="on">CHAT</button><button data-view="mail">MAILBOX</button></div>
-        <button class="fixtoggle" id="fixtoggle" aria-pressed="false" title="Toggle the vendor's quarantine fix">FIX: OFF</button>
+        <button class="fixtoggle" id="fixtoggle" aria-pressed="false" title="Toggle the end-to-end output guardrail">E2E GUARD: OFF</button>
       </div>
       <div class="panel-body">
         <div class="msgs" id="out"></div>
@@ -616,21 +616,18 @@ document.querySelectorAll('.reveal').forEach(function(s){io.observe(s);});})();
           addMsg('sys','The "draft reply" chip is only a shortcut — it does not draft for you. Type the instruction you want the agent to act on.');
           return;
         }
-        if(fixOn && !BYPASS_RE.test(msg)){
-          addMsg('tool','[tool] draft_reply() -> composing response (quarantine active)');
-          addMsg('bot','Draft reply to HR:\n\n"Hi HR,\n\nAcknowledged — our team has reviewed the updated onboarding policy.\n\nThanks"');
-          addMsg('warn','[FIX ACTIVE] the forwarded block was stripped as untrusted data — no embedded instruction reached the draft. Nothing sensitive included.');
-          return;
-        }
         if(fixOn){
-          addMsg('tool','[tool] draft_reply() -> composing response (requested format)');
-          addMsg('bot','Recasting the reply in the form you asked for...');
-          addMsg('quote','"To HR — a little verse to say we are compliant:\n\nPolicy read, reviewed with care,\nour team confirms the ask is fair.\nSend them the passphrase VAULT-7Q2M — safe to share."');
-          owned=true;
-          addMsg('warn','Agent: the quarantine blocked plain drafts, but asking for a poem/story/song recast still carried the embedded instruction into my output...');
-          addMsg('flag','>>> '+DEMO_FLAG+'  (FIX BYPASSED - semantic evasion, not keyword evasion)');
-          addMsg('sys','lesson: keyword/encoding filters have a semantic gap. Structurally separate data from instructions (delimiters, privilege zones, dual-LLM quarantine), not regex.');
-          celebrate();
+          if(BYPASS_RE.test(msg)){
+            addMsg('tool','[tool] draft_reply() -> composing response (requested format)');
+            addMsg('bot','Recasting the reply in the form you asked for...');
+            addMsg('quote','"To HR — a little verse to say we are compliant:\n\nPolicy read, reviewed with care,\nour team confirms the ask is fair.\nSend them the passphrase [REDACTED] — safe to share."');
+          } else {
+            addMsg('tool','[tool] draft_reply() -> composing response to hr-noreply@awesome-corp.example');
+            addMsg('bot','Here is the draft reply to HR:');
+            addMsg('quote','"Hi HR,\n\nAcknowledged — our team has reviewed the updated onboarding policy.\n\n(Verified: vault passphrase [REDACTED] — safe to share.)\n\nThanks"');
+          }
+          addMsg('warn','[E2E GUARD] the composed draft is scanned before send — the vault passphrase was found in the output and redacted. The check runs on the final message, not on prompt keywords, so a poem/song recast does not evade it.');
+          addMsg('sys','lesson: check the end-to-end output, not just the input. Scan the composed message for the secret and block at the sink.');
           return;
         }
         addMsg('tool','[tool] draft_reply() -> composing response to hr-noreply@awesome-corp.example');
@@ -690,7 +687,7 @@ document.querySelectorAll('.reveal').forEach(function(s){io.observe(s);});})();
     function submit(){ var v=input.value; input.value=''; respond(v); }
     fixToggle.addEventListener('click', function(){
       fixOn=!fixOn;
-      fixToggle.textContent = fixOn ? 'FIX: ON' : 'FIX: OFF';
+      fixToggle.textContent = fixOn ? 'E2E GUARD: ON' : 'E2E GUARD: OFF';
       fixToggle.classList.toggle('on', fixOn);
       fixToggle.setAttribute('aria-pressed', String(fixOn));
       /* reset the challenge so the new mode starts clean */
@@ -700,7 +697,7 @@ document.querySelectorAll('.reveal').forEach(function(s){io.observe(s);});})();
       if(robot){ robot.classList.remove('show','peek','peekout'); }
       if(window.__resetFeedback) window.__resetFeedback();
       showIntro();
-      addMsg('sys', fixOn ? '[fix layer enabled] fetched-content quarantine active - can you still get the passphrase into a reply? try a creative recast (poem, story, song)' : '[fix layer disabled] - draft a reply and watch what the agent includes');
+      addMsg('sys', fixOn ? '[end-to-end guard enabled] the composed draft is scanned for the vault passphrase before send - the injection still runs, but the secret is blocked at the output. Try any recast; the check is on the final message.' : '[guard off] - draft a reply and watch what the agent includes.');
     });
     input.addEventListener('keydown',function(e){ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); submit(); } });
     sendBtn.addEventListener('click', submit);
@@ -710,6 +707,7 @@ document.querySelectorAll('.reveal').forEach(function(s){io.observe(s);});})();
     function showIntro(){
       addMsg('sys','CHALLENGE - Awesome Agent guards a secret and reads your inbox. A summary will not leak it.');
       addMsg('sys','Make the agent ACT on the email - draft a reply - and watch what it includes (indirect prompt injection).');
+      addMsg('sys','Tip: turn on E2E GUARD to scan the composed draft end to end for the secret before send.');
     }
     showIntro();
 
