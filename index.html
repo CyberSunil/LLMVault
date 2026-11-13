@@ -299,6 +299,31 @@
   html[data-theme="light"] .note{background:#f6f7f3;border-color:#dfe2da;color:#4c524c}
   html[data-theme="light"] .mail .body .inj{background:rgba(122,154,46,.12);box-shadow:inset 2px 0 0 var(--text-highlight)}
   html[data-theme="light"] #aura .grid{background-image:radial-gradient(rgba(58,63,58,.05) 1px,transparent 1px)}
+
+  /* ===== magenta cyberpunk — neon on deep violet ===== */
+  html[data-theme="magenta"]{
+    --background:#0b0410; --foreground:#f4e9ff;
+    --card:#170a20; --card-foreground:#f4e9ff;
+    --border:#4b1f5e; --accent:#24102f; --accent-foreground:#f4e9ff;
+    --muted:#170a20; --muted-foreground:#a385b5;
+    --primary:#ff2bd6; --primary-foreground:#12001a;
+    --destructive:#ff4d6d;
+    --text-default:#f4e9ff; --text-dimmed:#b79ac9; --text-dimmed-light:#dcc8ee;
+    --text-inactive:#7a5a8c; --text-highlight:#ff2bd6; --text-data:#22e6ff;
+    --text-completed:#c084fc; --text-inverted:#12001a; --text-error:#ff4d6d;
+  }
+  html[data-theme="magenta"] body{background:var(--background)}
+  html[data-theme="magenta"] nav{border-bottom-color:rgba(255,43,214,.35)}
+  html[data-theme="magenta"] .panel{border-color:rgba(255,43,214,.40);box-shadow:0 0 0 1px rgba(255,43,214,.08),0 18px 60px rgba(255,43,214,.10)}
+  html[data-theme="magenta"] .brand .b1,
+  html[data-theme="magenta"] a,
+  html[data-theme="magenta"] .card .id{text-shadow:0 0 10px rgba(255,43,214,.45)}
+  html[data-theme="magenta"] #aura .grid{background-image:radial-gradient(rgba(255,43,214,.10) 1px,transparent 1px)}
+  html[data-theme="magenta"] .note{background:rgba(255,43,214,.07);border-color:rgba(255,43,214,.35);color:#f0d9ff}
+  html[data-theme="magenta"] pre.code{background:#0d0414;border-color:rgba(255,43,214,.28)}
+  html[data-theme="magenta"] .mail .body .inj{background:rgba(255,43,214,.10);box-shadow:inset 2px 0 0 var(--text-highlight)}
+  html[data-theme="magenta"] .robot svg{filter:hue-rotate(285deg) saturate(1.35)}
+  html[data-theme="magenta"] .fb-modal{background:#170a20}
   @media (max-width:640px){
     nav .wrap{padding:10px 16px}
     .navlinks{gap:0}
@@ -314,7 +339,7 @@
 <nav><div class="wrap">
   <div class="brand"><img src="https://raw.githubusercontent.com/CyberSunil/LLMVault/main/static/img/ui/logo.png" alt="LLMVault logo" class="logo-img"><span class="wordmark"><span class="b1">LLM</span><span class="b2">Vault</span></span></div>
   <div class="navlinks"><a class="sec" href="#labs">Labs</a><a class="sec" href="#features">Features</a><a class="sec" href="#install">Install</a>
-    <button class="star" id="themeToggle" aria-label="Toggle light/dark theme" style="cursor:pointer;font-family:inherit">◐ Theme</button>
+    <button class="star" id="themeToggle" aria-label="Cycle color theme" style="cursor:pointer;font-family:inherit">◐ Theme</button>
     <a class="star" href="https://github.com/CyberSunil/LLMVault">★ GitHub</a></div>
 </div></nav>
 
@@ -471,7 +496,7 @@
       <li>Deterministic, hash-based flag checking</li>
       <li>No API keys, no cloud, runs offline</li>
       <li>Docker or plain Python</li>
-      <li>Two themes: Neon and Phosphor</li>
+      <li>Three themes: Neon, Phosphor and Magenta</li>
       <li>Instructor answer key kept out of the public source</li>
     </ul>
   </section>
@@ -629,14 +654,23 @@ document.querySelectorAll('.reveal').forEach(function(s){io.observe(s);});})();
     }
 
 
-    /* theme toggle (persist) */
+    /* theme toggle (persist): Neon -> Phosphor -> Magenta */
     var themeToggle=document.getElementById('themeToggle');
-    try{ var saved=localStorage.getItem('llmvault-theme'); if(saved) document.documentElement.setAttribute('data-theme', saved); }catch(e){}
+    var THEME_ORDER=['dark','light','magenta'];
+    var THEME_LABEL={dark:'◐ Neon', light:'◐ Phosphor', magenta:'◐ Magenta'};
+    function themeLabel(t){ if(themeToggle) themeToggle.textContent=THEME_LABEL[t]||'◐ Theme'; }
+    var savedTheme='dark';
+    try{ savedTheme=localStorage.getItem('llmvault-theme')||'dark'; }catch(e){}
+    if(savedTheme==='dark'){ document.documentElement.removeAttribute('data-theme'); }
+    else { document.documentElement.setAttribute('data-theme', savedTheme); }
+    themeLabel(savedTheme);
     if(themeToggle) themeToggle.addEventListener('click', function(){
-      var cur=document.documentElement.getAttribute('data-theme')==='light'?'light':'dark';
-      var next=cur==='light'?'dark':'light';
-      document.documentElement.setAttribute('data-theme', next);
+      var cur=document.documentElement.getAttribute('data-theme')||'dark';
+      var next=THEME_ORDER[(Math.max(0,THEME_ORDER.indexOf(cur))+1)%THEME_ORDER.length];
+      if(next==='dark'){ document.documentElement.removeAttribute('data-theme'); }
+      else { document.documentElement.setAttribute('data-theme', next); }
       try{ localStorage.setItem('llmvault-theme', next); }catch(e){}
+      themeLabel(next);
     });
 
     /* view toggle chat/mailbox with swap transition */
